@@ -1,8 +1,10 @@
+using Api;
+using BusinessLogic;
 using BusinessLogic.Client;
 using Domain.Configuration;
-using Domain.Gpt;
+using Interface;
 using Interface.Client;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,12 +14,18 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Configuration
-builder.Configuration.AddJsonFile("secrets.json", optional: false, reloadOnChange: true);
+builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
+builder.Services
+    .AddCors()
+    .Configure<GptOptions>(builder.Configuration.GetSection(GptOptions.SectionName))
+    .Configure<AccessOptions>(builder.Configuration.GetSection(AccessOptions.SectionName))
+    .AddTransient<IGptApiKeyProvider, GptApiKeyProvider>()
+    .AddAuthentication()
+                .AddScheme<AuthenticationSchemeOptions, AccessTokenAuthenticationHandler>(GptApiAuthenticationScheme.AccessTokenAuthentication, null);
 
-builder.Services.Configure<GptOptions>(builder.Configuration.GetSection(GptOptions.SectionName));
-
-// Clients
+// Services
 builder.Services.AddTransient<IGptChatClient, GptChatClient>();
+builder.Services.AddSignalR();
 
 // Typed HttpClient Factories
 builder.Services.AddHttpClient<GptChatClient>(client =>
@@ -26,53 +34,33 @@ builder.Services.AddHttpClient<GptChatClient>(client =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseHttpsRedirection();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    // Frontend origin for development
+    app.UseCors(policy => 
+        policy.WithOrigins("http://localhost:3000")
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials());
 }
 
-app.UseHttpsRedirection();
+app.UseRouting();
 
-app.MapGet("/prompt", async ([FromServices] IGptChatClient gptClient) =>
-{
-    var prompt = new GptChatPrompt
-    {
-        Model = "gpt-4",
-        Messages = new List<GptChatMessage>
-        {
-            new GptChatMessage
-            {
-                Role = "system",
-                Content = "Only do nice things!",
-            },
-            new GptChatMessage
-            {
-                Role = "user",
-                Content = "Tell me a short story of max 50 words!",
-            },
-        },
-    };
+app.UseAuthentication();
 
-    var token = new CancellationTokenSource();
-    //token.CancelAfter(TimeSpan.FromSeconds(5));
+app.UseAuthorization();
 
-    try
-    {
-        var res = await gptClient.Prompt(prompt, token.Token);
-        Console.WriteLine(res.Choices.First().Message.Content);
-        /*await foreach (var chunk in gptClient.StreamPrompt(prompt, token.Token))
-        {
-            Console.Write(chunk.Choices.First().Delta.Content);
-        }*/
-    }
-    catch (System.OperationCanceledException)
-    {
-        Console.WriteLine();
-        Console.Write("Cancelled prompt!");
-    }
-})
-.WithName("Prompt")
-.WithOpenApi();
+app.MapHub<ChatHub>("/chathub");
+
+app.MapPromptEndpoints();
+
+app.UseStaticFiles();
+
+app.MapFallbackToFile("index.html");
 
 app.Run();

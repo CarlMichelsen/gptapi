@@ -3,6 +3,6 @@
 public class GptOptions
 {
     public const string SectionName = "Gpt";
-    
-    public required string ApiKey { get; init; }
+
+    public required List<string> ApiKeys { get; init; }
 }

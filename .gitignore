@@ -5,6 +5,7 @@
 
 # custom
 secrets.json
+Api/wwwroot
 
 # dotenv files
 .env

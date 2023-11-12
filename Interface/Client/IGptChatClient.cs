@@ -8,7 +8,7 @@ public interface IGptChatClient
         GptChatPrompt prompt,
         CancellationToken cancellationToken);
     
-    Task<GptChatResponse> Prompt(
+    Task<GptChatResponse?> Prompt(
         GptChatPrompt prompt,
         CancellationToken cancellationToken);
 }

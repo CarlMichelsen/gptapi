@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+    </PropertyGroup>
+
+    <Target Name="NpmInstall" BeforeTargets="Build">
+        <Exec Command="npm install" WorkingDirectory="$(ProjectDir)" />
+    </Target>
+
+    <Target Name="NpmRunBuild" AfterTargets="NpmInstall" Condition="'$(Configuration)' == 'Release'">
+        <Exec Command="npm run check" WorkingDirectory="$(ProjectDir)" />
+        <Exec Command="npm run build" WorkingDirectory="$(ProjectDir)" />
+    </Target>
+
+    <Target Name="CopyFrontend" AfterTargets="NpmRunBuild" Condition="'$(Configuration)' == 'Release'">
+        <ItemGroup>
+            <FrontendFiles Include="dist/**/*.*" />
+        </ItemGroup>
+        <Copy SourceFiles="@(FrontendFiles)" DestinationFolder="$(ProjectDir)../Api/wwwroot/%(RecursiveDir)" SkipUnchangedFiles="true" />
+    </Target>
+</Project>
