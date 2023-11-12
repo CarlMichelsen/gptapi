@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.Encodings.Web;
 using Domain.Configuration;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
 namespace Api;
