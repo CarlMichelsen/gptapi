@@ -21,7 +21,8 @@ builder.Services
     .Configure<AccessOptions>(builder.Configuration.GetSection(AccessOptions.SectionName))
     .AddTransient<IGptApiKeyProvider, GptApiKeyProvider>()
     .AddAuthentication()
-                .AddScheme<AuthenticationSchemeOptions, AccessTokenAuthenticationHandler>(GptApiAuthenticationScheme.AccessTokenAuthentication, null);
+        .AddScheme<AuthenticationSchemeOptions, AccessTokenAuthenticationHandler>(
+            GptApiAuthenticationScheme.AccessTokenAuthentication, null);
 
 // Services
 builder.Services.AddTransient<IGptChatClient, GptChatClient>();
