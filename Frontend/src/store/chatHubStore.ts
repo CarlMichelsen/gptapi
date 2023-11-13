@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
+import { ConnectionMethods } from '../connectionMethods';
 import type { ChatHubStore } from '../types/chatHubStore';
 
 const initial: ChatHubStore = {
@@ -33,15 +34,16 @@ const createStore = () => {
 
         try {
             await connection.start();
-            connection.on("Disconnect", () => connection?.stop());
+            ConnectionMethods.connection = connection;
+            ConnectionMethods.disconnect = () => {
+                connection?.stop();
+            }
             console.log('SignalR connection started');
             set({ connection });
         } catch (err: unknown) {
             const error = err as Error;
-
             console.error('Error while establishing SignalR connection:', error.message);
-
-            failure && failure(error.message.indexOf('401') !== -1);
+            if (failure) failure(error.message.indexOf('401') !== -1);
         }
     };
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  	import Chat from "./lib/Chat.svelte";
+  	import Authenticated from "./lib/Authenticated.svelte";
     import LoginForm from "./lib/LoginForm.svelte";
     import { localStore } from "./store/localStore";
     import { type Credentials } from "./types/localStore";
@@ -11,7 +11,7 @@
 
 <main>
 	{#if $localStore.credentials}
-  		<Chat
+  		<Authenticated
 			username={$localStore.credentials.username}
 			password={$localStore.credentials.password} />
 	{:else}
