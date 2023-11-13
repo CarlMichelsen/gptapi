@@ -1,14 +1,19 @@
 import { writable } from 'svelte/store';
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
+import type { ChatHubStore } from '../types/chatHubStore';
+
+const initial: ChatHubStore = {
+    connection: null,
+};
 
 // Create a writable store
 const createStore = () => {
-    const { subscribe, set } = writable<HubConnection | null>(null);
+    const { subscribe, set } = writable<ChatHubStore>(initial);
 
     let connection: HubConnection | null = null;
 
     // Initialize connection
-    const initialize = async (hubUrl: string, username:string, password: string) => {
+    const initialize = async (hubUrl: string, username:string, password: string, failure?: (isUnauthorized: boolean) => void) => {
         // Dispose existing connection if any
         await dispose();
 
@@ -18,19 +23,25 @@ const createStore = () => {
         connection = new HubConnectionBuilder()
             .withUrl(`${hubUrl}?access_token=${encodedCredentials}`)
             .configureLogging(LogLevel.Information)
+            .withAutomaticReconnect()
             .build();
 
         connection.onclose(() => {
             console.log('SignalR connection closed');
-            set(null);
+            set({ connection: null });
         });
 
         try {
             await connection.start();
+            connection.on("Disconnect", () => connection?.stop());
             console.log('SignalR connection started');
-            set(connection);
-        } catch (err) {
-            console.error('Error while establishing SignalR connection:', err);
+            set({ connection });
+        } catch (err: unknown) {
+            const error = err as Error;
+
+            console.error('Error while establishing SignalR connection:', error.message);
+
+            failure && failure(error.message.indexOf('401') !== -1);
         }
     };
 
@@ -39,7 +50,7 @@ const createStore = () => {
         if (connection) {
             await connection.stop();
             connection = null;
-            set(null);
+            set({ connection: null });
         }
     };
 
@@ -50,4 +61,4 @@ const createStore = () => {
     };
 };
 
-export const signalrStore = createStore();
+export const chatHubStore = createStore();

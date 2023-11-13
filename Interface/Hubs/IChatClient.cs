@@ -1,6 +1,11 @@
-﻿namespace Interface.Hubs;
+﻿using Domain.Dto;
+
+namespace Interface.Hubs;
 
 public interface IChatClient
 {
-    Task ReceiveMessage(string user, string message);
+    Task ReceiveMessage(MessageDto message);
+    Task ReceiveMessageChunk(MessageChunkDto messageChunk);
+
+    Task Disconnect();
 }

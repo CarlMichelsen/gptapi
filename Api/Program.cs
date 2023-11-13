@@ -5,6 +5,8 @@ using Domain.Configuration;
 using Interface;
 using Interface.Client;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +25,10 @@ builder.Services
     .AddAuthentication()
         .AddScheme<AuthenticationSchemeOptions, AccessTokenAuthenticationHandler>(
             GptApiAuthenticationScheme.AccessTokenAuthentication, null);
+
+// Database
+builder.Services.AddDbContext<ApplicationContext>(options =>
+    options.UseInMemoryDatabase("ApplicationDatabase"));
 
 // Services
 builder.Services.AddTransient<IGptChatClient, GptChatClient>();
@@ -48,6 +54,12 @@ if (app.Environment.IsDevelopment())
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials());
+    
+    var hubContext = app.Services.GetRequiredService<IHubContext<ChatHub>>();
+    app.Lifetime.ApplicationStopping.Register(() =>
+    {
+        hubContext.Clients.All.SendAsync("Disconnect");
+    });
 }
 
 app.UseRouting();

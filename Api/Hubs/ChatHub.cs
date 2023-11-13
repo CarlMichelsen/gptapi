@@ -1,14 +1,42 @@
-﻿using Interface.Hubs;
+﻿using BusinessLogic;
+using BusinessLogic.Hub;
+using Interface.Client;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.SignalR;
 
 namespace Api;
 
 [Authorize(AuthenticationSchemes = GptApiAuthenticationScheme.AccessTokenAuthentication)]
-public class ChatHub : Hub<IChatClient>, IChatServer
+public class ChatHub : ChatHubHandler
 {
-    public async Task SendMessage(string user, string message)
+    private readonly ILogger<ChatHub> logger;
+
+    public ChatHub(
+        ILogger<ChatHub> logger,
+        ILogger<ChatHubHandler> handlerLogger,
+        ApplicationContext applicationContext,
+        IGptChatClient gptChatClient)
+        : base(handlerLogger, applicationContext, gptChatClient)
     {
-        await this.Clients.All.ReceiveMessage(user, message);
+        this.logger = logger;
+    }
+
+    public override async Task OnConnectedAsync()
+    {
+        this.logger.LogInformation("Client\t\"{id}\"\tconnected", this.Context.ConnectionId);
+        await base.OnConnectedAsync();
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        if (exception is null)
+        {
+            this.logger.LogInformation("Client\t\"{id}\"\tdisconnected", this.Context.ConnectionId);
+        }
+        else
+        {
+            this.logger.LogCritical("Client\t\"{id}\"\tdisconnected\t{exception}", this.Context.ConnectionId, exception);
+        }
+        
+        await base.OnDisconnectedAsync(exception);
     }
 }
