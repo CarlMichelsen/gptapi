@@ -6,9 +6,9 @@ namespace Api;
 
 public static class PromptEndpoints
 {
-    public static void MapPromptEndpoints(this WebApplication app)
+    public static RouteGroupBuilder MapPromptEndpoints(this RouteGroupBuilder group)
     {
-        app.MapGet("/prompt", async ([FromServices] IGptChatClient gptClient, CancellationToken token) =>
+        group.MapGet("/Prompt", async ([FromServices] IGptChatClient gptClient, CancellationToken token) =>
         {
             var prompt = new GptChatPrompt
             {
@@ -46,5 +46,7 @@ public static class PromptEndpoints
         })
         .WithName("Prompt")
         .WithOpenApi();
+
+        return group;
     }
 }

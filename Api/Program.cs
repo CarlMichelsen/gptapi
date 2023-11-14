@@ -1,9 +1,12 @@
 using Api;
 using BusinessLogic;
 using BusinessLogic.Client;
+using BusinessLogic.Database;
+using BusinessLogic.Handler;
 using Domain.Configuration;
 using Interface;
 using Interface.Client;
+using Interface.Handler;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -21,10 +24,11 @@ builder.Services
     .AddCors()
     .Configure<GptOptions>(builder.Configuration.GetSection(GptOptions.SectionName))
     .Configure<AccessOptions>(builder.Configuration.GetSection(AccessOptions.SectionName))
+    .Configure<SteamOAuthOptions>(builder.Configuration.GetSection(SteamOAuthOptions.SectionName))
     .AddTransient<IGptApiKeyProvider, GptApiKeyProvider>()
     .AddAuthentication()
         .AddScheme<AuthenticationSchemeOptions, AccessTokenAuthenticationHandler>(
-            GptApiAuthenticationScheme.AccessTokenAuthentication, null);
+            GptApiConstants.AccessTokenAuthentication, null);
 
 // Database
 builder.Services.AddDbContext<ApplicationContext>(options =>
@@ -33,6 +37,9 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
 // Services
 builder.Services.AddTransient<IGptChatClient, GptChatClient>();
 builder.Services.AddSignalR();
+
+// Handlers
+builder.Services.AddTransient<ISteamOAuthHandler, SteamOAuthHandler>();
 
 // Typed HttpClient Factories
 builder.Services.AddHttpClient<GptChatClient>(client =>
@@ -68,9 +75,11 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.MapHub<ChatHub>("/chathub");
+app.MapHub<ChatHub>(GptApiConstants.ChatHubEndpoint);
 
-app.MapPromptEndpoints();
+app.MapGroup("/api/v1")
+    .MapPromptEndpoints()
+    .MapSteamOAuthEndpoints();
 
 app.UseStaticFiles();
 

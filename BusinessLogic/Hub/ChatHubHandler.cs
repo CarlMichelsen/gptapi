@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using BusinessLogic.Database;
 using Domain.Dto;
 using Domain.Entity;
 using Domain.Gpt;

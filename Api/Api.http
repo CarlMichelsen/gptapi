@@ -1,6 +1,22 @@
 @Api_HostAddress = http://localhost:5142
 
-GET {{Api_HostAddress}}/prompt/
+GET {{Api_HostAddress}}/api/v1/prompt/
+Accept: application/json
+
+###
+
+GET {{Api_HostAddress}}/api/v1/oauth/SteamLogin
+Accept: application/json
+
+###
+
+GET {{Api_HostAddress}}/api/v1/oauth/SteamLoginSuccess
+Accept: application/json
+
+###
+
+
+GET {{Api_HostAddress}}/api/v1/oauth/SteamLoginFailure
 Accept: application/json
 
 ###

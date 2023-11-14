@@ -25,16 +25,14 @@ public class AccessTokenAuthenticationHandler : AuthenticationHandler<Authentica
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        // Extract token from query string
-        var accessToken = this.Context.Request.Query[AccessTokenQueryParameterName];
-
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            return AuthenticateResult.Fail("No access token provided");
-        }
-
         try
         {
+            var accessToken = this.Context.Request.Query[AccessTokenQueryParameterName];
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return AuthenticateResult.NoResult();
+            }
+
             var credentialBytes = Convert.FromBase64String(accessToken!);
             var credentials = Encoding.UTF8.GetString(credentialBytes).Split(':');
             (var username, var password) = (credentials[0], credentials[1]);
@@ -59,12 +57,7 @@ public class AccessTokenAuthenticationHandler : AuthenticationHandler<Authentica
 
     private Task<bool> CheckCredentials(string username, string password)
     {
-        if (this.accessOptions.Value.Users is null)
-        {
-            return Task.FromResult(false);
-        }
-
-        var user = this.accessOptions.Value.Users
+        var user = this.accessOptions.Value.Users?
             .FirstOrDefault(u => u.Username == username && u.Password == password);
 
         return Task.FromResult(user is not null);
