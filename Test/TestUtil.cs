@@ -31,7 +31,7 @@ public static class TestUtil
 
         services.AddDbContext<ApplicationContext>((options) => 
         {
-            options.UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString());
+            options.UseInMemoryDatabase($"InMemoryTestDatabase-{Guid.NewGuid()}");
         });
 
         return services;

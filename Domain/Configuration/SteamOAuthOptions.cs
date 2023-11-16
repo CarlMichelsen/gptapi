@@ -10,6 +10,6 @@ public class SteamOAuthOptions
     /// Gets endpoint that user will be redirected to in order to log in.
     /// If this configuration value is not defined, the user should be redirected to developer IDP.
     /// </summary>
-    /// <value>Nullable string</value>
+    /// <value>Nullable string.</value>
     public required string? OAuthEndpoint { get; init; }
 }

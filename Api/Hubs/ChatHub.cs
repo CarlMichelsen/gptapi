@@ -1,6 +1,7 @@
 ﻿using BusinessLogic;
 using BusinessLogic.Database;
 using BusinessLogic.Hub;
+using Domain;
 using Interface.Client;
 using Microsoft.AspNetCore.Authorization;
 

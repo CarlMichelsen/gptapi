@@ -4,12 +4,9 @@
     import { localStore } from "../store/localStore";
     import { baseUrl } from "../baseurl";
     import ChatBox from "./ChatBox.svelte";
-    
-    export let username: string;
-    export let password: string;
 
     onMount(async () => {
-        await chatHubStore.initialize(`${baseUrl()}/chathub`, username, password, (isUnauthorized: boolean) => {
+        await chatHubStore.initialize(`${baseUrl()}/chathub`, (isUnauthorized: boolean) => {
             if (isUnauthorized) localStore.set({ credentials: undefined });
         });
     });

@@ -16,15 +16,23 @@ public static class SteamOAuthEndpoints
 
         oAuthGroup.MapGet(
             "/SteamLoginSuccess",
-            async ([FromServices] ISteamOAuthHandler steamOauthHandler, [FromQuery(Name = "state")] Guid oAuthRecordId, [FromQuery(Name = "access_token")] string accessToken) => 
+            async (
+                HttpContext httpContext,
+                [FromServices] ISteamOAuthHandler steamOauthHandler,
+                [FromQuery(Name = "access_token")] string accessToken,
+                [FromQuery(Name = "token_type")] string tokenType,
+                [FromQuery(Name = "state")] Guid oAuthRecordId) => 
             {
-                return await steamOauthHandler.SteamLoginSuccess(oAuthRecordId, accessToken);
+                return await steamOauthHandler.SteamLoginSuccess(httpContext, oAuthRecordId, tokenType, accessToken);
             })
             .WithName("Steam oAuth Success Endpoint");
 
         oAuthGroup.MapGet(
             "/SteamLoginFailure",
-            async ([FromServices] ISteamOAuthHandler steamOauthHandler, [FromQuery(Name = "state")] Guid oAuthRecordId, [FromQuery(Name = "error")] string error) => 
+            async (
+                [FromServices] ISteamOAuthHandler steamOauthHandler,
+                [FromQuery(Name = "error")] string error,
+                [FromQuery(Name = "state")] Guid oAuthRecordId) => 
             {
                 return await steamOauthHandler.SteamLoginFailure(oAuthRecordId, error);
             })

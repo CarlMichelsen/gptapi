@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using BusinessLogic.Database;
-using Domain.Dto;
+using Domain.Dto.Conversation;
 using Domain.Entity;
 using Domain.Gpt;
 using Interface.Client;

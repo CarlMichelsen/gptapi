@@ -14,15 +14,12 @@ const createStore = () => {
     let connection: HubConnection | null = null;
 
     // Initialize connection
-    const initialize = async (hubUrl: string, username:string, password: string, failure?: (isUnauthorized: boolean) => void) => {
+    const initialize = async (hubUrl: string, failure?: (isUnauthorized: boolean) => void) => {
         // Dispose existing connection if any
         await dispose();
 
-        // Encode username and password for Basic Auth
-        const encodedCredentials = btoa(`${username}:${password}`);
-
         connection = new HubConnectionBuilder()
-            .withUrl(`${hubUrl}?access_token=${encodedCredentials}`)
+            .withUrl(hubUrl)
             .configureLogging(LogLevel.Information)
             .withAutomaticReconnect()
             .build();

@@ -1,22 +1,25 @@
 <script lang="ts">
   	import Authenticated from "./lib/Authenticated.svelte";
-    import LoginForm from "./lib/LoginForm.svelte";
-    import { localStore } from "./store/localStore";
-    import { type Credentials } from "./types/localStore";
+    import LandingZone from "./lib/LandingZone.svelte";
 
-	const onAuthenticate = (credentials: { detail: Credentials }) => {
-		localStore.set({ credentials: credentials.detail });
+	export let assumeLoggedIn = false;
+
+	const handleLoginAttempt = () => {
+		const url = new URL(window.location.toString());
+		const login = url.searchParams.get("login") === "true";
+		if (login) {
+			window.history.pushState({}, '', url);
+			assumeLoggedIn = true;
+		}
 	}
+
+	handleLoginAttempt();
 </script>
 
 <main>
-	{#if $localStore.credentials}
-  		<Authenticated
-			username={$localStore.credentials.username}
-			password={$localStore.credentials.password} />
+	{#if assumeLoggedIn}
+  		<Authenticated />
 	{:else}
-		<div class="pt-12">
-			<LoginForm on:authenticate={onAuthenticate} />
-		</div>
+		<LandingZone />
 	{/if}
 </main>

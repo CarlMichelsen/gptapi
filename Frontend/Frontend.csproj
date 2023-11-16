@@ -3,7 +3,7 @@
         <TargetFramework>net8.0</TargetFramework>
     </PropertyGroup>
 
-    <Target Name="NpmInstall" BeforeTargets="Build">
+    <Target Name="NpmInstall" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
         <Exec Command="npm install" WorkingDirectory="$(ProjectDir)" />
     </Target>
 

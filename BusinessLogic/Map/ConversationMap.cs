@@ -1,5 +1,5 @@
 ﻿using Domain;
-using Domain.Dto;
+using Domain.Dto.Conversation;
 using Domain.Entity;
 
 namespace BusinessLogic;

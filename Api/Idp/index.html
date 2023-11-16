@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identity Provider</title>
+    <script defer>
+        const testUserButtonClick = (devUser, redirectUrl, paramsObject) => {
+            const baseUrl = new URL(redirectUrl);
+            const params = new URLSearchParams({
+                'access_token': devUser.developmentAccessToken,
+                'token_type': 'development', // "steam" in prod
+                'state': paramsObject.state
+            });
+            baseUrl.search = params.toString();
+            window.location.replace(baseUrl.toString());
+        }
+
+        const htmlElementButtonForDevUser = (devUser, redirectUrl, paramsObject) => {
+            const button = document.createElement("button");
+            button.textContent = devUser.personaname;
+            button.className = "development-user-button";
+            button.id = `dev-user-${btoa(devUser.steamid)}`;
+            button.onclick = () => testUserButtonClick(devUser, redirectUrl, paramsObject);
+            return button;
+        }
+
+        const handleDevelomentUserResponse = (res, paramsObject) => {
+            const element = document.getElementById("development-users");
+            element.innerHTML = "";
+            console.log("Development user response", res);
+            res.players.forEach(devUser => {
+                element.appendChild(htmlElementButtonForDevUser(devUser, res.successRedirectUrl, paramsObject));
+            });
+        }
+
+        const currentUrl = new URL(window.location.href);
+        const params = currentUrl.searchParams;
+        const responseType = params.get("response_type");
+        const clientId = params.get("client_id");
+        const state = params.get("state");
+        const paramsObject = {
+            responseType,
+            clientId,
+            state,
+        };
+
+        fetch("/DevelopmentUsers")
+            .then(response => response.json())
+            .then((data) => handleDevelomentUserResponse(data, paramsObject))
+    </script>
+</head>
+<body>
+    <h1 class="development-users-title">Steam OAuth development users</h1>
+    <hr>
+    <div id="development-users"></div>
+</body>
+
+<style>
+    :root {
+        font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+        line-height: 1.5;
+        font-weight: 400;
+
+        color-scheme: light dark;
+        color: rgba(255, 255, 255, 0.87);
+        background-color: #242424;
+
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    @media (prefers-color-scheme: light) {
+        :root {
+            color: #213547;
+            background-color: #ffffff;
+        }
+        a:hover {
+            color: #747bff;
+        }
+        button {
+            background-color: #f9f9f9;
+        }
+    }
+
+    .development-user-button {
+        cursor: pointer;
+        height: 3em;
+        min-width: 15em;
+        font-size: large;
+    }
+
+    .development-user-button:hover {
+        text-decoration: underline;
+    }
+
+    .development-users-title {
+        font-size: larger;
+    }
+</style>
+</html>

@@ -2,7 +2,9 @@ using Api;
 using BusinessLogic;
 using BusinessLogic.Client;
 using BusinessLogic.Database;
+using BusinessLogic.Development;
 using BusinessLogic.Handler;
+using Domain;
 using Domain.Configuration;
 using Interface;
 using Interface.Client;
@@ -12,6 +14,8 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var env = builder.Environment;
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -38,6 +42,17 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
 builder.Services.AddTransient<IGptChatClient, GptChatClient>();
 builder.Services.AddSignalR();
 
+if (env.IsDevelopment())
+{
+    builder.Services
+        .AddTransient<ISteamClient, DevelopmentSteamClient>()
+        .AddScoped<IDevelopmentIdpHandler, DevelopmentIdpHandler>();
+}
+else
+{
+    builder.Services.AddTransient<ISteamClient, SteamClient>();
+}
+
 // Handlers
 builder.Services.AddTransient<ISteamOAuthHandler, SteamOAuthHandler>();
 
@@ -48,8 +63,6 @@ builder.Services.AddHttpClient<GptChatClient>(client =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-app.UseHttpsRedirection();
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -63,10 +76,7 @@ if (app.Environment.IsDevelopment())
         .AllowCredentials());
     
     var hubContext = app.Services.GetRequiredService<IHubContext<ChatHub>>();
-    app.Lifetime.ApplicationStopping.Register(() =>
-    {
-        hubContext.Clients.All.SendAsync("Disconnect");
-    });
+    app.Lifetime.ApplicationStopping.Register(() => hubContext.Clients.All.SendAsync("Disconnect"));
 }
 
 app.UseRouting();
@@ -80,6 +90,11 @@ app.MapHub<ChatHub>(GptApiConstants.ChatHubEndpoint);
 app.MapGroup("/api/v1")
     .MapPromptEndpoints()
     .MapSteamOAuthEndpoints();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapDevelopmentIdpEndpoints();
+}
 
 app.UseStaticFiles();
 

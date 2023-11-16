@@ -1,4 +1,4 @@
-﻿namespace Domain;
+﻿namespace Domain.Entity;
 
 public class OAuthRecord
 {
@@ -8,7 +8,7 @@ public class OAuthRecord
 
     public required DateTime? ReturnedFromSteam { get; set; }
 
-    public required string? ClientId { get; set; }
+    public required string? SteamId { get; set; }
 
     public required string? AccessToken { get; set; }
     

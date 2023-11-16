@@ -1,4 +1,4 @@
-﻿using Domain.Dto;
+﻿using Domain.Dto.Conversation;
 
 namespace Interface.Hubs;
 
