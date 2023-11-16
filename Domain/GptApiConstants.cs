@@ -2,8 +2,6 @@
 
 public static class GptApiConstants
 {
-    public const string AccessTokenAuthentication = "AccessTokenAuthentication";
-    
     public const string ChatHubEndpoint = "/chathub";
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Sonar Code Smell", "S1075:HardcodedAbsolutePathsOrURIs", Justification = "Used for development IDP. Not in production.")]

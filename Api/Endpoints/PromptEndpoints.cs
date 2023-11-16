@@ -33,8 +33,8 @@ public static class PromptEndpoints
                 await Task.Delay(TimeSpan.FromSeconds(4));
                 throw new OperationCanceledException("This endpoint is disabled.");
 
-                // var res = await gptClient.Prompt(prompt, token);
-                // return Results.Ok(res);
+                var res = await gptClient.Prompt(prompt, token);
+                return Results.Ok(res);
             }
             catch (OperationCanceledException)
             {

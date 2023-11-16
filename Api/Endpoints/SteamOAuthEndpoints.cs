@@ -1,4 +1,6 @@
-﻿using Interface.Handler;
+﻿using Domain.Exception;
+using Interface.Client;
+using Interface.Handler;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api;
@@ -12,7 +14,7 @@ public static class SteamOAuthEndpoints
         oAuthGroup.MapGet(
             "/SteamLogin",
             async ([FromServices] ISteamOAuthHandler steamOauthHandler) => await steamOauthHandler.SteamLogin())
-            .WithName("Steam oAuth Login");
+            .WithName("SteamLogin");
 
         oAuthGroup.MapGet(
             "/SteamLoginSuccess",
@@ -25,18 +27,38 @@ public static class SteamOAuthEndpoints
             {
                 return await steamOauthHandler.SteamLoginSuccess(httpContext, oAuthRecordId, tokenType, accessToken);
             })
-            .WithName("Steam oAuth Success Endpoint");
+            .WithName("SteamLoginSuccess");
 
         oAuthGroup.MapGet(
             "/SteamLoginFailure",
             async (
+                HttpContext httpContext,
                 [FromServices] ISteamOAuthHandler steamOauthHandler,
                 [FromQuery(Name = "error")] string error,
                 [FromQuery(Name = "state")] Guid oAuthRecordId) => 
             {
-                return await steamOauthHandler.SteamLoginFailure(oAuthRecordId, error);
+                return await steamOauthHandler.SteamLoginFailure(httpContext, oAuthRecordId, error);
             })
-            .WithName("Steam oAuth Failure Endpoint");
+            .WithName("SteamLoginFailure");
+        
+        oAuthGroup.MapGet("/UserData", async (
+            HttpContext httpContext,
+            [FromServices] ISteamClient steamClient) =>
+        {
+            if (httpContext.User.Identity?.IsAuthenticated != true)
+            {
+                return Results.Unauthorized();
+            }
+
+            var steamId = httpContext.User.FindFirst("SteamId")?.Value
+                ?? throw new OAuthException("SteamId not found in claims!");
+
+            var playerData = await steamClient.GetSteamPlayerSummary(steamId);
+
+            return Results.Ok(playerData);
+        })
+        .WithName("Userdata")
+        .RequireAuthorization();
 
         oAuthGroup.WithOpenApi();
         return group;

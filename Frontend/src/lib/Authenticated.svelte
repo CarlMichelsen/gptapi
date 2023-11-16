@@ -1,14 +1,19 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
     import { chatHubStore } from "../store/chatHubStore";
-    import { localStore } from "../store/localStore";
     import { baseUrl } from "../baseurl";
     import ChatBox from "./ChatBox.svelte";
+    import type { SteamPlayer } from "../types/dto/steamPlayer";
+
+    export let userData: SteamPlayer;
 
     onMount(async () => {
         await chatHubStore.initialize(`${baseUrl()}/chathub`, (isUnauthorized: boolean) => {
-            if (isUnauthorized) localStore.set({ credentials: undefined });
+            // if (isUnauthorized) localStore.set({ credentials: undefined });
+            // user is not logged in. Handle this.
         });
+
+        console.log("userData", userData);
     });
 
     onDestroy(() => chatHubStore.dispose());

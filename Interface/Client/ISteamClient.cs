@@ -4,5 +4,7 @@ namespace Interface.Client;
 
 public interface ISteamClient
 {
-    Task<SteamPlayerDto> GetSteamPlayerSummary(string accessToken);
+    Task<string> GetSteamId(string accessToken);
+    
+    Task<SteamPlayerDto> GetSteamPlayerSummary(string steamId);
 }

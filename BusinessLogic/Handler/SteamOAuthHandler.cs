@@ -1,9 +1,13 @@
-﻿using BusinessLogic.Database;
+﻿using System.Security.Claims;
+using BusinessLogic.Database;
 using Domain;
 using Domain.Configuration;
 using Domain.Entity;
+using Domain.Exception;
 using Interface.Client;
 using Interface.Handler;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -64,14 +68,14 @@ public class SteamOAuthHandler : ISteamOAuthHandler
         {
             record.ReturnedFromSteam = DateTime.UtcNow;
 
-            var playerData = await this.steamClient.GetSteamPlayerSummary(accessToken);
-            record.SteamId = playerData.SteamId;
+            var steamId = await this.steamClient.GetSteamId(accessToken);
+            record.SteamId = steamId;
             record.AccessToken = accessToken;
             
             await this.context.SaveChangesAsync();
-            this.logger.LogInformation("{recordId}: User successfully completed oAuth login with steamId: {steamId}", record.Id, playerData.SteamId);
+            this.logger.LogInformation("{recordId}: User successfully completed oAuth login with steamId: {steamId}", record.Id, steamId);
 
-            return this.SteamOAuthSuccessRedirect(httpContext, record.Id);
+            return await this.SteamOAuthSuccessRedirect(httpContext, record.Id, steamId);
         }
         catch (Exception e)
         {
@@ -81,6 +85,7 @@ public class SteamOAuthHandler : ISteamOAuthHandler
     }
 
     public async Task<IResult> SteamLoginFailure(
+        HttpContext httpContext,
         Guid oAuthRecordId,
         string error)
     {
@@ -95,6 +100,8 @@ public class SteamOAuthHandler : ISteamOAuthHandler
         record.ReturnedFromSteam = DateTime.UtcNow;
         await this.context.SaveChangesAsync();
         this.logger.LogInformation("{recordId}: User failed oAuth login", record.Id);
+
+        await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
         return Results.Unauthorized();
     }
@@ -112,7 +119,7 @@ public class SteamOAuthHandler : ISteamOAuthHandler
         var clientId = this.steamOAuthOptions.Value.ClientId;
         if (string.IsNullOrWhiteSpace(clientId))
         {
-            throw new NullReferenceException("ClientId is not defined");
+            throw new OAuthException("ClientId is not defined");
         }
 
         var endpoint = this.steamOAuthOptions.Value.OAuthEndpoint;
@@ -131,18 +138,26 @@ public class SteamOAuthHandler : ISteamOAuthHandler
         return Results.Redirect(this.ParseQueryParameters(endpoint, queryParams));
     }
 
-    private IResult SteamOAuthSuccessRedirect(HttpContext httpContext, Guid oAuthRecordId)
+    private async Task<IResult> SteamOAuthSuccessRedirect(HttpContext httpContext, Guid oAuthRecordId, string steamId)
     {
         // Define a cookie
-        var cookieOptions = new CookieOptions
+        var claims = new List<Claim>
         {
-            Path = "/",
-            HttpOnly = true,
-            Secure = true,
-            Expires = DateTimeOffset.UtcNow.AddDays(7),
+            new Claim(ClaimTypes.Name, oAuthRecordId.ToString()),
+            new Claim("SteamId", steamId),
         };
 
-        httpContext.Response.Cookies.Append("Credentials", oAuthRecordId.ToString(), cookieOptions);
+        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var authProperties = new AuthenticationProperties
+        {
+            // Configure additional properties
+        };
+
+        await httpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(claimsIdentity),
+            authProperties);
         
         var endpoint = this.steamOAuthOptions.Value.OAuthEndpoint;
         if (string.IsNullOrWhiteSpace(endpoint))

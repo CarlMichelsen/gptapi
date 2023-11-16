@@ -1,13 +1,11 @@
-﻿using BusinessLogic;
-using BusinessLogic.Database;
+﻿using BusinessLogic.Database;
 using BusinessLogic.Hub;
-using Domain;
 using Interface.Client;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Api;
 
-[Authorize(AuthenticationSchemes = GptApiConstants.AccessTokenAuthentication)]
+[Authorize]
 public class ChatHub : ChatHubHandler
 {
     private readonly ILogger<ChatHub> logger;

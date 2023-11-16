@@ -13,6 +13,7 @@ public interface ISteamOAuthHandler
         string accessToken);
     
     Task<IResult> SteamLoginFailure(
+        HttpContext httpContext,
         Guid oAuthRecordId,
         string error);
 }

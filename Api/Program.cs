@@ -10,6 +10,7 @@ using Interface;
 using Interface.Client;
 using Interface.Handler;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,10 +30,7 @@ builder.Services
     .Configure<GptOptions>(builder.Configuration.GetSection(GptOptions.SectionName))
     .Configure<AccessOptions>(builder.Configuration.GetSection(AccessOptions.SectionName))
     .Configure<SteamOAuthOptions>(builder.Configuration.GetSection(SteamOAuthOptions.SectionName))
-    .AddTransient<IGptApiKeyProvider, GptApiKeyProvider>()
-    .AddAuthentication()
-        .AddScheme<AuthenticationSchemeOptions, AccessTokenAuthenticationHandler>(
-            GptApiConstants.AccessTokenAuthentication, null);
+    .AddTransient<IGptApiKeyProvider, GptApiKeyProvider>();
 
 // Database
 builder.Services.AddDbContext<ApplicationContext>(options =>
@@ -59,6 +57,13 @@ builder.Services.AddTransient<ISteamOAuthHandler, SteamOAuthHandler>();
 // Typed HttpClient Factories
 builder.Services.AddHttpClient<GptChatClient>(client =>
     client.Timeout = TimeSpan.FromMinutes(10));
+
+// Security
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.ExpireTimeSpan = TimeSpan.FromHours(2);
+    });
 
 var app = builder.Build();
 

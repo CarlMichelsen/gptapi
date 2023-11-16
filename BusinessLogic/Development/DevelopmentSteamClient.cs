@@ -14,12 +14,23 @@ public class DevelopmentSteamClient : ISteamClient
         this.developmentIdpHandler = developmentIdpHandler;
     }
 
-    public async Task<SteamPlayerDto> GetSteamPlayerSummary(string accessToken)
+    public async Task<string> GetSteamId(string accessToken)
+    {
+        var devUsers = await this.developmentIdpHandler
+            .GetDevelopmentUsers();
+
+        var user = devUsers.Players.FirstOrDefault(d => d.DevelopmentAccessToken == accessToken)
+            ?? throw new Exception("Failed to find development user that matches the accessToken");
+
+        return user.SteamId;
+    }
+
+    public async Task<SteamPlayerDto> GetSteamPlayerSummary(string steamId)
     {
         var devUsers = await this.developmentIdpHandler
             .GetDevelopmentUsers();
         
-        return devUsers.Players.FirstOrDefault(d => d.DevelopmentAccessToken == accessToken)
-            ?? throw new Exception("Failed to find development user that matches the accessToken");
+        return devUsers.Players.FirstOrDefault(d => d.SteamId == steamId)
+            ?? throw new Exception("Failed to find development user that matches the steamId");
     }
 }
