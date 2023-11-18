@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using BusinessLogic.Database;
+using Database;
 using Domain;
 using Domain.Configuration;
 using Domain.Entity;
@@ -133,7 +133,7 @@ public class SteamOAuthHandler : ISteamOAuthHandler
                 throw new OAuthException("OAuth process should have completed by now.");
             }
 
-            await this.AddCookieResponseHeader(record);
+            await this.AddCookieResponseHeader(record, accessToken);
             this.logger.LogInformation(
                 "{recordId}: User successfully completed oAuth login with steamId: {steamId}",
                 record.Id,
@@ -161,11 +161,12 @@ public class SteamOAuthHandler : ISteamOAuthHandler
         await this.httpContextAccessor.HttpContext!.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     }
 
-    public virtual async Task AddCookieResponseHeader(OAuthRecord record)
+    public virtual async Task AddCookieResponseHeader(OAuthRecord record, string accessToken)
     {
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.Name, record.Id.ToString()),
+            new Claim("AccessToken", accessToken),
             new Claim("SteamId", record.SteamId!),
         };
         var claimsIdentity = new ClaimsIdentity(

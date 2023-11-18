@@ -12,7 +12,7 @@ public class SteamClient : ISteamClient
         throw new NotImplementedException();
     }
 
-    public Task<SteamPlayerDto> GetSteamPlayerSummary(string accessToken)
+    public Task<SteamPlayerDto> GetSteamPlayerSummary(string steamId)
     {
         // https://partner.steamgames.com/doc/webapi/ISteamUser#GetPlayerSummaries
         // https://partner.steam-api.com/ISteamUser/GetPlayerSummaries/v2/

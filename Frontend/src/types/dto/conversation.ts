@@ -1,8 +1,12 @@
-export type Conversation = {
-    id: string;
+import type { Message } from "./message";
+
+export type ConversationType = {
+    id: string | null;
+    summary: string | null;
+    messages: Message[];
 };
 
 export type ConversationMetadata = {
     id: string;
-    title: string;
+    summary: string;
 };

@@ -2,9 +2,11 @@
 
 public class Message
 {
-    public required Guid Id { get; init; }
+    public Guid Id { get; set; }
     
     public required string? ResponseId { get; set; }
+
+    public bool Visible { get; init; } = true;
 
     public required Role Role { get; init; }
 

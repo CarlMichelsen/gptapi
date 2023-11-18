@@ -22,7 +22,7 @@ public class SteamOAuthHandlerWithFakedVirtualMethods : SteamOAuthHandler
     {
     }
 
-    public override Task AddCookieResponseHeader(OAuthRecord record)
+    public override Task AddCookieResponseHeader(OAuthRecord record, string accessToken)
     {
         return Task.CompletedTask;
     }

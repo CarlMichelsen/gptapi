@@ -1,7 +1,7 @@
 ﻿using Domain.Entity;
 using Microsoft.EntityFrameworkCore;
 
-namespace BusinessLogic.Database;
+namespace Database;
 
 /// <summary>
 /// EntityFramework application context.
@@ -18,7 +18,7 @@ public sealed class ApplicationContext : DbContext
     {
     }
 
-    public required DbSet<Conversation> Conversations { get; init; }
+    public DbSet<Conversation> Conversations { get; init; }
 
-    public required DbSet<OAuthRecord> OAuthRecords { get; init; }
+    public DbSet<OAuthRecord> OAuthRecords { get; init; }
 }

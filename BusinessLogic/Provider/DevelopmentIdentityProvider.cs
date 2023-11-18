@@ -1,6 +1,4 @@
-﻿using System.Net;
-using Domain;
-using Domain.Dto.Steam;
+﻿using Domain.Dto.Steam;
 using Interface.Provider;
 
 namespace BusinessLogic.Provider;
@@ -16,9 +14,9 @@ public class DevelopmentIdentityProvider : IDevelopmentIdentityProvider
 
         var players = new List<SteamDevelopmentPlayerDto>
         {
-            GenerateSteamDevelopmentPlayer("Lars Vegas", TimeSpan.FromDays(1)),
-            GenerateSteamDevelopmentPlayer("Bruce Leeglad", TimeSpan.FromDays(5)),
-            GenerateSteamDevelopmentPlayer("Nicki Mirage", TimeSpan.FromHours(2)),
+            GenerateSteamDevelopmentPlayer("Lars Vegas", TimeSpan.FromDays(1), 1239018904512123123),
+            GenerateSteamDevelopmentPlayer("Bruce Leeglad", TimeSpan.FromDays(5), 382372919023123123),
+            GenerateSteamDevelopmentPlayer("Nicki Mirage", TimeSpan.FromHours(2), 2238901240891248902),
         };
 
         DevelopmentUsers = players;
@@ -26,14 +24,14 @@ public class DevelopmentIdentityProvider : IDevelopmentIdentityProvider
 
     public static List<SteamDevelopmentPlayerDto>? DevelopmentUsers { get; set; } = default;
 
-    public static SteamDevelopmentPlayerDto GenerateSteamDevelopmentPlayer(string personaName, TimeSpan timeSinceLastLogout)
+    public static SteamDevelopmentPlayerDto GenerateSteamDevelopmentPlayer(string personaName, TimeSpan timeSinceLastLogout, long testSteamId)
     {
         var lastLogOffEpoch = DateTime.Now.Subtract(timeSinceLastLogout) - DateTime.UnixEpoch;
 
         return new SteamDevelopmentPlayerDto
         {
             DevelopmentAccessToken = $"test-access-token-for:{personaName}",
-            SteamId = $"test-steamid-for:{personaName}",
+            SteamId = testSteamId.ToString(),
             CommunityVisibilityState = 1,
             ProfileState = 1,
             PersonaName = personaName,
