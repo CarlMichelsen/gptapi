@@ -1,16 +1,18 @@
 using Api;
 using Api.Endpoints;
 using BusinessLogic.Client;
-using BusinessLogic.Database;
 using BusinessLogic.Factory;
 using BusinessLogic.Handler;
 using BusinessLogic.Provider;
+using BusinessLogic.Service;
+using Database;
 using Domain;
 using Domain.Configuration;
 using Interface.Client;
 using Interface.Factory;
 using Interface.Handler;
 using Interface.Provider;
+using Interface.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -32,11 +34,12 @@ builder.Services
 
 // Database
 builder.Services.AddDbContext<ApplicationContext>(options =>
-    options.UseInMemoryDatabase("ApplicationDatabase"));
+    options.UseSqlite("Data Source=sql/MyDatabase.db", b => b.MigrationsAssembly("Api")));
 
 // Services
 builder.Services
     .AddTransient<IGptChatClient, GptChatClient>()
+    .AddTransient<IConversationService, ConversationService>()
     .AddScoped<IDevelopmentIdentityProvider, DevelopmentIdentityProvider>()
     .AddTransient<IGptApiKeyProvider, GptApiKeyProvider>();
 

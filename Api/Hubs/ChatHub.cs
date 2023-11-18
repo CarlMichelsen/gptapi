@@ -1,7 +1,10 @@
-﻿using BusinessLogic.Database;
+﻿using System.Security.Claims;
 using BusinessLogic.Hub;
+using Domain.Context;
 using Interface.Client;
+using Interface.Service;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Api;
 
@@ -13,16 +16,37 @@ public class ChatHub : ChatHubHandler
     public ChatHub(
         ILogger<ChatHub> logger,
         ILogger<ChatHubHandler> handlerLogger,
-        ApplicationContext applicationContext,
+        IConversationService conversationService,
+        IServiceProvider serviceProvider,
         IGptChatClient gptChatClient)
-        : base(handlerLogger, applicationContext, gptChatClient)
+        : base(handlerLogger, conversationService, serviceProvider, gptChatClient)
     {
         this.logger = logger;
     }
 
     public override async Task OnConnectedAsync()
     {
-        this.logger.LogInformation("Client\t\"{id}\"\tconnected", this.Context.ConnectionId);
+        try
+        {
+            var httpContext = this.Context.GetHttpContext();
+            var claims = httpContext!.User.Claims.ToList();
+            var context = new ChatHubContext
+            {
+                AuthRecordId = Guid.Parse(claims.First(c => c.Type == ClaimTypes.Name).Value),
+                AccessToken = claims.First(c => c.Type == "AccessToken").Value,
+                SteamId = long.Parse(claims.First(c => c.Type == "SteamId").Value),
+            };
+
+            this.Context.Items.Add("context", context);
+        }
+        catch (Exception e)
+        {
+            this.logger.LogCritical("Failed to read data from claims, terminating connection. {e}", e);
+            this.Context.Abort();
+            return;
+        }
+
+        this.logger.LogInformation("Client\t{id}\tconnected ({userId})", this.Context.ConnectionId, this.ChatHubContext.SteamId);
         await base.OnConnectedAsync();
     }
 
@@ -30,11 +54,11 @@ public class ChatHub : ChatHubHandler
     {
         if (exception is null)
         {
-            this.logger.LogInformation("Client\t\"{id}\"\tdisconnected", this.Context.ConnectionId);
+            this.logger.LogInformation("Client\t{id}\tdisconnected ({userId})", this.Context.ConnectionId, this.ChatHubContext.SteamId);
         }
         else
         {
-            this.logger.LogCritical("Client\t\"{id}\"\tdisconnected\t{exception}", this.Context.ConnectionId, exception);
+            this.logger.LogCritical("Client\t{id}\tdisconnected\t{exception}", this.Context.ConnectionId, exception);
         }
         
         await base.OnDisconnectedAsync(exception);
