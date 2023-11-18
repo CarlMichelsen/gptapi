@@ -1,9 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using BusinessLogic.Json;
 using Domain.Gpt;
-using Interface;
 using Interface.Client;
+using Interface.Provider;
 using Microsoft.Extensions.Logging;
 
 namespace BusinessLogic.Client;

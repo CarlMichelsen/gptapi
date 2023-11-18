@@ -25,11 +25,11 @@ public static class TestUtil
         return options;
     }
 
-    public static ServiceCollection GetServiceCollectionWithDatabase()
+    public static IServiceCollection GetServiceCollectionWithDatabase()
     {
         var services = new ServiceCollection();
 
-        services.AddDbContext<ApplicationContext>((options) => 
+        services.AddDbContext<ApplicationContext>((options) =>
         {
             options.UseInMemoryDatabase($"InMemoryTestDatabase-{Guid.NewGuid()}");
         });

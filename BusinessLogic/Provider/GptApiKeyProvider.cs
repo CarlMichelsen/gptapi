@@ -1,8 +1,8 @@
 ﻿using Domain.Configuration;
-using Interface;
+using Interface.Provider;
 using Microsoft.Extensions.Options;
 
-namespace BusinessLogic;
+namespace BusinessLogic.Provider;
 
 public class GptApiKeyProvider : IGptApiKeyProvider
 {

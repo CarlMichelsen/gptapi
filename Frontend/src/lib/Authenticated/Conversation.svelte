@@ -1,8 +1,8 @@
 <script lang="ts">
     import { onDestroy, onMount } from "svelte";
-    import { ConnectionMethods } from "../connectionMethods";
-    import type { Message } from "../types/dto/message";
-    import type { MessageChunk } from "../types/dto/messageChunk";
+    import { ConnectionMethods } from "../../connectionMethods";
+    import type { Message } from "../../types/dto/message";
+    import type { MessageChunk } from "../../types/dto/messageChunk";
     import ChatMessage from "./ChatMessage.svelte";
 
     export let ready = true;

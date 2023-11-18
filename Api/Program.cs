@@ -1,22 +1,21 @@
 using Api;
-using BusinessLogic;
+using Api.Endpoints;
 using BusinessLogic.Client;
 using BusinessLogic.Database;
-using BusinessLogic.Development;
+using BusinessLogic.Factory;
 using BusinessLogic.Handler;
+using BusinessLogic.Provider;
 using Domain;
 using Domain.Configuration;
-using Interface;
 using Interface.Client;
+using Interface.Factory;
 using Interface.Handler;
-using Microsoft.AspNetCore.Authentication;
+using Interface.Provider;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
-var env = builder.Environment;
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -28,33 +27,35 @@ builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange
 builder.Services
     .AddCors()
     .Configure<GptOptions>(builder.Configuration.GetSection(GptOptions.SectionName))
-    .Configure<AccessOptions>(builder.Configuration.GetSection(AccessOptions.SectionName))
     .Configure<SteamOAuthOptions>(builder.Configuration.GetSection(SteamOAuthOptions.SectionName))
-    .AddTransient<IGptApiKeyProvider, GptApiKeyProvider>();
+    .Configure<ApplicationOptions>(options => options.IsDevelopment = builder.Environment.IsDevelopment());
 
 // Database
 builder.Services.AddDbContext<ApplicationContext>(options =>
     options.UseInMemoryDatabase("ApplicationDatabase"));
 
 // Services
-builder.Services.AddTransient<IGptChatClient, GptChatClient>();
+builder.Services
+    .AddTransient<IGptChatClient, GptChatClient>()
+    .AddScoped<IDevelopmentIdentityProvider, DevelopmentIdentityProvider>()
+    .AddTransient<IGptApiKeyProvider, GptApiKeyProvider>();
+
 builder.Services.AddSignalR();
 
-if (env.IsDevelopment())
-{
-    builder.Services
-        .AddTransient<ISteamClient, DevelopmentSteamClient>()
-        .AddScoped<IDevelopmentIdpHandler, DevelopmentIdpHandler>();
-}
-else
-{
-    builder.Services.AddTransient<ISteamClient, SteamClient>();
-}
-
 // Handlers
-builder.Services.AddTransient<ISteamOAuthHandler, SteamOAuthHandler>();
+builder.Services
+    .AddTransient<ISessionHandler, SessionHandler>()
+    .AddTransient<ISteamOAuthHandler, SteamOAuthHandler>();
+
+// Factories
+builder.Services
+    .AddTransient<SteamClient>()
+    .AddTransient<DevelopmentSteamClient>();
+builder.Services.
+    AddTransient<ISteamClientFactory, SteamClientFactory>();
 
 // Typed HttpClient Factories
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<GptChatClient>(client =>
     client.Timeout = TimeSpan.FromMinutes(10));
 
@@ -63,6 +64,25 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie(options =>
     {
         options.ExpireTimeSpan = TimeSpan.FromHours(2);
+        options.LoginPath = "/";
+        options.AccessDeniedPath = "/";
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnRedirectToLogin = context =>
+            {
+                // Check if the request is for an API endpoint
+                if (context.Request.Path.StartsWithSegments("/api"))
+                {
+                    // Prevent redirection and return 401 Unauthorized
+                    context.Response.StatusCode = 401;
+                    return Task.CompletedTask;
+                }
+
+                // For non-API requests, continue with the default redirection
+                context.Response.Redirect(context.RedirectUri);
+                return Task.CompletedTask;
+            },
+        };
     });
 
 var app = builder.Build();
@@ -92,13 +112,16 @@ app.UseAuthorization();
 
 app.MapHub<ChatHub>(GptApiConstants.ChatHubEndpoint);
 
-app.MapGroup("/api/v1")
-    .MapPromptEndpoints()
-    .MapSteamOAuthEndpoints();
+var apiGroup = app.MapGroup("/api/v1")
+    .MapSteamOAuthEndpoints()
+    .MapSessionEndpoints();
+
+apiGroup.WithOpenApi();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapDevelopmentIdpEndpoints();
+    app.MapDevelopmentIdpEndpoints()
+        .WithOpenApi();
 }
 
 app.UseStaticFiles();

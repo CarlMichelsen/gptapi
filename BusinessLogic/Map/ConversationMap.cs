@@ -1,8 +1,7 @@
-﻿using Domain;
-using Domain.Dto.Conversation;
+﻿using Domain.Dto.Conversation;
 using Domain.Entity;
 
-namespace BusinessLogic;
+namespace BusinessLogic.Map;
 
 public static class ConversationMap
 {

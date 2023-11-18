@@ -1,4 +1,4 @@
-﻿namespace BusinessLogic;
+﻿namespace BusinessLogic.Map;
 
 public class MapException : Exception
 {

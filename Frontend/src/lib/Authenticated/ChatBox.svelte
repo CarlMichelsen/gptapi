@@ -1,6 +1,6 @@
 <script lang="ts">
-    import type { ConversationMetadata } from "../types/dto/conversation";
-    import type { Message } from "../types/dto/message";
+    import type { ConversationMetadata } from "../../types/dto/conversation";
+    import type { Message } from "../../types/dto/message";
     import Conversation from "./Conversation.svelte";
     import InputField from "./InputField.svelte";
     import Sidebar from "./Sidebar.svelte";

@@ -1,8 +1,8 @@
 ﻿using Domain.Dto.Steam;
 
-namespace Interface.Handler;
+namespace Interface.Provider;
 
-public interface IDevelopmentIdpHandler
+public interface IDevelopmentIdentityProvider
 {
     Task<DevelopmentIdpResponse> GetDevelopmentUsers();
 }

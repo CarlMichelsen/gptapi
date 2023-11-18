@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using BusinessLogic.Database;
+using BusinessLogic.Map;
 using Domain.Dto.Conversation;
 using Domain.Entity;
 using Domain.Gpt;

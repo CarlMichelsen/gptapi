@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace BusinessLogic;
+namespace BusinessLogic.Json;
 
 public static class JsonStreamProcessor
 {

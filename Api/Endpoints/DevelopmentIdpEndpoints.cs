@@ -1,23 +1,30 @@
 ﻿using Domain;
-using Interface.Handler;
+using Interface.Provider;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api;
+namespace Api.Endpoints;
 
 public static class DevelopmentIdpEndpoints
 {
-    public static WebApplication MapDevelopmentIdpEndpoints(this WebApplication app)
+    public static RouteGroupBuilder MapDevelopmentIdpEndpoints(this WebApplication app)
     {
-        app.MapGet($"/{GptApiConstants.DeveloperIdpName}", async context =>
+        var devGroup = app.MapGroup("/development");
+        
+        devGroup.MapGet($"/{GptApiConstants.DeveloperIdpName}", async context =>
         {
             context.Response.ContentType = "text/html";
             await context.Response.SendFileAsync("Idp/index.html");
         })
         .WithName(GptApiConstants.DeveloperIdpName);
 
-        app.MapGet("/DevelopmentUsers", async ([FromServices] IDevelopmentIdpHandler developmentIdpHandler) =>
-            await developmentIdpHandler.GetDevelopmentUsers());
+        devGroup.MapGet("/DevelopmentUsers", async (
+            HttpContext context,
+            [FromServices] IDevelopmentIdentityProvider developmentIdpHandler) =>
+        {
+            var developmentUsers = await developmentIdpHandler.GetDevelopmentUsers();
+            return Results.Ok(developmentUsers);
+        });
 
-        return app;
+        return devGroup;
     }
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Message } from "../types/dto/message";
+    import type { Message } from "../../types/dto/message";
 
     export let message: Message;
 </script>

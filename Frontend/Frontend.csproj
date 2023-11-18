@@ -2,6 +2,9 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
     </PropertyGroup>
+    <ItemGroup>
+      <Folder Include="src\lib\Authenticated\" />
+    </ItemGroup>
 
     <Target Name="NpmInstall" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
         <Exec Command="npm install" WorkingDirectory="$(ProjectDir)" />

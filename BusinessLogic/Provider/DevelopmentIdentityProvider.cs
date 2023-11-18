@@ -1,11 +1,13 @@
-﻿using Domain.Dto.Steam;
-using Interface.Handler;
+﻿using System.Net;
+using Domain;
+using Domain.Dto.Steam;
+using Interface.Provider;
 
-namespace BusinessLogic.Development;
+namespace BusinessLogic.Provider;
 
-public class DevelopmentIdpHandler : IDevelopmentIdpHandler
+public class DevelopmentIdentityProvider : IDevelopmentIdentityProvider
 {
-    public DevelopmentIdpHandler()
+    public DevelopmentIdentityProvider()
     {
         if (DevelopmentUsers is not null)
         {

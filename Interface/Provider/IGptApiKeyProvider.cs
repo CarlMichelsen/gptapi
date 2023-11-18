@@ -1,4 +1,4 @@
-﻿namespace Interface;
+﻿namespace Interface.Provider;
 
 public interface IGptApiKeyProvider
 {

@@ -2,6 +2,7 @@ using System.Net;
 using System.Text.Json;
 using BusinessLogic;
 using BusinessLogic.Client;
+using BusinessLogic.Provider;
 using Domain.Configuration;
 using Domain.Gpt;
 using Microsoft.Extensions.Logging;
@@ -120,6 +121,7 @@ public class GptChatClientTests
                 && req.RequestUri!.ToString() == "https://api.openai.com/v1/chat/completions"
                 && req.Content!.Headers.ContentType!.ToString() == "application/json; charset=utf-8"),
             ItExpr.IsAny<CancellationToken>());
+        Assert.NotNull(response);
     }
 
     [Fact]

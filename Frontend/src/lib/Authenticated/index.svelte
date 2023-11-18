@@ -1,9 +1,9 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
-    import { chatHubStore } from "../store/chatHubStore";
-    import { baseUrl } from "../baseurl";
+    import { chatHubStore } from "../../store/chatHubStore";
+    import { baseUrl } from "../../baseurl";
     import ChatBox from "./ChatBox.svelte";
-    import type { SteamPlayer } from "../types/dto/steamPlayer";
+    import type { SteamPlayer } from "../../types/dto/steamPlayer";
 
     export let userData: SteamPlayer;
 
