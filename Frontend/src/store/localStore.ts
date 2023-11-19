@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { LocalStore } from '../types/localStore';
+import type { LocalStore } from '../types/store/localStore';
 
 // Initial state
 const initialState: LocalStore = {

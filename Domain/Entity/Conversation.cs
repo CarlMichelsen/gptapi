@@ -9,4 +9,6 @@ public class Conversation
     public required string? Summary { get; set; }
 
     public required List<Message> Messages { get; init; }
+
+    public required DateTime Created { get; init; }
 }

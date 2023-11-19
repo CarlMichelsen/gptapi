@@ -1,7 +1,7 @@
 ﻿using Interface.Handler;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api;
+namespace Api.Endpoints;
 
 public static class ConversationEndpoints
 {
@@ -39,6 +39,6 @@ public static class ConversationEndpoints
         .WithName("Conversation")
         .RequireAuthorization();
 
-        return conversationGroup;
+        return group;
     }
 }

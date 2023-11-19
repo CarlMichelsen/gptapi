@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { ConversationMetadata } from "../../types/dto/conversation";
+    import type { ConversationMetadata } from "../../../types/dto/conversation";
 
     export let isSelected: boolean;
     export let metaData: ConversationMetadata;

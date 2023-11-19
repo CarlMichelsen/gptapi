@@ -1,4 +1,4 @@
-﻿using BusinessLogic.Database;
+﻿using Database;
 using Domain.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,7 +1,5 @@
 <script lang="ts">
     import { navigateToLoginPage } from "../clients/userDataClient";
-
-
 </script>
 
 <div>

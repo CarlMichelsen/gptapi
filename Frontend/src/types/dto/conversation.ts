@@ -9,4 +9,5 @@ export type ConversationType = {
 export type ConversationMetadata = {
     id: string;
     summary: string;
+    created: Date;
 };

@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using BusinessLogic;
 using BusinessLogic.Json;
 
 namespace Test.Client;
@@ -10,6 +9,9 @@ public class JsonStreamProcessorTests
     [InlineData("{\"key\":\"value\"}", new string[] { "{\"key\":\"value\"}" })]
     [InlineData("{\"key1\":\"value1\"}{\"key2\":\"value2\"}", new string[] { "{\"key1\":\"value1\"}", "{\"key2\":\"value2\"}" })]
     [InlineData("RandomData{\"key\":\"value\"}MoreRandomData", new string[] { "{\"key\":\"value\"}" })]
+    [InlineData("RandomData{\"key\":\"}}value\"}MoreRandomData", new string[] { "{\"key\":\"}}value\"}" })]
+    [InlineData("RandomData{\"key\":\"{value\"}MoreRandomData", new string[] { "{\"key\":\"{value\"}" })]
+    [InlineData(@"RandomData{""key"":""{value\""}MoreRandomData", new string[] { @"{""key"":""{value\""}" })]
     public async Task ReadJsonObjectsAsync_ReturnsCorrectJsonObjects(string input, string[] expectedJsonObjects)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));

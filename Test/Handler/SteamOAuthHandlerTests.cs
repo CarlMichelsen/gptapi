@@ -1,6 +1,6 @@
-﻿using BusinessLogic.Database;
-using BusinessLogic.Handler;
+﻿using BusinessLogic.Handler;
 using BusinessLogic.Provider;
+using Database;
 using Domain.Configuration;
 using Domain.Entity;
 using Domain.Exception;
@@ -152,7 +152,7 @@ public class SteamOAuthHandlerTests
     {
         // Arrange
         var developmentUser = DevelopmentIdentityProvider
-            .GenerateSteamDevelopmentPlayer("Nicki Mirage", TimeSpan.FromHours(5));
+            .GenerateSteamDevelopmentPlayer("Nicki Mirage", TimeSpan.FromHours(5), 12378912378912);
         
         var steamClientMock = new Mock<ISteamClient>();
         steamClientMock

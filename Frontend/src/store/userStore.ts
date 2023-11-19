@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { UserStore } from '../types/userStore';
+import type { UserStore } from '../types/store/userStore';
 import { deleteCookie, getUserData } from '../clients/userDataClient';
 
 // Initial state
@@ -13,21 +13,13 @@ const createUserStore = (initialValue: UserStore) => {
     const store = writable<UserStore>(initialValue);
 
     const login = async () => {
-        try {
-            const data = await getUserData();
-            store.set({ user: data });
-        } catch (error) {
-            console.error("UserStore", "login", error);
-        }
+        const data = await getUserData();
+        store.set({ user: data });
     }
 
     const logout = async () => {
-        try {
-            await deleteCookie();
-            store.set({ user: null });
-        } catch (error) {
-            console.error("UserStore", "logout", error);
-        }
+        await deleteCookie();
+        store.set({ user: null });
     }
 
     return {

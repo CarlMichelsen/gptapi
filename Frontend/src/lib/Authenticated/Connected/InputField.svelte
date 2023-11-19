@@ -1,7 +1,10 @@
 <script lang="ts">
+    import { createEventDispatcher } from "svelte";
+
     export let ready: boolean;
     export let placeholder: string = 'Type your message here...';
-    export let onSend: (message: string) => void;
+
+    const dispatch = createEventDispatcher<{ send: string }>();
 
     let inputValue: string = '';
 
@@ -11,7 +14,7 @@
 
     const handleOnSend = () => {
         if (readyToSend()) {
-            onSend(inputValue);
+            dispatch("send", inputValue);
             inputValue = '';
         }
     }

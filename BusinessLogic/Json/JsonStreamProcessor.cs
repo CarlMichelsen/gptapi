@@ -9,6 +9,7 @@ public static class JsonStreamProcessor
         var buffer = new byte[bufferSize];
         var jsonBuilder = new StringBuilder();
         int openBraces = 0;
+        int quoteCounter = 0;
         int bytesRead;
 
         while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
@@ -17,25 +18,24 @@ public static class JsonStreamProcessor
 
             foreach (var ch in chunk)
             {
-                if (ch == '{')
+                if (isQuote(ch))
                 {
-                    if (openBraces == 0)
-                    {
-                        jsonBuilder.Clear();
-                    }
+                    quoteCounter++;
+                }
 
-                    openBraces++;
+                var inQuotes = quoteCounter % 2 == 1;
+                var braceDiff = CountCurlyBrackets(ch, inQuotes);
+                openBraces += braceDiff;
+
+                if (braceDiff == 1 && openBraces == 1)
+                {
+                    jsonBuilder.Clear();
                     jsonBuilder.Append(ch);
                 }
-                else if (ch == '}')
+                else if (braceDiff == -1 && openBraces == 0)
                 {
-                    openBraces--;
                     jsonBuilder.Append(ch);
-
-                    if (openBraces == 0 && jsonBuilder.Length > 0)
-                    {
-                        yield return jsonBuilder.ToString();
-                    }
+                    yield return jsonBuilder.ToString();
                 }
                 else if (openBraces > 0)
                 {
@@ -43,5 +43,31 @@ public static class JsonStreamProcessor
                 }
             }
         }
+    }
+
+    private static bool isQuote(char character)
+    {
+        // This is naive because i dont want to count escaped quotes and the escape character may not be part of this chunk...
+        return character == '"';
+    }
+
+    private static int CountCurlyBrackets(char character, bool inQuotes)
+    {
+        if (inQuotes)
+        {
+            return 0;
+        }
+
+        if (character == '}')
+        {
+            return -1;
+        }
+
+        if (character == '{')
+        {
+            return 1;
+        }
+
+        return 0;
     }
 }

@@ -12,6 +12,7 @@ public static class ConversationMapper
         {
             Id = conversation.Id,
             Summary = conversation.Summary,
+            Created = conversation.Created,
         };
     }
 

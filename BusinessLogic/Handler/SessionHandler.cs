@@ -12,18 +12,20 @@ namespace BusinessLogic.Handler;
 
 public class SessionHandler : ISessionHandler
 {
+    private readonly IHttpContextAccessor httpContextAccessor;
     private readonly ISteamClientFactory steamClientFactory;
 
     public SessionHandler(
+        IHttpContextAccessor httpContextAccessor,
         ISteamClientFactory steamClientFactory)
     {
+        this.httpContextAccessor = httpContextAccessor;
         this.steamClientFactory = steamClientFactory;
     }
 
-    public async Task<Result<SteamPlayerDto, HttpStatusCode>> GetUserData(
-        HttpContext httpContext)
+    public async Task<Result<SteamPlayerDto, HttpStatusCode>> GetUserData()
     {
-        if (httpContext.User.Identity?.IsAuthenticated != true)
+        if (this.httpContextAccessor.HttpContext!.User.Identity?.IsAuthenticated != true)
         {
             // This is a redundant check. Better safe than sorry tho.
             return HttpStatusCode.Unauthorized;
@@ -31,7 +33,7 @@ public class SessionHandler : ISessionHandler
 
         try
         {
-            var steamId = httpContext.User.FindFirst("SteamId")?.Value
+            var steamId = this.httpContextAccessor.HttpContext!.User.FindFirst("SteamId")?.Value
             ?? throw new SessionException("SteamId not found in claims!");
 
             var client = this.steamClientFactory.Create();
@@ -43,11 +45,11 @@ public class SessionHandler : ISessionHandler
         }
     }
 
-    public async Task<Result<bool, HttpStatusCode>> Logout(HttpContext httpContext)
+    public async Task<Result<bool, HttpStatusCode>> Logout()
     {
         try
         {
-            await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await this.httpContextAccessor.HttpContext!.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return true;
         }
         catch (Exception)

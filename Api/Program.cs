@@ -103,7 +103,7 @@ if (app.Environment.IsDevelopment())
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials());
-    
+
     var hubContext = app.Services.GetRequiredService<IHubContext<ChatHub>>();
     app.Lifetime.ApplicationStopping.Register(() => hubContext.Clients.All.SendAsync("Disconnect"));
 }
@@ -116,12 +116,11 @@ app.UseAuthorization();
 
 app.MapHub<ChatHub>(GptApiConstants.ChatHubEndpoint);
 
-var apiGroup = app.MapGroup("/api/v1")
-    .MapConversationEndpoints()
+app.MapGroup("/api/v1")
     .MapSteamOAuthEndpoints()
-    .MapSessionEndpoints();
-
-apiGroup.WithOpenApi();
+    .MapSessionEndpoints()
+    .MapConversationEndpoints()
+    .WithOpenApi();
 
 if (app.Environment.IsDevelopment())
 {

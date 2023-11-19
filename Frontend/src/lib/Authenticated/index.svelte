@@ -2,7 +2,7 @@
     import { onMount, onDestroy } from "svelte";
     import { chatHubStore } from "../../store/chatHubStore";
     import { baseUrl } from "../../baseurl";
-    import ChatBox from "./ChatBox.svelte";
+    import Connected from "./Connected/index.svelte";
     import type { SteamPlayer } from "../../types/dto/steamPlayer";
 
     export let userData: SteamPlayer;
@@ -21,7 +21,7 @@
 
 <div>
     {#if $chatHubStore.connection}
-        <ChatBox />
+        <Connected />
     {:else}
         <p>not connected</p>
     {/if}

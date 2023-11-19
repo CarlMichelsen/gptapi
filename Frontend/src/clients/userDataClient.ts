@@ -3,11 +3,11 @@ import type { SteamPlayer } from "../types/dto/steamPlayer";
 
 export const getUserData = async (): Promise<SteamPlayer | null> => {
     const endpoint = `${baseUrl()}/api/v1/session/UserData`;
+    console.log(endpoint);
     try {
         const response = await fetch(endpoint, {
-            method: 'GET',
+            method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
               'Accept': 'application/json',
             },
             credentials: "include",
@@ -25,7 +25,6 @@ export const getUserData = async (): Promise<SteamPlayer | null> => {
 }
 
 export const deleteCookie = async () => {
-    //MapDelete
     const endpoint = `${baseUrl()}/api/v1/session/Logout`;
     try {
         const response = await fetch(endpoint, {

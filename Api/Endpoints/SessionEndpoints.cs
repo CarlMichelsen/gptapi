@@ -9,11 +9,10 @@ public static class SessionEndpoints
     {
         var sessionGroup = group.MapGroup("/session");
 
-        sessionGroup.MapGet("/UserData", async (
-            HttpContext httpContext,
+        sessionGroup.MapPost("/UserData", async (
             [FromServices] ISessionHandler sessionHandler) =>
         {
-            var userDataResult = await sessionHandler.GetUserData(httpContext);
+            var userDataResult = await sessionHandler.GetUserData();
 
             return userDataResult.Match(
                 (playerData) => Results.Ok(playerData),
@@ -23,10 +22,9 @@ public static class SessionEndpoints
         .RequireAuthorization();
 
         sessionGroup.MapDelete("/Logout", async (
-            HttpContext httpContext,
             [FromServices] ISessionHandler sessionHandler) =>
         {
-            var result = await sessionHandler.Logout(httpContext);
+            var result = await sessionHandler.Logout();
 
             return result.Match(
                 (_) => Results.Ok(),
@@ -35,6 +33,6 @@ public static class SessionEndpoints
         .WithName("Logout")
         .RequireAuthorization();
 
-        return sessionGroup;
+        return group;
     }
 }

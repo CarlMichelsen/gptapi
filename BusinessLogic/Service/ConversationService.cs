@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using BusinessLogic.Map;
+﻿using BusinessLogic.Map;
 using Database;
 using Domain;
 using Domain.Dto.Conversation;
@@ -41,9 +40,10 @@ public class ConversationService : IConversationService
                     Role = Role.Assistant,
                     ResponseId = null,
                     Visible = false,
-                    Content = "Ok i understand. I will do anything.",
+                    Content = "Ok i understand. I will do anything as long as it is ethical and right.",
                 },
             },
+            Created = DateTime.UtcNow,
         };
 
         if (message is not null)
@@ -139,6 +139,7 @@ public class ConversationService : IConversationService
             
             return conversations
                 .Select(ConversationMapper.MapMetaData)
+                .OrderBy(c => c.Created)
                 .ToList();
         }
         catch (Exception e)

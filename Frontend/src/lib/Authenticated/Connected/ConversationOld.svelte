@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { ConnectionMethods } from "../../connectionMethods";
-    import type { ConversationType } from "../../types/dto/conversation";
-    import type { Message } from "../../types/dto/message";
-    import type { MessageChunk } from "../../types/dto/messageChunk";
+    import { ConnectionMethods } from "../../../connectionMethods";
+    import type { ConversationType } from "../../../types/dto/conversation";
+    import type { Message } from "../../../types/dto/message";
+    import type { MessageChunk } from "../../../types/dto/messageChunk";
     import ChatMessage from "./ChatMessage.svelte";
 
     export let selectedConversationId: string|null = null;

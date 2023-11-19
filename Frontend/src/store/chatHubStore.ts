@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { ConnectionMethods } from '../connectionMethods';
-import type { ChatHubStore } from '../types/chatHubStore';
+import type { ChatHubStore } from '../types/store/chatHubStore';
 
 const initial: ChatHubStore = {
     connection: null,
