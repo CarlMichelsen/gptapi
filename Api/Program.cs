@@ -48,6 +48,7 @@ builder.Services.AddSignalR();
 // Handlers
 builder.Services
     .AddTransient<ISessionHandler, SessionHandler>()
+    .AddTransient<IConversationHandler, ConversationHandler>()
     .AddTransient<ISteamOAuthHandler, SteamOAuthHandler>();
 
 // Factories
@@ -116,6 +117,7 @@ app.UseAuthorization();
 app.MapHub<ChatHub>(GptApiConstants.ChatHubEndpoint);
 
 var apiGroup = app.MapGroup("/api/v1")
+    .MapConversationEndpoints()
     .MapSteamOAuthEndpoints()
     .MapSessionEndpoints();
 

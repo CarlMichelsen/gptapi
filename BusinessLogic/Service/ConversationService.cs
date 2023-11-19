@@ -132,6 +132,11 @@ public class ConversationService : IConversationService
                 .Where(c => c.UserId == userId)
                 .ToListAsync();
             
+            if (conversations is null)
+            {
+                return "not found";
+            }
+            
             return conversations
                 .Select(ConversationMapper.MapMetaData)
                 .ToList();
