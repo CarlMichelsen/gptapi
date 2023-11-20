@@ -7,17 +7,19 @@ public class Result<TValue, TError>
 
     private Result(TValue value)
     {
+        this.IsError = false;
         this.value = value;
         this.error = default;
     }
 
     private Result(TError error)
     {
+        this.IsError = true;
         this.value = default;
         this.error = error;
     }
 
-    public bool IsError { get; }
+    public bool IsError { get; private set; }
 
     public bool IsSuccess => !this.IsError;
 

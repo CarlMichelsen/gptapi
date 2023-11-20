@@ -1,6 +1,6 @@
 ﻿using Domain.Dto.Conversation;
 
-namespace Interface.Hubs;
+namespace Interface.Hub;
 
 public interface IChatClient
 {

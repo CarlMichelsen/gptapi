@@ -10,16 +10,13 @@ namespace BusinessLogic.Handler;
 
 public class ConversationHandler : IConversationHandler
 {
-    private readonly ApplicationContext applicationContext;
     private readonly IHttpContextAccessor httpContextAccessor;
     private readonly IConversationService conversationService;
 
     public ConversationHandler(
-        ApplicationContext applicationContext,
         IHttpContextAccessor httpContextAccessor,
         IConversationService conversationService)
     {
-        this.applicationContext = applicationContext;
         this.httpContextAccessor = httpContextAccessor;
         this.conversationService = conversationService;
     }
@@ -28,7 +25,7 @@ public class ConversationHandler : IConversationHandler
     {
         var userId = this.GetUserId();
         var conversationResult = await this.conversationService
-            .GetConversation(this.applicationContext, userId, conversationId);
+            .GetConversation(userId, conversationId);
 
         return conversationResult.Match<Result<ConversationDto, string>>(
             (conversation) => ConversationMapper.Map(conversation),
@@ -38,7 +35,7 @@ public class ConversationHandler : IConversationHandler
     public Task<Result<List<ConversationMetaDataDto>, string>> GetConversations()
     {
         var userId = this.GetUserId();
-        return this.conversationService.GetConversations(this.applicationContext, userId);
+        return this.conversationService.GetConversations(userId);
     }
 
     private string GetUserId()

@@ -4,11 +4,13 @@ public class Message
 {
     public Guid Id { get; set; }
     
-    public required string? ResponseId { get; set; }
+    public string? ResponseId { get; set; }
 
     public bool Visible { get; init; } = true;
 
     public required Role Role { get; init; }
+
+    public bool Complete { get; set; } = false;
 
     /// <summary>
     /// Gets or sets content of the message.
@@ -16,4 +18,6 @@ public class Message
     /// </summary>
     /// <value>String message content.</value>
     public required string Content { get; set; }
+
+    public required DateTime Created { get; init; }
 }

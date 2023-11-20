@@ -1,20 +1,18 @@
-using Api;
 using Api.Endpoints;
 using BusinessLogic.Client;
 using BusinessLogic.Factory;
 using BusinessLogic.Handler;
+using BusinessLogic.Hub;
+using BusinessLogic.Pipeline;
 using BusinessLogic.Pipeline.Stage;
 using BusinessLogic.Provider;
 using BusinessLogic.Service;
 using Database;
 using Domain;
 using Domain.Configuration;
-using Domain.Dto.Conversation;
-using Domain.Entity;
 using Interface.Client;
 using Interface.Factory;
 using Interface.Handler;
-using Interface.Pipeline;
 using Interface.Provider;
 using Interface.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -49,6 +47,18 @@ builder.Services
 
 builder.Services.AddSignalR();
 
+// Pipelines
+builder.Services
+    .AddSingleton<SendMessagePipeline>();
+
+// Stages
+builder.Services
+    .AddTransient<CreateOrAppendConversationStage>()
+    .AddTransient<NotifyUserOfCreatedMessageStage>()
+    .AddTransient<StreamChatResponseStage>()
+    .AddTransient<RegisterMessageResponseStage>()
+    .AddTransient<EnsureConversationSummaryStage>();
+
 // Handlers
 builder.Services
     .AddTransient<ISessionHandler, SessionHandler>()
@@ -58,11 +68,9 @@ builder.Services
 // Factories
 builder.Services
     .AddTransient<SteamClient>()
-    .AddTransient<DevelopmentSteamClient>()
-    .AddTransient<IPipelineStage<SendMessageRequest, Conversation>, CreateOrAppendConversationStage>();
+    .AddTransient<DevelopmentSteamClient>();
 builder.Services
-    .AddTransient<ISteamClientFactory, SteamClientFactory>()
-    .AddTransient<IPipelineStageFactory, PipelineStageFactory>();
+    .AddTransient<ISteamClientFactory, SteamClientFactory>();
 
 // Typed HttpClient Factories
 builder.Services.AddHttpContextAccessor();

@@ -1,10 +1,6 @@
 ﻿namespace Interface.Pipeline;
 
-public interface IPipelineStage
+public interface IPipelineStage<T>
 {
-}
-
-public interface IPipelineStage<TInput, TOutput> : IPipelineStage
-{
-    Task<TOutput> Process(TInput input);
+    Task<T> Process(T input, CancellationToken cancellationToken);
 }

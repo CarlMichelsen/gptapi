@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onDestroy } from "svelte";
+    import { onDestroy, onMount } from "svelte";
     import { ConnectionMethods } from "../../../connectionMethods";
     import Chatbox from "./Chatbox/index.svelte";
     import { conversationStore } from "../../../store/conversationStore";
@@ -12,18 +12,15 @@
 
     fetchConversationList();
 
-    let receiveMessageChunk: Exclude<typeof ConnectionMethods.receiveMessageChunk, null>;
-    let receiveMessage: Exclude<typeof ConnectionMethods.receiveMessage, null>;
-    let receiveFirstMessage: Exclude<typeof ConnectionMethods.receiveFirstMessage, null>;
-
-    $: if (receiveMessageChunk) ConnectionMethods.receiveMessageChunk = receiveMessageChunk;
-    $: if (receiveMessage) ConnectionMethods.receiveMessage = receiveMessage;
-    $: if (receiveFirstMessage) ConnectionMethods.receiveFirstMessage = receiveFirstMessage;
+    onMount(() => {
+        ConnectionMethods.assignSummaryToConversation = (conversationId: string, summary: string) => {
+            conversationStore.updateSummary(conversationId, summary);
+        }
+    });
 
     onDestroy(() => {
-        ConnectionMethods.receiveMessageChunk = null;
-        ConnectionMethods.receiveMessage = null;
-    })
+        ConnectionMethods.assignSummaryToConversation = null;
+    });
 </script>
 
 <Chatbox />

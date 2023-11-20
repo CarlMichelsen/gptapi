@@ -49,7 +49,9 @@ namespace Api.Migrations
                     ResponseId = table.Column<string>(type: "TEXT", nullable: true),
                     Visible = table.Column<bool>(type: "INTEGER", nullable: false),
                     Role = table.Column<int>(type: "INTEGER", nullable: false),
+                    Complete = table.Column<bool>(type: "INTEGER", nullable: false),
                     Content = table.Column<string>(type: "TEXT", nullable: false),
+                    Created = table.Column<DateTime>(type: "TEXT", nullable: false),
                     ConversationId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>

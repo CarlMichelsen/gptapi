@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Api.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20231119145152_InitialCreate")]
+    [Migration("20231120193340_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -47,11 +47,17 @@ namespace Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("Complete")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("ConversationId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Created")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ResponseId")

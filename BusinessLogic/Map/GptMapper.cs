@@ -29,5 +29,4 @@ public static class GptMapper
             Content = message.Content,
         };
     }
-
 }

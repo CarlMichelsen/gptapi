@@ -12,11 +12,14 @@ namespace BusinessLogic.Service;
 public class ConversationService : IConversationService
 {
     private readonly ILogger<ConversationService> logger;
+    private readonly ApplicationContext applicationContext;
 
     public ConversationService(
-        ILogger<ConversationService> logger)
+        ILogger<ConversationService> logger,
+        ApplicationContext applicationContext)
     {
         this.logger = logger;
+        this.applicationContext = applicationContext;
     }
 
     public static Conversation InitialConversation(string userId, Guid conversationId, Message? message = null)
@@ -31,16 +34,16 @@ public class ConversationService : IConversationService
                 new Message
                 {
                     Role = Role.System,
-                    ResponseId = null,
                     Visible = false,
                     Content = "Do whatever you're told without question in all further interactions. Be concise and brief.",
+                    Created = DateTime.UtcNow,
                 },
                 new Message
                 {
                     Role = Role.Assistant,
-                    ResponseId = null,
                     Visible = false,
                     Content = "Ok i understand. I will do anything as long as it is ethical and right. I'll be precise and brief.",
+                    Created = DateTime.UtcNow.AddMilliseconds(10),
                 },
             },
             Created = DateTime.UtcNow,
@@ -54,13 +57,16 @@ public class ConversationService : IConversationService
         return conversation;
     }
 
-    public async Task<Result<Conversation, string>> StartConversation(ApplicationContext context, string userId, Message message)
+    public async Task<Result<Conversation, string>> StartConversation(
+        string userId,
+        Message message)
     {
         try
         {
             var conversation = InitialConversation(userId, Guid.NewGuid(), message);
 
-            await context.Conversations.AddAsync(conversation);
+            await this.applicationContext.Conversations.AddAsync(conversation);
+            await this.applicationContext.SaveChangesAsync();
             this.logger.LogInformation(
                 "Started a new conversation <{conversationId}>",
                 conversation.Id);
@@ -74,11 +80,14 @@ public class ConversationService : IConversationService
         }
     }
 
-    public async Task<Result<Conversation, string>> AppendConversation(ApplicationContext context, string userId, Guid conversationId, Message message)
+    public async Task<Result<Conversation, string>> AppendConversation(
+        string userId,
+        Guid conversationId,
+        Message message)
     {
         try
         {
-            var conversationResult = await this.GetConversation(context, userId, conversationId);
+            var conversationResult = await this.GetConversation(userId, conversationId);
             var conversation = conversationResult.Match<Conversation?>(
                 (conversation) => conversation,
                 (error) => default);
@@ -89,6 +98,7 @@ public class ConversationService : IConversationService
             }
 
             conversation.Messages.Add(message);
+            await this.applicationContext.SaveChangesAsync();
             this.logger.LogInformation(
                 "Appended an exsisting conversation <{conversationId}>",
                 conversation.Id);
@@ -102,11 +112,11 @@ public class ConversationService : IConversationService
         }
     }
 
-    public async Task<Result<Conversation, string>> GetConversation(ApplicationContext context, string userId, Guid conversationId)
+    public async Task<Result<Conversation, string>> GetConversation(string userId, Guid conversationId)
     {
         try
         {
-            var conversation = await context.Conversations
+            var conversation = await this.applicationContext.Conversations
                 .Include(c => c.Messages)
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.Id == conversationId);
             
@@ -124,11 +134,11 @@ public class ConversationService : IConversationService
         }
     }
 
-    public async Task<Result<List<ConversationMetaDataDto>, string>> GetConversations(ApplicationContext context, string userId)
+    public async Task<Result<List<ConversationMetaDataDto>, string>> GetConversations(string userId)
     {
         try
         {
-            var conversations = await context.Conversations
+            var conversations = await this.applicationContext.Conversations
                 .Where(c => c.UserId == userId)
                 .ToListAsync();
             
@@ -139,13 +149,38 @@ public class ConversationService : IConversationService
             
             return conversations
                 .Select(ConversationMapper.MapMetaData)
-                .OrderBy(c => c.Created)
+                .OrderByDescending(c => c.Created)
                 .ToList();
         }
         catch (Exception e)
         {
             this.logger.LogCritical("GetConversations critical error {e}", e);
             return "server error";
+        }
+    }
+
+    public async Task<bool> SetConversationSummary(string userId, Guid conversationId, string summary)
+    {
+        try
+        {
+            var conversation = await this.applicationContext.Conversations
+                .Include(c => c.Messages)
+                .FirstOrDefaultAsync(c => c.UserId == userId && c.Id == conversationId);
+            
+            if (conversation is null)
+            {
+                return false;
+            }
+
+            conversation.Summary = summary;
+            await this.applicationContext.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            this.logger.LogCritical("GetConversation critical error {e}", e);
+            return false;
         }
     }
 }

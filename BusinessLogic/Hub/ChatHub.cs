@@ -1,12 +1,12 @@
 ﻿using System.Security.Claims;
-using BusinessLogic.Hub;
+using BusinessLogic.Handler;
+using BusinessLogic.Pipeline;
 using Domain.Context;
-using Interface.Client;
-using Interface.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 
-namespace Api;
+namespace BusinessLogic.Hub;
 
 [Authorize]
 public class ChatHub : ChatHubHandler
@@ -16,10 +16,8 @@ public class ChatHub : ChatHubHandler
     public ChatHub(
         ILogger<ChatHub> logger,
         ILogger<ChatHubHandler> handlerLogger,
-        IConversationService conversationService,
-        IServiceProvider serviceProvider,
-        IGptChatClient gptChatClient)
-        : base(handlerLogger, conversationService, serviceProvider, gptChatClient)
+        SendMessagePipeline sendMessagePipeline)
+        : base(handlerLogger, sendMessagePipeline)
     {
         this.logger = logger;
     }

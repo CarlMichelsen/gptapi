@@ -2,7 +2,7 @@
 
 public class MessageChunkDto
 {
-    public required Guid Id { get; init; }
+    public required Guid ConversationId { get; init; }
 
     public required int Index { get; init; }
 
