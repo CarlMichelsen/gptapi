@@ -37,23 +37,23 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
         get => (ChatHubContext)this.Context.Items["context"]!;
     }
 
-    public async Task SendMessage(string messageContent, Guid? conversationId = null)
+    public async Task SendMessage(SendMessageRequest sendMessageRequest)
     {
         using (var scope = this.serviceProvider.CreateScope())
         {
             var userId = this.ChatHubContext.SteamId.ToString();
-            var message = this.CreateMessage(messageContent, Role.User);
+            var message = this.CreateMessage(sendMessageRequest.MessageContent, Role.User);
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
 
             Domain.Result<Conversation, string> conversationResult;
-            if (conversationId is null || conversationId == Guid.Empty)
+            if (sendMessageRequest.ConversationId is null || sendMessageRequest.ConversationId == Guid.Empty)
             {
                 conversationResult = await this.conversationService
                     .StartConversation(dbContext, userId, message);
             }
             else
             {
-                var notNullConversationId = Guid.Parse(conversationId!.ToString()!);
+                var notNullConversationId = Guid.Parse(sendMessageRequest.ConversationId!.ToString()!);
                 conversationResult = await this.conversationService
                     .AppendConversation(dbContext, userId, notNullConversationId, message);
             }
@@ -77,7 +77,7 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
             }
 
             // A conversation has been created and appended or just appended by the user at this point.
-            var task = conversationId is null
+            var task = sendMessageRequest.ConversationId is null
                 ? this.Clients.Caller.ReceiveFirstMessage(ConversationMapper.MapFirstMessage(conversation.Id, conversation.Messages.Last()))
                 : this.Clients.Caller.ReceiveMessage(ConversationMapper.Map(conversation.Messages.Last()));
             await task;

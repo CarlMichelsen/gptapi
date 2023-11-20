@@ -1,6 +1,8 @@
-﻿namespace Interface.Hubs;
+﻿using Domain.Dto.Conversation;
+
+namespace Interface.Hubs;
 
 public interface IChatServer
 {
-    Task SendMessage(string messageContent, Guid? conversationId = null);
+    Task SendMessage(SendMessageRequest sendMessageRequest);
 }

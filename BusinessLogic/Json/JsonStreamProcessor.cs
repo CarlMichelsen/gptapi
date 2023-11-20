@@ -18,7 +18,7 @@ public static class JsonStreamProcessor
 
             foreach (var ch in chunk)
             {
-                if (isQuote(ch))
+                if (IsQuote(ch))
                 {
                     quoteCounter++;
                 }
@@ -45,7 +45,7 @@ public static class JsonStreamProcessor
         }
     }
 
-    private static bool isQuote(char character)
+    private static bool IsQuote(char character)
     {
         // This is naive because i dont want to count escaped quotes and the escape character may not be part of this chunk...
         return character == '"';

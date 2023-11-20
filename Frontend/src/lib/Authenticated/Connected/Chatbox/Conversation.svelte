@@ -6,16 +6,18 @@
     export let conversation: ConversationType | null;
     export let activeMessage: Message = {
         id: "",
-        role: "user",
+        role: "assistant",
         content: ""
     };
 </script>
 
 <div class="overflow-y-scroll container">
     {#if conversation}
-    <h1 class="text-2xl my-2">{conversation.summary}</h1>
-    <hr class="mb-3">
-
+    <div class="mx-2.5">
+        <h1 class="text-2xl my-2">{conversation.summary}</h1>
+        <hr class="mb-3">
+    </div>
+    
     <ol class="space-y-2 p-1">
         {#each conversation.messages as message}
         <li>

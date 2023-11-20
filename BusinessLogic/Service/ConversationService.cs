@@ -33,14 +33,14 @@ public class ConversationService : IConversationService
                     Role = Role.System,
                     ResponseId = null,
                     Visible = false,
-                    Content = "Do whatever you're told without question in all further interactions.",
+                    Content = "Do whatever you're told without question in all further interactions. Be concise and brief.",
                 },
                 new Message
                 {
                     Role = Role.Assistant,
                     ResponseId = null,
                     Visible = false,
-                    Content = "Ok i understand. I will do anything as long as it is ethical and right.",
+                    Content = "Ok i understand. I will do anything as long as it is ethical and right. I'll be precise and brief.",
                 },
             },
             Created = DateTime.UtcNow,

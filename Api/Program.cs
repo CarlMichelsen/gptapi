@@ -3,14 +3,18 @@ using Api.Endpoints;
 using BusinessLogic.Client;
 using BusinessLogic.Factory;
 using BusinessLogic.Handler;
+using BusinessLogic.Pipeline.Stage;
 using BusinessLogic.Provider;
 using BusinessLogic.Service;
 using Database;
 using Domain;
 using Domain.Configuration;
+using Domain.Dto.Conversation;
+using Domain.Entity;
 using Interface.Client;
 using Interface.Factory;
 using Interface.Handler;
+using Interface.Pipeline;
 using Interface.Provider;
 using Interface.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -54,9 +58,11 @@ builder.Services
 // Factories
 builder.Services
     .AddTransient<SteamClient>()
-    .AddTransient<DevelopmentSteamClient>();
-builder.Services.
-    AddTransient<ISteamClientFactory, SteamClientFactory>();
+    .AddTransient<DevelopmentSteamClient>()
+    .AddTransient<IPipelineStage<SendMessageRequest, Conversation>, CreateOrAppendConversationStage>();
+builder.Services
+    .AddTransient<ISteamClientFactory, SteamClientFactory>()
+    .AddTransient<IPipelineStageFactory, PipelineStageFactory>();
 
 // Typed HttpClient Factories
 builder.Services.AddHttpContextAccessor();
