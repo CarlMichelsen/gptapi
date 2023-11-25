@@ -1,4 +1,5 @@
-﻿using BusinessLogic.Hub;
+﻿using System.Text.RegularExpressions;
+using BusinessLogic.Hub;
 using BusinessLogic.Map;
 using Domain.Entity;
 using Domain.Exception;
@@ -12,8 +13,11 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace BusinessLogic.Pipeline.Stage;
 
-public class EnsureConversationSummaryStage : IPipelineStage<SendMessagePipelineParameter>
+public partial class EnsureConversationSummaryStage : IPipelineStage<SendMessagePipelineParameter>
 {
+    private const string FinalSystemMessage = @"Respond with a short description of the conversation so far (max 80 characters).
+            Make sure the description is memorable so the conversation can be identified by it later.
+            The description will be used as a title for the conversation. Don't use special characters.";
     private readonly IGptChatClient gptChatClient;
     private readonly IConversationService conversationService;
     private readonly IHubContext<ChatHub, IChatClient> chatHub;
@@ -45,7 +49,7 @@ public class EnsureConversationSummaryStage : IPipelineStage<SendMessagePipeline
         var prompt = this.GetGptConversationSummaryPrompt(conv);
         var res = await this.gptChatClient.Prompt(prompt, cancellationToken)
             ?? throw new PipelineException("Conversation summary GptChatClient request returned null");
-        var summary = this.GetSummaryFromGptResponse(res);
+        var summary = this.GetSummaryFromGptResponse(res).Replace("\"", string.Empty);
         
         var success = await this.conversationService.SetConversationSummary(
             input.UserId,
@@ -74,7 +78,7 @@ public class EnsureConversationSummaryStage : IPipelineStage<SendMessagePipeline
                 {
                     Role = Role.System,
                     Visible = false,
-                    Content = "Keep track of what is being said so you can make a summary of the conversation later.",
+                    Content = "Keep track of what is being said so you can make a description of the essence of the conversation later.",
                     Created = DateTime.UtcNow,
                 },
             },
@@ -88,7 +92,7 @@ public class EnsureConversationSummaryStage : IPipelineStage<SendMessagePipeline
         {
             Role = Role.User,
             Visible = false,
-            Content = "Give me a short summary of our conversation so far.",
+            Content = "Give me a short description of our conversation so far.",
             Created = DateTime.UtcNow,
         };
 
@@ -96,7 +100,7 @@ public class EnsureConversationSummaryStage : IPipelineStage<SendMessagePipeline
         {
             Role = Role.System,
             Visible = false,
-            Content = "Respond with a short summary (max 50 characters)",
+            Content = MyRegex().Replace(FinalSystemMessage, " "),
             Created = DateTime.UtcNow,
         };
 
@@ -110,4 +114,7 @@ public class EnsureConversationSummaryStage : IPipelineStage<SendMessagePipeline
     {
         return response.Choices.First().Message.Content;
     }
+
+    [GeneratedRegex(@"\s+")]
+    private static partial Regex MyRegex();
 }

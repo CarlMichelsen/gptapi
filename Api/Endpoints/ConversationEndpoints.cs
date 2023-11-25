@@ -39,6 +39,18 @@ public static class ConversationEndpoints
         .WithName("Conversation")
         .RequireAuthorization();
 
+        conversationGroup.MapDelete("/{id}", async (
+            [FromRoute] Guid id,
+            [FromServices] IConversationHandler conversationHandler) =>
+        {
+            var conversationResult = await conversationHandler.DeleteConversation(id);
+            return conversationResult.Match(
+                (conversation) => Results.Ok(conversation),
+                (error) => Results.NotFound(error));
+        })
+        .WithName("DeleteConversation")
+        .RequireAuthorization();
+
         return group;
     }
 }

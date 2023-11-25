@@ -3,17 +3,12 @@
     import { chatHubStore } from "../../store/chatHubStore";
     import { baseUrl } from "../../baseurl";
     import Connected from "./Connected/index.svelte";
-    import type { SteamPlayer } from "../../types/dto/steamPlayer";
-
-    export let userData: SteamPlayer;
+    import { userStore } from "../../store/userStore";
 
     onMount(async () => {
         await chatHubStore.initialize(`${baseUrl()}/chathub`, (isUnauthorized: boolean) => {
-            // if (isUnauthorized) localStore.set({ credentials: undefined });
-            // user is not logged in. Handle this.
+            if (isUnauthorized) userStore.logout();
         });
-
-        console.log("userData", userData);
     });
 
     onDestroy(() => chatHubStore.dispose());

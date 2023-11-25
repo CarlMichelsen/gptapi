@@ -46,3 +46,26 @@ export const getConversation = async (conversationId: string) : Promise<Conversa
         return null;
     }
 }
+
+export const deleteConversation = async (conversationId: string) : Promise<ConversationType|null> => {
+    const endpoint = `${baseUrl()}/api/v1/conversation/${conversationId}`;
+    try {
+        const response = await fetch(endpoint, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            credentials: "include",
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+        }
+
+        return await response.json() as ConversationType;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}

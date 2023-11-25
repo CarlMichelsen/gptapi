@@ -23,27 +23,31 @@ public sealed class SendMessagePipeline : Pipeline<SendMessagePipelineParameter>
             .AddStage(typeof(EnsureConversationSummaryStage));
     }
 
-    public override Task<SendMessagePipelineParameter> Execute(SendMessagePipelineParameter input, CancellationToken cancellationToken)
+    public override async Task<SendMessagePipelineParameter> Execute(SendMessagePipelineParameter input, CancellationToken cancellationToken)
     {
-        // Don't forget to clear!
-        this.ClearStages();
-
-        var scopedServiceProvider = this.serviceProvider.CreateScope().ServiceProvider;
-
-        foreach (var stageType in this.stageTypes)
+        using (var scope = this.serviceProvider.CreateScope())
         {
-            var obj = scopedServiceProvider.GetRequiredService(stageType);
-            if (obj is null)
+            this.ClearStages();
+            var scopedServiceProvider = scope.ServiceProvider;
+
+            foreach (var stageType in this.stageTypes)
             {
-                throw new PipelineException(
-                    $"Failed to instantiate PipelineStage of type {stageType.Name}");
+                var obj = scopedServiceProvider.GetRequiredService(stageType);
+                if (obj is null)
+                {
+                    throw new PipelineException(
+                        $"Failed to instantiate PipelineStage of type {stageType.Name}");
+                }
+
+                var stage = (IPipelineStage<SendMessagePipelineParameter>)obj;
+                this.AddStage(stage);
             }
 
-            var stage = (IPipelineStage<SendMessagePipelineParameter>)obj;
-            this.AddStage(stage);
-        }
+            var pipelineExecution = await base.Execute(input, cancellationToken);
 
-        return base.Execute(input, cancellationToken);
+            this.ClearStages();
+            return pipelineExecution;
+        }
     }
 
     private SendMessagePipeline AddStage(Type pipelineStage)

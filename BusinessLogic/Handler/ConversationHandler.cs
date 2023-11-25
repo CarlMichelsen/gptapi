@@ -21,6 +21,16 @@ public class ConversationHandler : IConversationHandler
         this.conversationService = conversationService;
     }
 
+    public async Task<Result<bool, string>> DeleteConversation(Guid conversationId)
+    {
+        var userId = this.GetUserId();
+        var conversationResult = await this.conversationService.DeleteConversation(userId, conversationId);
+        
+        return conversationResult.Match<Result<bool, string>>(
+            (conversation) => true,
+            (error) => false);
+    }
+
     public async Task<Result<ConversationDto, string>> GetConversation(Guid conversationId)
     {
         var userId = this.GetUserId();

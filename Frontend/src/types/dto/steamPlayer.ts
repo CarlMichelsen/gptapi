@@ -1,11 +1,11 @@
 export type SteamPlayer = {
-    steamId: string;
+    steamid: string;
     communityvisibilitystate: string;
-    profileState: string;
-    personaName: string;
-    lastLogoff: number;
-    profileUrl: string;
+    profilestate: string;
+    personaname: string;
+    lastlogoff: number;
+    profileurl: string;
     avatar: string;
-    avatarMedium: string;
-    avatarFull: string;
+    avatarmedium: string;
+    avatarfull: string;
 };

@@ -7,4 +7,6 @@ public class ConversationDto
     public required string? Summary { get; set; }
 
     public required List<MessageDto> Messages { get; init; }
+
+    public required DateTime LastAppended { get; init; }
 }

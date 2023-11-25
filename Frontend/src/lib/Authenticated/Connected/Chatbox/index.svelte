@@ -10,6 +10,17 @@
     import Structure from "../Structure.svelte";
     import Conversation from "./Conversation.svelte";
     import InputField from "../InputField.svelte";
+    import { setQueryParam } from "../../../../util/queryParameters";
+
+    export let queryConversationId: string|null;
+    onMount(() => {
+        setTimeout(() => {
+            const detail = {
+                detail: queryConversationId,
+            } as CustomEvent<string|null>;
+            onConversationSelected(detail);
+        }, 0);
+    });
 
     let ready: boolean = true;
     let selectedConversationId: string | null;
@@ -18,13 +29,11 @@
     let chunks: MessageChunk[] = []
 
     const receiveMessageChunk: Exclude<typeof ConnectionMethods.receiveMessageChunk, null> = (chunk) => {
-        console.log("messageChunk", chunk);
         chunks.push(chunk);
         activeMessage = { ...activeMessage, content: chunks.map(c => c.content).join("") };
     };
 
     const receiveMessage: Exclude<typeof ConnectionMethods.receiveMessage, null> = (message) => {
-        console.log("message", message);
         if (!conversation) return;
         activeMessage = { ...activeMessage, content: "" };
         conversation.messages = [...conversation.messages, message];
@@ -48,16 +57,21 @@
         chunks = [];
         activeMessage = { ...activeMessage, content: "" };
         ready = false;
-        console.log(message, conversationId);
         ConnectionMethods.sendMessage(message, conversationId);
     }
 
-    const onConversationSelected = async (details: CustomEvent<string>) => {
+    const onConversationSelected = async (details: CustomEvent<string|null>) => {
+        setQueryParam("conv", details.detail);
+        if (details.detail == null) {
+            selectedConversationId = details.detail;
+            conversation = details.detail;
+            return;
+        }
+
         const conv = await getConversation(details.detail);
         if (conv) {
             selectedConversationId = conv.id;
             conversation = conv;
-            console.log("conversationSelected", conv);
         }
     } 
 
@@ -80,15 +94,11 @@
         conversationOptions={$conversationStore.conversationOptions}
         bind:selectedConversationId={selectedConversationId}
         on:conversationSelected={onConversationSelected} />
-    <Conversation
-        slot="conversation"
-        bind:conversation={conversation}
-        bind:activeMessage={activeMessage} />
+    <div slot="conversation" class="grid h-screen grid-rows-[1fr,auto]">
+        <Conversation
+            bind:conversation={conversation}
+            bind:activeMessage={activeMessage} />
+        
+        <InputField on:send={(message) => sendMessage(message.detail, selectedConversationId)} {ready} />
+    </div>
 </Structure>
-
-<div class="fixed inset-x-0 bottom-8">
-    <Structure>
-        <div slot="sidebar"></div>
-        <InputField slot="conversation" on:send={(message) => sendMessage(message.detail, selectedConversationId)} {ready} />
-    </Structure>
-</div>

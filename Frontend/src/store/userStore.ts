@@ -14,7 +14,9 @@ const createUserStore = (initialValue: UserStore) => {
 
     const login = async () => {
         const data = await getUserData();
-        store.set({ user: data });
+        if (data) {
+            store.set({ user: data });
+        }
     }
 
     const logout = async () => {

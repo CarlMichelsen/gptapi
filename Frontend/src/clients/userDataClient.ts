@@ -3,7 +3,6 @@ import type { SteamPlayer } from "../types/dto/steamPlayer";
 
 export const getUserData = async (): Promise<SteamPlayer | null> => {
     const endpoint = `${baseUrl()}/api/v1/session/UserData`;
-    console.log(endpoint);
     try {
         const response = await fetch(endpoint, {
             method: 'POST',
@@ -19,7 +18,6 @@ export const getUserData = async (): Promise<SteamPlayer | null> => {
 
         return await response.json() as SteamPlayer;
     } catch (error) {
-        console.error("getUserData", error);
         return null;
     }
 }

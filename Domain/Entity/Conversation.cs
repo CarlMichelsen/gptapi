@@ -11,4 +11,8 @@ public class Conversation
     public required List<Message> Messages { get; init; }
 
     public required DateTime Created { get; init; }
+
+    public DateTime LastAppended { get; set; } = DateTime.Now;
+
+    public bool Deleted { get; set; } = false;
 }

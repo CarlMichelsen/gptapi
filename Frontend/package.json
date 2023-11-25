@@ -23,6 +23,8 @@
     "vite": "^4.5.0"
   },
   "dependencies": {
-    "@microsoft/signalr": "^7.0.12"
+    "@microsoft/signalr": "^7.0.12",
+    "highlight.js": "^11.9.0",
+    "marked": "^10.0.0"
   }
 }

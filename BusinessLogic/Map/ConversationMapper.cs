@@ -32,6 +32,7 @@ public static class ConversationMapper
             Id = conversation.Id,
             Summary = conversation.Summary,
             Messages = conversation.Messages.Where(m => m.Visible).Select(Map).ToList(),
+            LastAppended = conversation.LastAppended,
         };
     }
 

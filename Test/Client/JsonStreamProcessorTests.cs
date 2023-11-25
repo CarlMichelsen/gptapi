@@ -12,11 +12,12 @@ public class JsonStreamProcessorTests
     [InlineData("RandomData{\"key\":\"}}value\"}MoreRandomData", new string[] { "{\"key\":\"}}value\"}" })]
     [InlineData("RandomData{\"key\":\"{value\"}MoreRandomData", new string[] { "{\"key\":\"{value\"}" })]
     [InlineData(@"RandomData{""key"":""{value\""}MoreRandomData", new string[] { @"{""key"":""{value\""}" })]
+    [InlineData(@"RandomData{""key"":""{value\""}MoreRa}domData{""key"":""{m}}me\""}randomDASDA", new string[] { @"{""key"":""{value\""}", @"{""key"":""{m}}me\""}" })]
     public async Task ReadJsonObjectsAsync_ReturnsCorrectJsonObjects(string input, string[] expectedJsonObjects)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
 
-        var jsonObjects = await JsonStreamProcessor.ReadJsonObjectsAsync(stream).ToListAsync();
+        var jsonObjects = await JsonStreamProcessor.ReadJsonObjectsAsync(stream, 16).ToListAsync();
 
         Assert.Equal(expectedJsonObjects.Length, jsonObjects.Count);
         for (int i = 0; i < expectedJsonObjects.Length; i++)

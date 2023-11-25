@@ -27,7 +27,7 @@
     };
 </script>
 
-<div class="flex flex-row items-center container">
+<div class="flex flex-row items-center container mb-8 mt-4">
     <input
         type="text"
         bind:value={inputValue}

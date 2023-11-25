@@ -4,11 +4,18 @@
     import Chatbox from "./Chatbox/index.svelte";
     import { conversationStore } from "../../../store/conversationStore";
     import { getConversationOptions } from "../../../clients/conversationClient";
+    import { getQueryParams } from "../../../util/queryParameters";
+
+    let queryParams: { [key: string]: string } = {};
 
     const fetchConversationList = async () => {
         const options = await getConversationOptions();
         if (options) conversationStore.assignOptions(options);
     }
+
+    onMount(() => {
+        queryParams = getQueryParams();
+    });
 
     fetchConversationList();
 
@@ -23,4 +30,4 @@
     });
 </script>
 
-<Chatbox />
+<Chatbox queryConversationId={queryParams["conv"] ?? null} />

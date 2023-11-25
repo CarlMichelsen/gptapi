@@ -10,6 +10,8 @@ public class SendMessagePipelineParameter
 
     public required Message UserMessage { get; init; }
 
+    public bool StopFurtherMessageStreaming { get; set; } = false;
+
     public Message? ResponseMessage { get; set; }
 
     public Guid? ConversationId { get; set; }

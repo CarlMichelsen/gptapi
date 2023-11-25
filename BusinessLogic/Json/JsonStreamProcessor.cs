@@ -16,15 +16,21 @@ public static class JsonStreamProcessor
         {
             var chunk = Encoding.UTF8.GetString(buffer, 0, bytesRead);
 
+            var previousEscape = false;
             foreach (var ch in chunk)
             {
-                if (IsQuote(ch))
+                if (openBraces > 0 && IsQuote(ch, previousEscape))
                 {
                     quoteCounter++;
                 }
 
                 var inQuotes = quoteCounter % 2 == 1;
                 var braceDiff = CountCurlyBrackets(ch, inQuotes);
+                if (braceDiff == -1 && openBraces == 0)
+                {
+                    continue;
+                }
+
                 openBraces += braceDiff;
 
                 if (braceDiff == 1 && openBraces == 1)
@@ -40,15 +46,16 @@ public static class JsonStreamProcessor
                 else if (openBraces > 0)
                 {
                     jsonBuilder.Append(ch);
+                    previousEscape = ch == '\\';
                 }
             }
         }
     }
 
-    private static bool IsQuote(char character)
+    private static bool IsQuote(char character, bool previousEscape)
     {
         // This is naive because i dont want to count escaped quotes and the escape character may not be part of this chunk...
-        return character == '"';
+        return character == '"' && !previousEscape;
     }
 
     private static int CountCurlyBrackets(char character, bool inQuotes)

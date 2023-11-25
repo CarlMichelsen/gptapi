@@ -10,6 +10,8 @@ public interface IConversationService
     
     Task<Result<Conversation, string>> GetConversation(string userId, Guid conversationId);
 
+    Task<Result<bool, string>> DeleteConversation(string userId, Guid conversationId);
+
     Task<Result<Conversation, string>> AppendConversation(string userId, Guid conversationId, Message message);
     
     Task<Result<Conversation, string>> StartConversation(string userId, Message message);

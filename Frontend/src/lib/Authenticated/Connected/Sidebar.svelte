@@ -3,39 +3,54 @@
     import type { ConversationMetadata } from "../../../types/dto/conversation";
     import { userStore } from "../../../store/userStore";
     import { createEventDispatcher } from "svelte";
+    import { deleteConversation } from "../../../clients/conversationClient";
+    import { setQueryParam } from "../../../util/queryParameters";
 
     export let conversationOptions: ConversationMetadata[] | null;
     export let selectedConversationId: string | null
     
-    const dispatch = createEventDispatcher<{ conversationSelected: string }>();
+    const dispatch = createEventDispatcher<{ conversationSelected: string|null }>();
 
-    const onSelected = (metaData: ConversationMetadata) => dispatch("conversationSelected", metaData.id);
+    const onSelected = (metaData: ConversationMetadata|null) => dispatch("conversationSelected", metaData?.id);
+    const onDelete = async (metaData: ConversationMetadata) => {
+        const deleted = await deleteConversation(metaData.id)
+        if (deleted) {
+            const index = conversationOptions?.findIndex(c => c.id === metaData.id) ?? -1;
+            if (index !== -1) {
+                conversationOptions!.splice(index, 1);
+                conversationOptions = [ ...conversationOptions! ];
+                if (selectedConversationId === metaData.id) {
+                    selectedConversationId = null;
+                    setQueryParam("conv", null);
+                }
+            }
+        }
+    };
 </script>
 
 <div class="w-full h-full">
-    <div class="fixed left-0 bg-black h-full w-[200px]">
-        <div class="grid grid-cols-[140px_minmax(0,1fr)]">
-            <div>
-                <h1 class="text-xl my-2.5 ml-1">Conversations</h1>
-            </div>
-            
-            <div>
-                <button
-                    on:click={() => userStore.logout()}
-                    class="font-extrabold text-4xl text-red-600 hover:text-red-400 block w-full h-full pb-1">-</button>
-            </div>
+    <div class="left-0 bg-black h-screen grid grid-rows-[auto,auto,1fr] overflow-y-scroll">
+        <div>
+            <h1 class="text-xl my-2.5 ml-1 text-zinc-300">Conversations of {$userStore.user?.personaname}</h1>
+        </div>
+
+        <div class="grid grid-cols-2 space-x-1 mx-1 mb-4">
+            <button class="bg-zinc-800 hover:bg-red-600 hover:text-white py-3" on:click={() => userStore.logout()}>Logout</button>
+            <button class="bg-zinc-800 hover:bg-green-600 hover:text-white py-3" on:click={() => onSelected(null)}>New Conversation</button>
         </div>
         
-        <ol class="space-y-1 pl-1 py-1">
-            {#if conversationOptions == null}
-                <p>Loading conversations...</p>
-            {:else}
-                {#each conversationOptions as option}
-                    <li>
-                        <ConversationOption metaData={option} {onSelected} isSelected={(option.id === selectedConversationId)} />
-                    </li>
-                {/each}
-            {/if}
-        </ol>
+        <div>
+            <ol class="space-y-1 pl-1 py-1">
+                {#if conversationOptions == null}
+                    <p>Loading conversations...</p>
+                {:else}
+                    {#each conversationOptions as option}
+                        <li>
+                            <ConversationOption metaData={option} {onSelected} {onDelete} isSelected={(option.id === selectedConversationId)} />
+                        </li>
+                    {/each}
+                {/if}
+            </ol>
+        </div>
     </div>
 </div>

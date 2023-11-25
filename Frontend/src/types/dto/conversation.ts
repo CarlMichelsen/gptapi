@@ -8,6 +8,7 @@ export type ConversationType = {
 
 export type ConversationMetadata = {
     id: string;
-    summary: string;
+    summary: string | null;
+    lastAppended: Date;
     created: Date;
 };

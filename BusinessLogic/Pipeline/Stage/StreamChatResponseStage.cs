@@ -65,16 +65,30 @@ public class StreamChatResponseStage : IPipelineStage<SendMessagePipelineParamet
                 Role = ConversationMapper.Map(Role.Assistant),
                 Content = choice.Delta.Content,
                 Created = messageChunk.Created,
-            }; 
+            };
 
             chunkTasks.Add(this.SendChunkToCallerAndReturnIt(client, messageChunkDto));
             index++;
+
+            if (input.StopFurtherMessageStreaming)
+            {
+                input.ResponseMessage = new Message
+                {
+                    Role = Role.Assistant,
+                    Content = await this.CollectAndSortChunks(chunkTasks),
+                    ResponseId = responseId,
+                    Created = DateTime.UtcNow,
+                    Complete = false,
+                };
+                return input;
+            }
         }
 
         input.ResponseMessage = new Message
         {
             Role = Role.Assistant,
             Content = await this.CollectAndSortChunks(chunkTasks),
+            ResponseId = responseId,
             Created = DateTime.UtcNow,
             Complete = true,
         };

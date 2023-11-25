@@ -1,6 +1,7 @@
 {
   "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
+    "lib": ["ESNext", "DOM"],
     "target": "ESNext",
     "useDefineForClassFields": true,
     "module": "ESNext",
@@ -39,6 +40,6 @@
     "strict": true,
     "strictNullChecks": true
   },
-  "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],
+  "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte", "syntaxHighlightVitePlugin.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -8,7 +8,7 @@
 
 <main>
 	{#if $userStore?.user != null}
-  		<Authenticated userData={$userStore.user} />
+  		<Authenticated />
 	{:else}
 		<LandingZone />
 	{/if}
