@@ -8,5 +8,7 @@ public class MessageDto
 
     public required string Content { get; init; }
 
+    public required bool Complete { get; set; }
+
     public required DateTime Created { get; init; }
 }

@@ -1,13 +1,13 @@
 <script lang="ts">
-    import { userStore } from "./store/userStore";
-  	import Authenticated from "./lib/Authenticated/index.svelte";
+    import { applicationStore } from "./store/applicationStore";
+  	import Authenticated from "./lib/Authenticated.svelte";
     import LandingZone from "./lib/LandingZone.svelte";
 
-	userStore.login();
+	applicationStore.login();
 </script>
 
 <main>
-	{#if $userStore?.user != null}
+	{#if $applicationStore?.user}
   		<Authenticated />
 	{:else}
 		<LandingZone />

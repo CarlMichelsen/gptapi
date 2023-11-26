@@ -1,7 +1,7 @@
 <script lang="ts">
     import { marked, Renderer, type MarkedOptions } from "marked";
-    import type { Message } from "../../../types/dto/message";
-    import { loadLanguage } from "../../../util/syntaxHighlight";
+    import type { Message } from "../../types/dto/message";
+    import { loadLanguage } from "../../util/syntaxHighlight";
     export let message: Message;
 
     let content: string = "";

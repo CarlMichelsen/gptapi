@@ -43,6 +43,7 @@ public static class ConversationMapper
             Id = message.Id,
             Role = Map(message.Role),
             Content = message.Content,
+            Complete = message.Complete,
             Created = message.Created,
         };
     }

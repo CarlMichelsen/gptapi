@@ -1,13 +1,13 @@
 <script lang="ts">
     import ChatMessage from "../ChatMessage.svelte";
-    import type { ConversationType } from "../../../../types/dto/conversation";
-    import type { Message } from "../../../../types/dto/message";
+    import type { Message } from "../../../types/dto/message";
+    import { applicationStore } from "../../../store/applicationStore";
 
-    export let conversation: ConversationType | null;
     export let activeMessage: Message = {
-        id: "",
+        id: "streaming-message",
         role: "assistant",
         content: "",
+        complete: false,
         created: new Date(),
     };
 
@@ -29,21 +29,21 @@
         }
     }
 
-    $: conversation?.id, setTimeout(() => scrollToBottom(), 0);
-    $: setTimeout(() => onMessageChanged(activeMessage.content, conversation?.id), 0);
+    $: setTimeout(() => onMessageChanged(activeMessage.content), 0);
 </script>
 
+{#if $applicationStore.user}
 <div class="overflow-y-auto" id={messageContainer}>
     <div class="container">
-        {#if conversation}
-            {#if conversation.summary}
+        {#if $applicationStore.selectedConversation}
+            {#if $applicationStore.selectedConversation.summary}
                 <div class="mx-2.5">
-                    <h1 class="text-2xl my-2">{conversation.summary}</h1>
+                    <h1 class="text-2xl my-2">{$applicationStore.selectedConversation.summary}</h1>
                     <hr class="mb-3">
                 </div>
             {/if}
                 <ol class="space-y-2 p-1">
-                    {#each conversation.messages as message}
+                    {#each $applicationStore.selectedConversation.messages as message}
                     <li>
                         <ChatMessage {message} />
                     </li>
@@ -60,3 +60,4 @@
         {/if}
     </div>
 </div>
+{/if}

@@ -1,4 +1,4 @@
-export const setQueryParam = (key: string, value: string|null|undefined) => {
+export const setQueryParam = (key: string, value?: string|null) => {
     // Create a URLSearchParams object based on current search string
     const searchParams = new URLSearchParams(window.location.search);
 

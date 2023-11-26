@@ -47,7 +47,7 @@ export const getConversation = async (conversationId: string) : Promise<Conversa
     }
 }
 
-export const deleteConversation = async (conversationId: string) : Promise<ConversationType|null> => {
+export const deleteConversation = async (conversationId: string) : Promise<boolean> => {
     const endpoint = `${baseUrl()}/api/v1/conversation/${conversationId}`;
     try {
         const response = await fetch(endpoint, {
@@ -63,9 +63,9 @@ export const deleteConversation = async (conversationId: string) : Promise<Conve
             throw new Error(`Error: ${response.status}`);
         }
 
-        return await response.json() as ConversationType;
+        return true;
     } catch (error) {
         console.error(error);
-        return null;
+        return false;
     }
 }

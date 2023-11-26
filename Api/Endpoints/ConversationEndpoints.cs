@@ -43,9 +43,9 @@ public static class ConversationEndpoints
             [FromRoute] Guid id,
             [FromServices] IConversationHandler conversationHandler) =>
         {
-            var conversationResult = await conversationHandler.DeleteConversation(id);
-            return conversationResult.Match(
-                (conversation) => Results.Ok(conversation),
+            var conversationDeletedResult = await conversationHandler.DeleteConversation(id);
+            return conversationDeletedResult.Match(
+                (conversationDeleted) => Results.Ok(conversationDeleted),
                 (error) => Results.NotFound(error));
         })
         .WithName("DeleteConversation")
