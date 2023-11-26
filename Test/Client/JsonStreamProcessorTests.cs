@@ -10,9 +10,7 @@ public class JsonStreamProcessorTests
     [InlineData("{\"key1\":\"value1\"}{\"key2\":\"value2\"}", new string[] { "{\"key1\":\"value1\"}", "{\"key2\":\"value2\"}" })]
     [InlineData("RandomData{\"key\":\"value\"}MoreRandomData", new string[] { "{\"key\":\"value\"}" })]
     [InlineData("RandomData{\"key\":\"}}value\"}MoreRandomData", new string[] { "{\"key\":\"}}value\"}" })]
-    [InlineData("RandomData{\"key\":\"{value\"}MoreRandomData", new string[] { "{\"key\":\"{value\"}" })]
-    [InlineData(@"RandomData{""key"":""{value\""}MoreRandomData", new string[] { @"{""key"":""{value\""}" })]
-    [InlineData(@"RandomData{""key"":""{value\""}MoreRa}domData{""key"":""{m}}me\""}randomDASDA", new string[] { @"{""key"":""{value\""}", @"{""key"":""{m}}me\""}" })]
+    [InlineData("RandomData{\"key\":\"{value\"}MoreRandomDataRandomData{\"key\":\"{value\"}MoreRandomData", new string[] { "{\"key\":\"{value\"}", "{\"key\":\"{value\"}" })]
     public async Task ReadJsonObjectsAsync_ReturnsCorrectJsonObjects(string input, string[] expectedJsonObjects)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));

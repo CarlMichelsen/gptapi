@@ -29,7 +29,7 @@ public abstract class Pipeline<T>
         return current;
     }
 
-    protected Pipeline<T> AddStage(IPipelineStage<T> stage)
+    public Pipeline<T> AddStage(IPipelineStage<T> stage)
     {
         this.stages.Add(stage);
         return this;

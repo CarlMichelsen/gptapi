@@ -1,4 +1,4 @@
-﻿using BusinessLogic.Pipeline;
+﻿using BusinessLogic.Pipeline.SendMessage;
 using Domain.Context;
 using Domain.Dto.Conversation;
 using Domain.Entity;
@@ -13,11 +13,11 @@ namespace BusinessLogic.Handler;
 public class ChatHubHandler : Hub<IChatClient>, IChatServer
 {
     private readonly ILogger<ChatHubHandler> logger;
-    private readonly SendMessagePipeline sendMessagePipeline;
+    private readonly SendMessagePipelineSingleton sendMessagePipeline;
 
     public ChatHubHandler(
         ILogger<ChatHubHandler> logger,
-        SendMessagePipeline sendMessagePipeline)
+        SendMessagePipelineSingleton sendMessagePipeline)
     {
         this.logger = logger;
         this.sendMessagePipeline = sendMessagePipeline;
@@ -44,7 +44,7 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
             Complete = true,
         };
 
-        var parameter = new SendMessagePipelineParameter
+        var parameter = new SendMessagePipelineParameters
         {
             ConversationId = sendMessageRequest.ConversationId,
             UserId = this.ChatHubContext.SteamId.ToString(),

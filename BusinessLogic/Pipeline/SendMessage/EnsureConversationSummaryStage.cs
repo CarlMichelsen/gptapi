@@ -11,13 +11,17 @@ using Interface.Pipeline;
 using Interface.Service;
 using Microsoft.AspNetCore.SignalR;
 
-namespace BusinessLogic.Pipeline.Stage;
+namespace BusinessLogic.Pipeline.SendMessage;
 
-public partial class EnsureConversationSummaryStage : IPipelineStage<SendMessagePipelineParameter>
+/// <summary>
+/// Pretty sure this class is only partial because of the regex implementation.
+/// </summary>
+public partial class EnsureConversationSummaryStage : IPipelineStage<SendMessagePipelineParameters>
 {
     private const string FinalSystemMessage = @"Respond with a short description of the conversation so far (max 80 characters).
-            Make sure the description is memorable so the conversation can be identified by it later.
-            The description will be used as a title for the conversation. Don't use special characters.";
+        Make sure the description is memorable so the conversation can be identified by it later.
+        The description will be used as a title for the conversation. Don't use special characters.";
+    
     private readonly IGptChatClient gptChatClient;
     private readonly IConversationService conversationService;
     private readonly IHubContext<ChatHub, IChatClient> chatHub;
@@ -32,8 +36,8 @@ public partial class EnsureConversationSummaryStage : IPipelineStage<SendMessage
         this.chatHub = chatHub;
     }
 
-    public async Task<SendMessagePipelineParameter> Process(
-        SendMessagePipelineParameter input,
+    public async Task<SendMessagePipelineParameters> Process(
+        SendMessagePipelineParameters input,
         CancellationToken cancellationToken)
     {
         var conv = input.Conversation
@@ -63,6 +67,9 @@ public partial class EnsureConversationSummaryStage : IPipelineStage<SendMessage
 
         return input;
     }
+
+    [GeneratedRegex(@"\s+")]
+    private static partial Regex MyRegex();
 
     private GptChatPrompt GetGptConversationSummaryPrompt(Conversation conv)
     {
@@ -114,7 +121,4 @@ public partial class EnsureConversationSummaryStage : IPipelineStage<SendMessage
     {
         return response.Choices.First().Message.Content;
     }
-
-    [GeneratedRegex(@"\s+")]
-    private static partial Regex MyRegex();
 }

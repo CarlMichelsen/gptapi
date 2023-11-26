@@ -10,9 +10,9 @@ using Interface.Hub;
 using Interface.Pipeline;
 using Microsoft.AspNetCore.SignalR;
 
-namespace BusinessLogic.Pipeline.Stage;
+namespace BusinessLogic.Pipeline.SendMessage;
 
-public class StreamChatResponseStage : IPipelineStage<SendMessagePipelineParameter>
+public class StreamChatResponseStage : IPipelineStage<SendMessagePipelineParameters>
 {
     private readonly IGptChatClient gptChatClient;
     private readonly IHubContext<ChatHub, IChatClient> chatHub;
@@ -25,8 +25,8 @@ public class StreamChatResponseStage : IPipelineStage<SendMessagePipelineParamet
         this.chatHub = chatHub;
     }
 
-    public async Task<SendMessagePipelineParameter> Process(
-        SendMessagePipelineParameter input,
+    public async Task<SendMessagePipelineParameters> Process(
+        SendMessagePipelineParameters input,
         CancellationToken cancellationToken)
     {
         // I am not checking if the client is still connected...

@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using BusinessLogic.Handler;
-using BusinessLogic.Pipeline;
+using BusinessLogic.Pipeline.SendMessage;
 using Domain.Context;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -16,7 +16,7 @@ public class ChatHub : ChatHubHandler
     public ChatHub(
         ILogger<ChatHub> logger,
         ILogger<ChatHubHandler> handlerLogger,
-        SendMessagePipeline sendMessagePipeline)
+        SendMessagePipelineSingleton sendMessagePipeline)
         : base(handlerLogger, sendMessagePipeline)
     {
         this.logger = logger;

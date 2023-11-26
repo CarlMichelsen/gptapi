@@ -8,9 +8,9 @@ using Interface.Pipeline;
 using Interface.Service;
 using Microsoft.AspNetCore.SignalR;
 
-namespace BusinessLogic.Pipeline.Stage;
+namespace BusinessLogic.Pipeline.SendMessage;
 
-public class RegisterMessageResponseStage : IPipelineStage<SendMessagePipelineParameter>
+public class RegisterMessageResponseStage : IPipelineStage<SendMessagePipelineParameters>
 {
     private readonly IConversationService conversationService;
     private readonly IHubContext<ChatHub, IChatClient> chatHub;
@@ -23,8 +23,8 @@ public class RegisterMessageResponseStage : IPipelineStage<SendMessagePipelinePa
         this.chatHub = chatHub;
     }
 
-    public async Task<SendMessagePipelineParameter> Process(
-        SendMessagePipelineParameter input,
+    public async Task<SendMessagePipelineParameters> Process(
+        SendMessagePipelineParameters input,
         CancellationToken cancellationToken)
     {
         // I am not checking if the client is still connected...

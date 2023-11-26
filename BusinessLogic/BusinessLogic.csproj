@@ -19,8 +19,4 @@
     <ProjectReference Include="..\Database\Database.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Provider\" />
-  </ItemGroup>
-
 </Project>

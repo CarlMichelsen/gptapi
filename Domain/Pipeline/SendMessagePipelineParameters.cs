@@ -2,7 +2,7 @@
 
 namespace Domain.Pipeline;
 
-public class SendMessagePipelineParameter
+public class SendMessagePipelineParameters
 {
     public required string UserId { get; init; }
 

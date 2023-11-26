@@ -4,9 +4,9 @@ using Domain.Pipeline;
 using Interface.Pipeline;
 using Interface.Service;
 
-namespace BusinessLogic.Pipeline.Stage;
+namespace BusinessLogic.Pipeline.SendMessage;
 
-public class CreateOrAppendConversationStage : IPipelineStage<SendMessagePipelineParameter>
+public class CreateOrAppendConversationStage : IPipelineStage<SendMessagePipelineParameters>
 {
     private readonly IConversationService conversationService;
 
@@ -16,8 +16,8 @@ public class CreateOrAppendConversationStage : IPipelineStage<SendMessagePipelin
         this.conversationService = conversationService;
     }
 
-    public async Task<SendMessagePipelineParameter> Process(
-        SendMessagePipelineParameter input,
+    public async Task<SendMessagePipelineParameters> Process(
+        SendMessagePipelineParameters input,
         CancellationToken cancellationToken)
     {
         Domain.Result<Conversation, string> conversationResult;

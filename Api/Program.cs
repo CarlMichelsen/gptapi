@@ -1,10 +1,11 @@
 using Api.Endpoints;
+using Api.Extensions;
 using BusinessLogic.Client;
 using BusinessLogic.Factory;
 using BusinessLogic.Handler;
 using BusinessLogic.Hub;
-using BusinessLogic.Pipeline;
-using BusinessLogic.Pipeline.Stage;
+using BusinessLogic.Pipeline.SendMessage;
+using BusinessLogic.Pipeline.StartLoginProcess;
 using BusinessLogic.Provider;
 using BusinessLogic.Service;
 using Database;
@@ -49,15 +50,9 @@ builder.Services.AddSignalR();
 
 // Pipelines
 builder.Services
-    .AddSingleton<SendMessagePipeline>();
-
-// Stages
-builder.Services
-    .AddTransient<CreateOrAppendConversationStage>()
-    .AddTransient<NotifyUserOfCreatedMessageStage>()
-    .AddTransient<StreamChatResponseStage>()
-    .AddTransient<RegisterMessageResponseStage>()
-    .AddTransient<EnsureConversationSummaryStage>();
+    .RegisterPipelineStages()
+    .AddSingleton<SendMessagePipelineSingleton>()
+    .AddTransient<StartLoginProcessPipeline>();
 
 // Handlers
 builder.Services
@@ -112,7 +107,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 
     // Frontend origin for development
-    app.UseCors(policy => 
+    app.UseCors(policy =>
         policy.WithOrigins("http://localhost:3000")
         .AllowAnyHeader()
         .AllowAnyMethod()

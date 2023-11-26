@@ -15,12 +15,11 @@
 
     const sendMessage = (message: string) => {
         if (!$applicationStore.user) return;
-        if (!$applicationStore.selectedConversation) return;
 
         chunks = [];
         activeMessage = { ...activeMessage, content: "" };
         ready = false;
-        ConnectionMethods.sendMessage(message, $applicationStore.selectedConversation.id);
+        ConnectionMethods.sendMessage(message, $applicationStore.selectedConversation?.id ?? null);
     }
 
     onMount(() => {
