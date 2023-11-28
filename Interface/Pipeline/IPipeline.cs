@@ -2,5 +2,5 @@
 
 public interface IPipeline<T>
 {
-    Task<T> Execute(T input);
+    Task<T> Execute(T input, CancellationToken cancellationToken);
 }

@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using BusinessLogic.Handler;
-using BusinessLogic.Pipeline.SendMessage;
+using BusinessLogic.Pipeline;
 using Domain.Context;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;

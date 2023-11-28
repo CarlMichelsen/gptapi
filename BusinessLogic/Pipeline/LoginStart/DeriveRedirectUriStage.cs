@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
 
-namespace BusinessLogic.Pipeline.StartLoginProcess;
+namespace BusinessLogic.Pipeline.LoginStart;
 
-public class DeriveRedirectUriStage : IPipelineStage<StartLoginPipelineParameters>
+public class DeriveRedirectUriStage : IPipelineStage<LoginStartPipelineParameters>
 {
     private readonly IOptions<SteamOAuthOptions> steamOAuthOptions;
     
@@ -41,8 +41,8 @@ public class DeriveRedirectUriStage : IPipelineStage<StartLoginPipelineParameter
         return $"?{queryString}";
     }
 
-    public Task<StartLoginPipelineParameters> Process(
-        StartLoginPipelineParameters input,
+    public Task<LoginStartPipelineParameters> Process(
+        LoginStartPipelineParameters input,
         CancellationToken cancellationToken)
     {
         var queryParams = new Dictionary<string, string>

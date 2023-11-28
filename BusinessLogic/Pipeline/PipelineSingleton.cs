@@ -4,51 +4,49 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BusinessLogic.Pipeline;
 
-public abstract class PipelineSingleton<T> : Pipeline<T>
+public abstract class PipelineSingleton<T> : IPipeline<T>
 {
     private readonly List<Type> stageTypes = new();
     private readonly IServiceProvider serviceProvider;
 
-    protected PipelineSingleton(
-        IServiceProvider serviceProvider)
-    {
+    protected PipelineSingleton(IServiceProvider serviceProvider) =>
         this.serviceProvider = serviceProvider;
-    }
 
-    public override async Task<T> Execute(T input, CancellationToken cancellationToken)
+    public async Task<T> Execute(
+        T input,
+        CancellationToken cancellationToken)
     {
-        using (var scope = this.serviceProvider.CreateScope())
+        using var scope = this.serviceProvider.CreateScope();
+        var current = input;
+        
+        foreach (var stageType in this.stageTypes)
         {
             try
             {
-                this.ClearStages();
-                var scopedServiceProvider = scope.ServiceProvider;
+                cancellationToken.ThrowIfCancellationRequested();
 
-                foreach (var stageType in this.stageTypes)
+                var obj = scope.ServiceProvider.GetRequiredService(stageType);
+                if (obj is null)
                 {
-                    var obj = scopedServiceProvider.GetRequiredService(stageType);
-                    if (obj is null)
-                    {
-                        throw new PipelineException(
-                            $"Failed to instantiate PipelineStage of type {stageType.Name}");
-                    }
-
-                    var stage = (IPipelineStage<T>)obj;
-                    this.AddStage(stage);
+                    throw new PipelineException(
+                        $"Failed to instantiate PipelineStage of type {stageType.Name}");
                 }
 
-                var pipelineExecution = await base.Execute(input, cancellationToken);
-
-                return pipelineExecution;
+                current = await (obj as IPipelineStage<T>)!.Process(current, cancellationToken);
             }
-            finally
+            catch (PipelineException e)
             {
-                this.ClearStages();
+                var pipelineName = this.GetType().Name;
+                var stageName = stageType.GetType().Name;
+                throw new PipelineException(
+                    $"an exception was trown in pipeline <{pipelineName}> by {stageName}", e);
             }
         }
+
+        return current;
     }
 
-    public PipelineSingleton<T> AddTypedStage(Type pipelineStage)
+    public PipelineSingleton<T> AddStageType(Type pipelineStage)
     {
         if (pipelineStage.IsAssignableFrom(typeof(IPipelineStage<T>)))
         {

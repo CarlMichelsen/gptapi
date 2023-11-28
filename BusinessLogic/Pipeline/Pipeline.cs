@@ -3,7 +3,7 @@ using Interface.Pipeline;
 
 namespace BusinessLogic.Pipeline;
 
-public abstract class Pipeline<T>
+public abstract class Pipeline<T> : IPipeline<T>
 {
     private readonly List<IPipelineStage<T>> stages = new();
 

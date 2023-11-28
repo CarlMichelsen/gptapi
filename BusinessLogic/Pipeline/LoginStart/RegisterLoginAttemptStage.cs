@@ -3,9 +3,9 @@ using Domain.Entity;
 using Domain.Pipeline;
 using Interface.Pipeline;
 
-namespace BusinessLogic.Pipeline.StartLoginProcess;
+namespace BusinessLogic.Pipeline.LoginStart;
 
-public class RegisterLoginAttemptStage : IPipelineStage<StartLoginPipelineParameters>
+public class RegisterLoginAttemptStage : IPipelineStage<LoginStartPipelineParameters>
 {
     private readonly ApplicationContext applicationContext;
 
@@ -15,8 +15,8 @@ public class RegisterLoginAttemptStage : IPipelineStage<StartLoginPipelineParame
         this.applicationContext = applicationContext;
     }
 
-    public async Task<StartLoginPipelineParameters> Process(
-        StartLoginPipelineParameters input,
+    public async Task<LoginStartPipelineParameters> Process(
+        LoginStartPipelineParameters input,
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();

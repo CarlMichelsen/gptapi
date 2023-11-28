@@ -4,8 +4,7 @@ using BusinessLogic.Client;
 using BusinessLogic.Factory;
 using BusinessLogic.Handler;
 using BusinessLogic.Hub;
-using BusinessLogic.Pipeline.SendMessage;
-using BusinessLogic.Pipeline.StartLoginProcess;
+using BusinessLogic.Pipeline;
 using BusinessLogic.Provider;
 using BusinessLogic.Service;
 using Database;
@@ -52,13 +51,15 @@ builder.Services.AddSignalR();
 builder.Services
     .RegisterPipelineStages()
     .AddSingleton<SendMessagePipelineSingleton>()
-    .AddTransient<StartLoginProcessPipeline>();
+    .AddTransient<LoginStartPipeline>()
+    .AddTransient<LoginFailurePipeline>()
+    .AddTransient<LoginSuccessPipeline>();
 
 // Handlers
 builder.Services
     .AddTransient<ISessionHandler, SessionHandler>()
     .AddTransient<IConversationHandler, ConversationHandler>()
-    .AddTransient<ISteamOAuthHandler, SteamOAuthHandler>();
+    .AddTransient<ISteamOAuthHandler, SteamOAuthHandler2>();
 
 // Factories
 builder.Services
@@ -139,6 +140,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 
-app.MapFallbackToFile("index.html");
+app.MapFallbackToFile("index.html")
+    .WithName(GptApiConstants.FrontendEndpointName);
 
 app.Run();
