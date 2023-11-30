@@ -28,7 +28,7 @@ public class ValidateOAuthRecordStage : IPipelineStage<LoginSuccessPipelineParam
         LoginSuccessPipelineParameters input,
         CancellationToken cancellationToken)
     {
-        var record = await this.applicationContext.OAuthRecords
+        var record = await this.applicationContext.OAuthRecord
             .FindAsync(input.OAuthRecordId);
         
         // If this record is not known, don't grant access.
@@ -68,7 +68,7 @@ public class ValidateOAuthRecordStage : IPipelineStage<LoginSuccessPipelineParam
         }
 
         // Try to get userprofile to assign oAuthRecord to it
-        var userProfile = await this.applicationContext.UserProfiles
+        var userProfile = await this.applicationContext.UserProfile
             .FirstOrDefaultAsync(u => 
             u.AuthenticationIdType == Domain.Entity.AuthenticationMethod.Steam
             && u.AuthenticationId == input.SteamId);
@@ -85,7 +85,7 @@ public class ValidateOAuthRecordStage : IPipelineStage<LoginSuccessPipelineParam
                 Created = now,
                 LastLogin = now,
             };
-            this.applicationContext.UserProfiles.Attach(userProfile);
+            this.applicationContext.UserProfile.Attach(userProfile);
         }
 
         userProfile.OAuthRecords.Add(record);

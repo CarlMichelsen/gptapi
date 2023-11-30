@@ -75,7 +75,7 @@ public class ConversationService : IConversationService
         {
             var conversation = InitialConversation(userId, Guid.NewGuid(), message);
 
-            await this.applicationContext.Conversations.AddAsync(conversation);
+            await this.applicationContext.Conversation.AddAsync(conversation);
             await this.applicationContext.SaveChangesAsync();
             this.logger.LogInformation(
                 "Started a new conversation <{conversationId}>",
@@ -127,7 +127,7 @@ public class ConversationService : IConversationService
     {
         try
         {
-            var conversation = await this.applicationContext.Conversations
+            var conversation = await this.applicationContext.Conversation
                 .Include(c => c.Messages)
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.Id == conversationId && !c.Deleted);
             
@@ -149,7 +149,7 @@ public class ConversationService : IConversationService
     {
         try
         {
-            var conversations = await this.applicationContext.Conversations
+            var conversations = await this.applicationContext.Conversation
                 .Where(c => c.UserId == userId && !c.Deleted)
                 .ToListAsync();
             
@@ -174,7 +174,7 @@ public class ConversationService : IConversationService
     {
         try
         {
-            var conversation = await this.applicationContext.Conversations
+            var conversation = await this.applicationContext.Conversation
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.Id == conversationId && !c.Deleted);
             
             if (conversation is null)
@@ -198,7 +198,7 @@ public class ConversationService : IConversationService
     {
         try
         {
-            var conversation = await this.applicationContext.Conversations
+            var conversation = await this.applicationContext.Conversation
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.Id == conversationId && !c.Deleted);
             
             if (conversation is null)

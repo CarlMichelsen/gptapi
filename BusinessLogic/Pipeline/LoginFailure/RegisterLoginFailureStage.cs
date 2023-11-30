@@ -19,7 +19,7 @@ public class RegisterLoginFailureStage : IPipelineStage<LoginFailurePipelinePara
         LoginFailurePipelineParameters input,
         CancellationToken cancellationToken)
     {
-        var oAuthRecord = await this.applicationContext.OAuthRecords.FindAsync(input.OAuthRecordId)
+        var oAuthRecord = await this.applicationContext.OAuthRecord.FindAsync(input.OAuthRecordId)
             ?? throw new PipelineException("Could not find oAuthRecord for LoginFailure");
         
         oAuthRecord.Error = input.Error;

@@ -12,7 +12,7 @@ namespace Api.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Conversations",
+                name: "Conversation",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -24,11 +24,11 @@ namespace Api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Conversations", x => x.Id);
+                    table.PrimaryKey("PK_Conversation", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserProfiles",
+                name: "UserProfile",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -39,7 +39,7 @@ namespace Api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserProfiles", x => x.Id);
+                    table.PrimaryKey("PK_UserProfile", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -59,14 +59,14 @@ namespace Api.Migrations
                 {
                     table.PrimaryKey("PK_Message", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Message_Conversations_ConversationId",
+                        name: "FK_Message_Conversation_ConversationId",
                         column: x => x.ConversationId,
-                        principalTable: "Conversations",
+                        principalTable: "Conversation",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "OAuthRecords",
+                name: "OAuthRecord",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -80,11 +80,11 @@ namespace Api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OAuthRecords", x => x.Id);
+                    table.PrimaryKey("PK_OAuthRecord", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_OAuthRecords_UserProfiles_UserProfileId",
+                        name: "FK_OAuthRecord_UserProfile_UserProfileId",
                         column: x => x.UserProfileId,
-                        principalTable: "UserProfiles",
+                        principalTable: "UserProfile",
                         principalColumn: "Id");
                 });
 
@@ -94,13 +94,13 @@ namespace Api.Migrations
                 column: "ConversationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OAuthRecords_UserProfileId",
-                table: "OAuthRecords",
+                name: "IX_OAuthRecord_UserProfileId",
+                table: "OAuthRecord",
                 column: "UserProfileId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserProfiles_AuthenticationId",
-                table: "UserProfiles",
+                name: "IX_UserProfile_AuthenticationId",
+                table: "UserProfile",
                 column: "AuthenticationId",
                 unique: true);
         }
@@ -112,13 +112,13 @@ namespace Api.Migrations
                 name: "Message");
 
             migrationBuilder.DropTable(
-                name: "OAuthRecords");
+                name: "OAuthRecord");
 
             migrationBuilder.DropTable(
-                name: "Conversations");
+                name: "Conversation");
 
             migrationBuilder.DropTable(
-                name: "UserProfiles");
+                name: "UserProfile");
         }
     }
 }

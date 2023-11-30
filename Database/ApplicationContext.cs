@@ -18,11 +18,11 @@ public sealed class ApplicationContext : DbContext
     {
     }
 
-    public DbSet<Conversation> Conversations { get; init; }
+    public DbSet<Conversation> Conversation { get; init; }
 
-    public DbSet<OAuthRecord> OAuthRecords { get; init; }
+    public DbSet<OAuthRecord> OAuthRecord { get; init; }
 
-    public DbSet<UserProfile> UserProfiles { get; init; }
+    public DbSet<UserProfile> UserProfile { get; init; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

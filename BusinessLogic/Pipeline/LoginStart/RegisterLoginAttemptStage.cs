@@ -31,7 +31,7 @@ public class RegisterLoginAttemptStage : IPipelineStage<LoginStartPipelineParame
             Error = null,
         };
 
-        this.applicationContext.OAuthRecords.Add(oAuthRecord);
+        this.applicationContext.OAuthRecord.Add(oAuthRecord);
         await this.applicationContext.SaveChangesAsync();
 
         return input;

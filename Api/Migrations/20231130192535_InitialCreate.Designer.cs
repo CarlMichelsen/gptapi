@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Api.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20231130164341_InitialCreate")]
+    [Migration("20231130192535_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -49,7 +49,7 @@ namespace Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Conversations");
+                    b.ToTable("Conversation");
                 });
 
             modelBuilder.Entity("Domain.Entity.Message", b =>
@@ -118,7 +118,7 @@ namespace Api.Migrations
 
                     b.HasIndex("UserProfileId");
 
-                    b.ToTable("OAuthRecords");
+                    b.ToTable("OAuthRecord");
                 });
 
             modelBuilder.Entity("Domain.Entity.UserProfile", b =>
@@ -145,7 +145,7 @@ namespace Api.Migrations
                     b.HasIndex("AuthenticationId")
                         .IsUnique();
 
-                    b.ToTable("UserProfiles");
+                    b.ToTable("UserProfile");
                 });
 
             modelBuilder.Entity("Domain.Entity.Message", b =>

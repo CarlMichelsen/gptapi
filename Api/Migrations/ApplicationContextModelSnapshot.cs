@@ -46,7 +46,7 @@ namespace Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Conversations");
+                    b.ToTable("Conversation");
                 });
 
             modelBuilder.Entity("Domain.Entity.Message", b =>
@@ -115,7 +115,7 @@ namespace Api.Migrations
 
                     b.HasIndex("UserProfileId");
 
-                    b.ToTable("OAuthRecords");
+                    b.ToTable("OAuthRecord");
                 });
 
             modelBuilder.Entity("Domain.Entity.UserProfile", b =>
@@ -142,7 +142,7 @@ namespace Api.Migrations
                     b.HasIndex("AuthenticationId")
                         .IsUnique();
 
-                    b.ToTable("UserProfiles");
+                    b.ToTable("UserProfile");
                 });
 
             modelBuilder.Entity("Domain.Entity.Message", b =>
