@@ -3,18 +3,23 @@ using Domain.Exception;
 using Domain.Pipeline;
 using Interface.Factory;
 using Interface.Pipeline;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace BusinessLogic.Pipeline.LoginSuccess;
 
 public class ValidateOAuthRecordStage : IPipelineStage<LoginSuccessPipelineParameters>
 {
+    private readonly ILogger<ValidateOAuthRecordStage> logger;
     private readonly ApplicationContext applicationContext;
     private readonly ISteamClientFactory steamClientFactory;
 
     public ValidateOAuthRecordStage(
+        ILogger<ValidateOAuthRecordStage> logger,
         ApplicationContext applicationContext,
         ISteamClientFactory steamClientFactory)
     {
+        this.logger = logger;
         this.applicationContext = applicationContext;
         this.steamClientFactory = steamClientFactory;
     }
@@ -29,41 +34,66 @@ public class ValidateOAuthRecordStage : IPipelineStage<LoginSuccessPipelineParam
         // If this record is not known, don't grant access.
         if (record is null)
         {
-            return input;
+            throw new OAuthException("Did not find an OAuthRecord.");
         }
 
         // If this record was started more than 5 hours ago, don't grant access.
-        record.ReturnedFromSteam = DateTime.UtcNow;
-        if (record.ReturnedFromSteam - record.RedirectedToSteam > TimeSpan.FromHours(5))
+        record.ReturnedFromThirdParty = DateTime.UtcNow;
+        if (record.ReturnedFromThirdParty - record.RedirectedToThirdParty > TimeSpan.FromHours(5))
         {
-            return input;
+            throw new OAuthException("OAuthRecord is more than 5 hours old.");
         }
 
         // If this record does not have an accesstoken, don't grant access.
         record.AccessToken = input.AccessToken;
         if (string.IsNullOrWhiteSpace(record.AccessToken))
         {
-            return input;
+            throw new OAuthException("No accessToken.");
         }
 
         // If the accessToken receieved from redirect query parameters can't be exchanged for a steamId, don't grant access.
         var client = this.steamClientFactory.Create();
         var steamId = await client.GetSteamId(record.AccessToken);
-        if (string.IsNullOrWhiteSpace(steamId))
+        if (steamId is null)
         {
-            return input;
+            throw new OAuthException("Failed to exchange accessToken for a steamId.");
         }
 
         // Save SteamID, verify oAuthRecord and grant access!
-        record.SteamId = steamId;
-        input.SteamId = record.SteamId;
+        record.UserId = steamId;
+        input.SteamId = record.UserId;
         if (!record.IsCompleted())
         {
             throw new OAuthException("OAuth process should have completed by now.");
         }
 
+        // Try to get userprofile to assign oAuthRecord to it
+        var userProfile = await this.applicationContext.UserProfiles
+            .FirstOrDefaultAsync(u => 
+            u.AuthenticationIdType == Domain.Entity.AuthenticationMethod.Steam
+            && u.AuthenticationId == input.SteamId);
+        
+        // Create a userprofile if none exsists
+        if (userProfile is null)
+        {
+            this.logger.LogWarning("New user logged in <{steamid}>", input.SteamId);
+            var now = DateTime.UtcNow;
+            userProfile = new Domain.Entity.UserProfile
+            {
+                AuthenticationId = input.SteamId,
+                AuthenticationIdType = Domain.Entity.AuthenticationMethod.Steam,
+                Created = now,
+                LastLogin = now,
+            };
+            this.applicationContext.UserProfiles.Attach(userProfile);
+        }
+
+        userProfile.OAuthRecords.Add(record);
         await this.applicationContext.SaveChangesAsync();
+
+        input.UserProfileId = userProfile.Id;
         input.Authorized = true;
+
         return input;
     }
 }

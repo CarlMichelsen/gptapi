@@ -26,7 +26,7 @@ public class DevelopmentIdentityProvider : IDevelopmentIdentityProvider
 
     public static SteamDevelopmentPlayerDto GenerateSteamDevelopmentPlayer(string personaName, TimeSpan timeSinceLastLogout, long testSteamId)
     {
-        var lastLogOffEpoch = DateTime.Now.Subtract(timeSinceLastLogout) - DateTime.UnixEpoch;
+        var lastLogOffEpoch = DateTime.UtcNow.Subtract(timeSinceLastLogout) - DateTime.UnixEpoch;
 
         return new SteamDevelopmentPlayerDto
         {

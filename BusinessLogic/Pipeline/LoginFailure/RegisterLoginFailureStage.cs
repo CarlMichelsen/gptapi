@@ -1,14 +1,31 @@
-﻿using Domain.Pipeline;
+﻿using Database;
+using Domain.Exception;
+using Domain.Pipeline;
 using Interface.Pipeline;
 
 namespace BusinessLogic.Pipeline.LoginFailure;
 
 public class RegisterLoginFailureStage : IPipelineStage<LoginFailurePipelineParameters>
 {
-    public Task<LoginFailurePipelineParameters> Process(
+    private readonly ApplicationContext applicationContext;
+
+    public RegisterLoginFailureStage(
+        ApplicationContext applicationContext)
+    {
+        this.applicationContext = applicationContext;
+    }
+
+    public async Task<LoginFailurePipelineParameters> Process(
         LoginFailurePipelineParameters input,
         CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var oAuthRecord = await this.applicationContext.OAuthRecords.FindAsync(input.OAuthRecordId)
+            ?? throw new PipelineException("Could not find oAuthRecord for LoginFailure");
+        
+        oAuthRecord.Error = input.Error;
+        oAuthRecord.ReturnedFromThirdParty = DateTime.UtcNow;
+        await this.applicationContext.SaveChangesAsync();
+
+        return input;
     }
 }

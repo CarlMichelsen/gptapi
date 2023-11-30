@@ -18,6 +18,7 @@ using Interface.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,7 +37,7 @@ builder.Services
 
 // Database
 builder.Services.AddDbContext<ApplicationContext>(options =>
-    options.UseSqlite("Data Source=sql/MyDatabase.db", b => b.MigrationsAssembly("Api")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), (b) => b.MigrationsAssembly("Api")));
 
 // Services
 builder.Services
@@ -59,7 +60,7 @@ builder.Services
 builder.Services
     .AddTransient<ISessionHandler, SessionHandler>()
     .AddTransient<IConversationHandler, ConversationHandler>()
-    .AddTransient<ISteamOAuthHandler, SteamOAuthHandler2>();
+    .AddTransient<ISteamOAuthHandler, SteamOAuthHandler>();
 
 // Factories
 builder.Services

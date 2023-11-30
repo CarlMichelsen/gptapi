@@ -8,10 +8,10 @@ public static class OAuthRecordExtensions
     {
         if (record is
         {
-            ReturnedFromSteam: not null,
-            SteamId: not null,
+            ReturnedFromThirdParty: not null,
+            UserId: not null,
             AccessToken: not null,
-            ReturnedFromSteam: not null,
+            ReturnedFromThirdParty: not null,
         })
         {
             return true;

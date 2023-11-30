@@ -1,207 +1,128 @@
-﻿using System.Security.Claims;
-using Database;
+﻿using BusinessLogic.Pipeline;
 using Domain;
-using Domain.Configuration;
-using Domain.Entity;
 using Domain.Exception;
-using Interface.Factory;
+using Domain.Pipeline;
 using Interface.Handler;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Interface.Pipeline;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace BusinessLogic.Handler;
 
 public class SteamOAuthHandler : ISteamOAuthHandler
 {
     private readonly ILogger<SteamOAuthHandler> logger;
-    private readonly IHttpContextAccessor httpContextAccessor;
-    private readonly IOptions<SteamOAuthOptions> steamOAuthOptions;
-    private readonly IOptions<ApplicationOptions> applicationOptions;
-    private readonly ISteamClientFactory steamClientFactory;
-    private readonly ApplicationContext context;
+    private readonly LoginStartPipeline loginStartPipeline;
+    private readonly LoginFailurePipeline loginFailurePipeline;
+    private readonly LoginSuccessPipeline loginSuccessPipeline;
 
     public SteamOAuthHandler(
         ILogger<SteamOAuthHandler> logger,
-        IHttpContextAccessor httpContextAccessor,
-        IOptions<SteamOAuthOptions> steamOAuthOptions,
-        IOptions<ApplicationOptions> applicationOptions,
-        ISteamClientFactory steamClientFactory,
-        ApplicationContext context)
+        LoginStartPipeline startLoginProcessPipeline,
+        LoginFailurePipeline loginFailurePipeline,
+        LoginSuccessPipeline loginSuccessPipeline)
     {
         this.logger = logger;
-        this.httpContextAccessor = httpContextAccessor;
-        this.steamOAuthOptions = steamOAuthOptions;
-        this.applicationOptions = applicationOptions;
-        this.steamClientFactory = steamClientFactory;
-        this.context = context;
-    }
-
-    public static string ParseQueryParameters(string endpoint, Dictionary<string, string> parameters)
-    {
-        var queryString = string.Join("&", parameters.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
-        var baseUri = new Uri(endpoint);
-        var uri = new Uri(baseUri, $"?{queryString}");
-        return uri.AbsoluteUri;
+        this.loginStartPipeline = startLoginProcessPipeline;
+        this.loginFailurePipeline = loginFailurePipeline;
+        this.loginSuccessPipeline = loginSuccessPipeline;
     }
 
     public async Task<IResult> SteamLogin()
     {
-        var error = this.InitialLoginErrors();
-        if (error is not null)
-        {
-            throw new OAuthException(error);
-        }
+        // get cancellation token from somewhere that matters...
+        var source = new CancellationTokenSource();
 
-        var record = new OAuthRecord
+        var parameters = new LoginStartPipelineParameters
         {
-            Id = Guid.NewGuid(),
-            RedirectedToSteam = DateTime.UtcNow,
-            ReturnedFromSteam = null,
-            SteamId = null,
-            AccessToken = null,
-            Error = null,
+            OAuthRecordId = Guid.NewGuid(),
         };
 
-        this.context.OAuthRecords.Add(record);
-        await this.context.SaveChangesAsync();
-        this.logger.LogInformation(
-            "{recordId}: User is being redirected to steam for oAuth login",
-            record.Id);
-
-        var queryParams = new Dictionary<string, string>
-        {
-            { "response_type", "token" },
-            { "client_id", this.steamOAuthOptions.Value.ClientId },
-            { "state", record.Id.ToString() },
-        };
-
-        if (this.applicationOptions.Value.IsDevelopment)
-        {
-            return Results.RedirectToRoute(GptApiConstants.DeveloperIdpName, queryParams); 
-        }
-
-        var url = ParseQueryParameters(this.steamOAuthOptions.Value.OAuthEndpoint, queryParams);
-        return Results.Redirect(url);
+        var excecutedParametersResult = await this.ExecutePipeline(
+            this.loginStartPipeline,
+            parameters,
+            "SteamLogin",
+            source.Token);
+        
+        return excecutedParametersResult.Match(
+            (parameters) => Results.Redirect(parameters.RedirectUri!),
+            (_) => Results.StatusCode(500));
     }
 
-    public async Task<IResult> SteamLoginFailure(Guid oAuthRecordId, string error)
+    public async Task<IResult> SteamLoginFailure(
+        Guid oAuthRecordId,
+        string error)
     {
-        var record = await this.context.OAuthRecords
-            .FindAsync(oAuthRecordId);
-        if (record is null)
+        // get cancellation token from somewhere that matters...
+        var source = new CancellationTokenSource();
+
+        var parameters = new LoginFailurePipelineParameters
         {
-            return Results.NotFound();
-        }
+            OAuthRecordId = oAuthRecordId,
+            Error = error,
+        };
 
-        record.Error = error;
-        record.ReturnedFromSteam = DateTime.UtcNow;
-        await this.context.SaveChangesAsync();
-        this.logger.LogInformation("{recordId}: User failed oAuth login", record.Id);
-
-        await this.SignOut();
-
-        return Results.Unauthorized();
+        var excecutedParametersResult = await this.ExecutePipeline(
+            this.loginFailurePipeline,
+            parameters,
+            "SteamLoginFailure",
+            source.Token);
+        
+        return excecutedParametersResult.Match(
+            (parameters) => Results.Redirect(parameters.RedirectUri!),
+            (error) => Results.StatusCode(500));
     }
 
     public async Task<IResult> SteamLoginSuccess(Guid oAuthRecordId, string tokenType, string accessToken)
     {
-        var record = await this.context.OAuthRecords
-            .FindAsync(oAuthRecordId);
-        
-        var error = this.LoginErrors(record);
-        if (error is not null)
-        {
-            throw new OAuthException(error);
-        }
+        // get cancellation token from somewhere that matters...
+        var source = new CancellationTokenSource();
 
+        var parameters = new LoginSuccessPipelineParameters
+        {
+            OAuthRecordId = oAuthRecordId,
+            TokenType = tokenType,
+            AccessToken = accessToken,
+        };
+
+        var excecutedParametersResult = await this.ExecutePipeline(
+            this.loginSuccessPipeline,
+            parameters,
+            "SteamLoginSuccess",
+            source.Token);
+        
+        return excecutedParametersResult.Match(
+            (parameters) => parameters.Authorized ? Results.Redirect(parameters.RedirectUri!) : Results.Unauthorized(),
+            (error) => Results.StatusCode(500));
+
+        throw new NotImplementedException();
+    }
+
+    private async Task<Result<T, string>> ExecutePipeline<T>(
+        IPipeline<T> pipeline,
+        T parameters,
+        string methodName,
+        CancellationToken cancellationToken)
+    {
         try
         {
-            record!.ReturnedFromSteam = DateTime.UtcNow;
-
-            var client = this.steamClientFactory.Create();
-            var steamId = await client.GetSteamId(accessToken);
-
-            record.SteamId = steamId;
-            record.AccessToken = accessToken;
-
-            await this.context.SaveChangesAsync();
-            if (!record.IsCompleted())
-            {
-                throw new OAuthException("OAuth process should have completed by now.");
-            }
-
-            await this.AddCookieResponseHeader(record, accessToken);
-            this.logger.LogInformation(
-                "{recordId}: User successfully completed oAuth login with steamId: {steamId}",
-                record.Id,
-                steamId);
-            
-            if (this.applicationOptions.Value.IsDevelopment)
-            {
-                return Results.Redirect(GptApiConstants.DeveloperFrontendUrl);
-            }
-
-            return Results.RedirectToRoute("/");
+            return await pipeline.Execute(parameters, cancellationToken);
+        }
+        catch (PipelineException e)
+        {
+            this.logger.LogError(
+                "A PipelineException happened in the {method} method {e}",
+                methodName,
+                e);
         }
         catch (Exception e)
         {
             this.logger.LogCritical(
-                "An exception was thrown handling OAuthRecord {OAuthRecordId} -> {e}",
-                record!.Id,
+                "A critical exception happened in the {method} method {e}",
+                methodName,
                 e);
-            return Results.StatusCode(500);
-        }
-    }
-
-    public virtual async Task SignOut()
-    {
-        await this.httpContextAccessor.HttpContext!.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    }
-
-    public virtual async Task AddCookieResponseHeader(OAuthRecord record, string accessToken)
-    {
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, record.Id.ToString()),
-            new Claim("AccessToken", accessToken),
-            new Claim("SteamId", record.SteamId!),
-        };
-        var claimsIdentity = new ClaimsIdentity(
-            claims,
-            CookieAuthenticationDefaults.AuthenticationScheme);
-        var authProperties = new AuthenticationProperties { };
-
-        await this.httpContextAccessor.HttpContext!.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            new ClaimsPrincipal(claimsIdentity),
-            authProperties);
-    }
-
-    private string? InitialLoginErrors()
-    {
-        if (string.IsNullOrWhiteSpace(this.steamOAuthOptions.Value.ClientId))
-        {
-            return "Attempted to login without an OAuth ClientId";
         }
 
-        return default;
-    }
-
-    private string? LoginErrors(OAuthRecord? record)
-    {
-        if (record is null)
-        {
-            return "Record was not found.";
-        }
-
-        if (record.IsCompleted())
-        {
-            return "This login process has already been completed.";
-        }
-
-        return default;
+        return "failure";
     }
 }

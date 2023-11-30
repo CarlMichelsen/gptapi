@@ -12,7 +12,7 @@ public class Conversation
 
     public required DateTime Created { get; init; }
 
-    public DateTime LastAppended { get; set; } = DateTime.Now;
+    public DateTime LastAppended { get; set; } = DateTime.UtcNow;
 
     public bool Deleted { get; set; } = false;
 }

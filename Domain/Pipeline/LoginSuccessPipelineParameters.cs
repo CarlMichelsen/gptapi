@@ -7,6 +7,8 @@ public class LoginSuccessPipelineParameters
     public required string TokenType { get; init; }
 
     public required string AccessToken { get; init; }
+
+    public Guid UserProfileId { get; set; }
     
     public string? SteamId { get; set; }
 
