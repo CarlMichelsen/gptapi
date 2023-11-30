@@ -18,16 +18,16 @@ public sealed class ApplicationContext : DbContext
     {
     }
 
+    public DbSet<Conversation> Conversations { get; init; }
+
+    public DbSet<OAuthRecord> OAuthRecords { get; init; }
+
+    public DbSet<UserProfile> UserProfiles { get; init; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<UserProfile>()
             .HasIndex(e => e.AuthenticationId)
             .IsUnique();
     }
-
-    public DbSet<Conversation> Conversations { get; init; }
-
-    public DbSet<OAuthRecord> OAuthRecords { get; init; }
-
-    public DbSet<UserProfile> UserProfiles { get; init; }
 }

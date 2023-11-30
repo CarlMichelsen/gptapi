@@ -20,7 +20,7 @@ namespace Api.Migrations
                     Summary = table.Column<string>(type: "text", nullable: true),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     LastAppended = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Deleted = table.Column<bool>(type: "boolean", nullable: false)
+                    Deleted = table.Column<bool>(type: "boolean", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -35,7 +35,7 @@ namespace Api.Migrations
                     AuthenticationId = table.Column<string>(type: "text", nullable: false),
                     AuthenticationIdType = table.Column<int>(type: "integer", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LastLogin = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    LastLogin = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -53,7 +53,7 @@ namespace Api.Migrations
                     Complete = table.Column<bool>(type: "boolean", nullable: false),
                     Content = table.Column<string>(type: "text", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ConversationId = table.Column<Guid>(type: "uuid", nullable: true)
+                    ConversationId = table.Column<Guid>(type: "uuid", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -76,7 +76,7 @@ namespace Api.Migrations
                     UserId = table.Column<string>(type: "text", nullable: true),
                     AccessToken = table.Column<string>(type: "text", nullable: true),
                     Error = table.Column<string>(type: "text", nullable: true),
-                    UserProfileId = table.Column<Guid>(type: "uuid", nullable: true)
+                    UserProfileId = table.Column<Guid>(type: "uuid", nullable: true),
                 },
                 constraints: table =>
                 {

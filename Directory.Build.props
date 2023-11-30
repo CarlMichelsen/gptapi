@@ -5,10 +5,10 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
 
-    <AdditionalFiles Include="$(SolutionDir)stylecop.json" />
+    <AdditionalFiles Include="../stylecop.json" />
   </ItemGroup>
 
   <PropertyGroup>
-    <CodeAnalysisRuleset>$(SolutionDir)stylecop.ruleset</CodeAnalysisRuleset>
+    <CodeAnalysisRuleset>../stylecop.ruleset</CodeAnalysisRuleset>
   </PropertyGroup>
 </Project>
