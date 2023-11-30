@@ -1,4 +1,5 @@
-﻿using Interface.Handler;
+﻿using Domain;
+using Interface.Handler;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Endpoints;
@@ -24,7 +25,7 @@ public static class SteamOAuthEndpoints
             {
                 return await steamOauthHandler.SteamLoginSuccess(oAuthRecordId, tokenType, accessToken);
             })
-            .WithName("SteamLoginSuccess");
+            .WithName(GptApiConstants.SteamLoginSuccessEndPointName);
 
         oAuthGroup.MapGet(
             "/SteamLoginFailure",
