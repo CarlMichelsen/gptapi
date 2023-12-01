@@ -54,9 +54,9 @@ public class ChatHub : ChatHubHandler
         this.logger.LogInformation(
             "Client\t{id}\tconnected ({userProfileId}) |{authenticationMethod}| <{authenticationId}>",
             this.Context.ConnectionId,
-            this.ChatHubContext.UserProfileId,
-            this.ChatHubContext.AuthenticationMethod,
-            this.ChatHubContext.AuthenticationId);
+            this.GptClaims.UserProfileId,
+            this.GptClaims.AuthenticationMethod,
+            this.GptClaims.AuthenticationId);
         
         await base.OnConnectedAsync();
     }
@@ -68,9 +68,9 @@ public class ChatHub : ChatHubHandler
             this.logger.LogInformation(
                 "Client\t{id}\tdisconnected ({userProfileId}) |{authenticationMethod}| <{authenticationId}>",
                 this.Context.ConnectionId,
-                this.ChatHubContext.UserProfileId,
-                this.ChatHubContext.AuthenticationMethod,
-                this.ChatHubContext.AuthenticationId);
+                this.GptClaims.UserProfileId,
+                this.GptClaims.AuthenticationMethod,
+                this.GptClaims.AuthenticationId);
         }
         else
         {

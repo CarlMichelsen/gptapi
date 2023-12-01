@@ -24,7 +24,7 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
         this.sendMessagePipeline = sendMessagePipeline;
     }
 
-    protected GptClaims ChatHubContext
+    protected GptClaims GptClaims
     {
         get => (GptClaims)this.Context.Items["context"]!;
     }
@@ -33,7 +33,7 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
     {
         this.logger.LogInformation(
             "Receieved message from ({steamId}) with content \"{content}\"",
-            this.ChatHubContext.AuthenticationId,
+            this.GptClaims.AuthenticationId,
             sendMessageRequest.MessageContent);
 
         var userMessage = new Message
@@ -51,7 +51,7 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
 
         var parameter = new SendMessagePipelineParameters
         {
-            UserProfileId = this.ChatHubContext.UserProfileId,
+            UserProfileId = this.GptClaims.UserProfileId,
             ConversationId = conversationId,
             ConnectionId = this.Context.ConnectionId,
             UserMessage = userMessage,
