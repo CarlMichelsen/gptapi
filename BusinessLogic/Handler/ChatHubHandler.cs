@@ -2,6 +2,7 @@
 using Domain.Context;
 using Domain.Dto.Conversation;
 using Domain.Entity;
+using Domain.Entity.Id;
 using Domain.Exception;
 using Domain.Pipeline;
 using Interface.Hub;
@@ -23,31 +24,35 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
         this.sendMessagePipeline = sendMessagePipeline;
     }
 
-    protected ChatHubContext ChatHubContext
+    protected GptClaims ChatHubContext
     {
-        get => (ChatHubContext)this.Context.Items["context"]!;
+        get => (GptClaims)this.Context.Items["context"]!;
     }
 
     public async Task SendMessage(SendMessageRequest sendMessageRequest)
     {
         this.logger.LogInformation(
             "Receieved message from ({steamId}) with content \"{content}\"",
-            this.ChatHubContext.SteamId,
+            this.ChatHubContext.AuthenticationId,
             sendMessageRequest.MessageContent);
 
         var userMessage = new Message
         {
-            Id = Guid.Empty,
+            Id = new MessageId(Guid.NewGuid()),
             Role = Role.User,
             Content = sendMessageRequest.MessageContent,
             Created = DateTime.UtcNow,
             Complete = true,
         };
 
+        var conversationId = sendMessageRequest.ConversationId is null
+            ? null
+            : new ConversationId((Guid)sendMessageRequest.ConversationId!);
+
         var parameter = new SendMessagePipelineParameters
         {
-            ConversationId = sendMessageRequest.ConversationId,
-            UserId = this.ChatHubContext.SteamId.ToString(),
+            UserProfileId = this.ChatHubContext.UserProfileId,
+            ConversationId = conversationId,
             ConnectionId = this.Context.ConnectionId,
             UserMessage = userMessage,
         };

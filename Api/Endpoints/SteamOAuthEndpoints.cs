@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Domain.Entity.Id;
 using Interface.Handler;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,7 +24,7 @@ public static class SteamOAuthEndpoints
                 [FromQuery(Name = "token_type")] string tokenType,
                 [FromQuery(Name = "state")] Guid oAuthRecordId) => 
             {
-                return await steamOauthHandler.SteamLoginSuccess(oAuthRecordId, tokenType, accessToken);
+                return await steamOauthHandler.SteamLoginSuccess(new OAuthRecordId(oAuthRecordId), tokenType, accessToken);
             })
             .WithName(GptApiConstants.SteamLoginSuccessEndPointName);
 
@@ -34,7 +35,7 @@ public static class SteamOAuthEndpoints
                 [FromQuery(Name = "error")] string error,
                 [FromQuery(Name = "state")] Guid oAuthRecordId) => 
             {
-                return await steamOauthHandler.SteamLoginFailure(oAuthRecordId, error);
+                return await steamOauthHandler.SteamLoginFailure(new OAuthRecordId(oAuthRecordId), error);
             })
             .WithName("SteamLoginFailure");
         return group;

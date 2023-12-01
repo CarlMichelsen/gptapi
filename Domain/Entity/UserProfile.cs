@@ -1,8 +1,10 @@
-﻿namespace Domain.Entity;
+﻿using Domain.Entity.Id;
+
+namespace Domain.Entity;
 
 public class UserProfile
 {
-    public Guid Id { get; init; }
+    public required UserProfileId Id { get; init; }
 
     public required string AuthenticationId { get; init; }
 

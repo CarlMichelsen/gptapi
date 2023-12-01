@@ -1,5 +1,6 @@
 ﻿using Domain.Dto.Conversation;
 using Domain.Entity;
+using Domain.Entity.Id;
 using Domain.Exception;
 
 namespace BusinessLogic.Map;
@@ -10,17 +11,17 @@ public static class ConversationMapper
     {
         return new ConversationMetaDataDto
         {
-            Id = conversation.Id,
+            Id = conversation.Id.Value,
             Summary = conversation.Summary,
             Created = conversation.Created,
         };
     }
 
-    public static FirstMessageDto MapFirstMessage(Guid conversationId, Message message)
+    public static FirstMessageDto MapFirstMessage(ConversationId conversationId, Message message)
     {
         return new FirstMessageDto
         {
-            ConversationId = conversationId,
+            ConversationId = conversationId.Value,
             Message = Map(message),
         };
     }
@@ -29,7 +30,7 @@ public static class ConversationMapper
     {
         return new ConversationDto
         {
-            Id = conversation.Id,
+            Id = conversation.Id.Value,
             Summary = conversation.Summary,
             Messages = conversation.Messages.Where(m => m.Visible).Select(Map).ToList(),
             LastAppended = conversation.LastAppended,
@@ -40,7 +41,7 @@ public static class ConversationMapper
     {
         return new MessageDto
         {
-            Id = message.Id,
+            Id = message.Id.Value,
             Role = Map(message.Role),
             Content = message.Content,
             Complete = message.Complete,

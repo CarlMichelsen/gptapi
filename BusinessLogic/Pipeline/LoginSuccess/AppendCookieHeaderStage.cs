@@ -1,4 +1,6 @@
 ﻿using System.Security.Claims;
+using Domain;
+using Domain.Claims;
 using Domain.Exception;
 using Domain.Pipeline;
 using Interface.Pipeline;
@@ -39,11 +41,18 @@ public class AppendCookieHeaderStage : IPipelineStage<LoginSuccessPipelineParame
         HttpContext httpContext,
         LoginSuccessPipelineParameters parameters)
     {
+        var authenticationMethod = Enum.GetName(Domain.Entity.AuthenticationMethod.Steam)
+            ?? throw new PipelineException("authenticationMethod should be turned into a string here");
+
+        var steamId = parameters.SteamId
+            ?? throw new PipelineException("AuthenticationId should exsist here");
+
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, parameters.OAuthRecordId.ToString()),
-            new Claim("AccessToken", parameters.AccessToken),
-            new Claim("SteamId", parameters.SteamId ?? throw new PipelineException("SteamId should exsist here")),
+            new Claim(GptClaimKeys.UserProfileId, parameters.UserProfileId!.ToString()),
+            new Claim(GptClaimKeys.OAuthRecordId, parameters.OAuthRecordId.ToString()),
+            new Claim(GptClaimKeys.AuthenticationMethod, authenticationMethod),
+            new Claim(GptClaimKeys.AuthenticationId, steamId),
         };
         var claimsIdentity = new ClaimsIdentity(
             claims,

@@ -12,22 +12,6 @@ namespace Api.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Conversation",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<string>(type: "text", nullable: false),
-                    Summary = table.Column<string>(type: "text", nullable: true),
-                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LastAppended = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Deleted = table.Column<bool>(type: "boolean", nullable: false),
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Conversation", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "UserProfile",
                 columns: table => new
                 {
@@ -40,6 +24,51 @@ namespace Api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserProfile", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Conversation",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserProfileId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Summary = table.Column<string>(type: "text", nullable: true),
+                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastAppended = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UserDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Conversation", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Conversation_UserProfile_UserProfileId",
+                        column: x => x.UserProfileId,
+                        principalTable: "UserProfile",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OAuthRecord",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    AuthenticationMethod = table.Column<int>(type: "integer", nullable: false),
+                    RedirectedToThirdParty = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ReturnedFromThirdParty = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    UserId = table.Column<string>(type: "text", nullable: true),
+                    AccessToken = table.Column<string>(type: "text", nullable: true),
+                    Error = table.Column<string>(type: "text", nullable: true),
+                    UserProfileId = table.Column<Guid>(type: "uuid", nullable: true),
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OAuthRecord", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OAuthRecord_UserProfile_UserProfileId",
+                        column: x => x.UserProfileId,
+                        principalTable: "UserProfile",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -65,28 +94,10 @@ namespace Api.Migrations
                         principalColumn: "Id");
                 });
 
-            migrationBuilder.CreateTable(
-                name: "OAuthRecord",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ThirdParty = table.Column<int>(type: "integer", nullable: false),
-                    RedirectedToThirdParty = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ReturnedFromThirdParty = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    UserId = table.Column<string>(type: "text", nullable: true),
-                    AccessToken = table.Column<string>(type: "text", nullable: true),
-                    Error = table.Column<string>(type: "text", nullable: true),
-                    UserProfileId = table.Column<Guid>(type: "uuid", nullable: true),
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OAuthRecord", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_OAuthRecord_UserProfile_UserProfileId",
-                        column: x => x.UserProfileId,
-                        principalTable: "UserProfile",
-                        principalColumn: "Id");
-                });
+            migrationBuilder.CreateIndex(
+                name: "IX_Conversation_UserProfileId",
+                table: "Conversation",
+                column: "UserProfileId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Message_ConversationId",

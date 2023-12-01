@@ -1,8 +1,10 @@
-﻿namespace Domain.Entity;
+﻿using Domain.Entity.Id;
+
+namespace Domain.Entity;
 
 public class Message
 {
-    public Guid Id { get; set; }
+    public required MessageId Id { get; set; }
     
     public string? ResponseId { get; set; }
 

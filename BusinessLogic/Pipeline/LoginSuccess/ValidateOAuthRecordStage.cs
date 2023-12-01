@@ -1,4 +1,6 @@
 ﻿using Database;
+using Domain.Entity;
+using Domain.Entity.Id;
 using Domain.Exception;
 using Domain.Pipeline;
 using Interface.Factory;
@@ -61,7 +63,7 @@ public class ValidateOAuthRecordStage : IPipelineStage<LoginSuccessPipelineParam
 
         // Save SteamID, verify oAuthRecord and grant access!
         record.UserId = steamId;
-        input.SteamId = record.UserId;
+        input.SteamId = steamId;
         if (!record.IsCompleted())
         {
             throw new OAuthException("OAuth process should have completed by now.");
@@ -76,16 +78,18 @@ public class ValidateOAuthRecordStage : IPipelineStage<LoginSuccessPipelineParam
         // Create a userprofile if none exsists
         if (userProfile is null)
         {
-            this.logger.LogWarning("New user logged in <{steamid}>", input.SteamId);
+            this.logger.LogWarning("New user logged in <{steamid}>", steamId);
             var now = DateTime.UtcNow;
-            userProfile = new Domain.Entity.UserProfile
+            userProfile = new UserProfile
             {
-                AuthenticationId = input.SteamId,
+                Id = new UserProfileId(Guid.NewGuid()),
+                AuthenticationId = steamId,
                 AuthenticationIdType = Domain.Entity.AuthenticationMethod.Steam,
                 Created = now,
                 LastLogin = now,
             };
-            this.applicationContext.UserProfile.Attach(userProfile);
+            this.applicationContext.UserProfile.Add(userProfile);
+            this.applicationContext.SaveChanges();
         }
 
         userProfile.OAuthRecords.Add(record);

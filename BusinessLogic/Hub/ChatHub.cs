@@ -1,7 +1,9 @@
 ﻿using System.Security.Claims;
 using BusinessLogic.Handler;
 using BusinessLogic.Pipeline;
+using Domain.Claims;
 using Domain.Context;
+using Domain.Entity.Id;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
@@ -28,11 +30,16 @@ public class ChatHub : ChatHubHandler
         {
             var httpContext = this.Context.GetHttpContext();
             var claims = httpContext!.User.Claims.ToList();
-            var context = new ChatHubContext
+
+            var userProfileGuid = Guid.Parse(claims.First(c => c.Type == GptClaimKeys.UserProfileId).Value);
+            var oAuthRecordIdGuid = Guid.Parse(claims.First(c => c.Type == GptClaimKeys.OAuthRecordId).Value);
+
+            var context = new GptClaims
             {
-                AuthRecordId = Guid.Parse(claims.First(c => c.Type == ClaimTypes.Name).Value),
-                AccessToken = claims.First(c => c.Type == "AccessToken").Value,
-                SteamId = long.Parse(claims.First(c => c.Type == "SteamId").Value),
+                UserProfileId = new UserProfileId(userProfileGuid),
+                AuthRecordId = new OAuthRecordId(oAuthRecordIdGuid),
+                AuthenticationMethod = claims.First(c => c.Type == GptClaimKeys.AuthenticationMethod).Value,
+                AuthenticationId = claims.First(c => c.Type == GptClaimKeys.AuthenticationId).Value,
             };
 
             this.Context.Items.Add("context", context);
@@ -44,7 +51,13 @@ public class ChatHub : ChatHubHandler
             return;
         }
 
-        this.logger.LogInformation("Client\t{id}\tconnected ({userId})", this.Context.ConnectionId, this.ChatHubContext.SteamId);
+        this.logger.LogInformation(
+            "Client\t{id}\tconnected ({userProfileId}) |{authenticationMethod}| <{authenticationId}>",
+            this.Context.ConnectionId,
+            this.ChatHubContext.UserProfileId,
+            this.ChatHubContext.AuthenticationMethod,
+            this.ChatHubContext.AuthenticationId);
+        
         await base.OnConnectedAsync();
     }
 
@@ -52,11 +65,19 @@ public class ChatHub : ChatHubHandler
     {
         if (exception is null)
         {
-            this.logger.LogInformation("Client\t{id}\tdisconnected ({userId})", this.Context.ConnectionId, this.ChatHubContext.SteamId);
+            this.logger.LogInformation(
+                "Client\t{id}\tdisconnected ({userProfileId}) |{authenticationMethod}| <{authenticationId}>",
+                this.Context.ConnectionId,
+                this.ChatHubContext.UserProfileId,
+                this.ChatHubContext.AuthenticationMethod,
+                this.ChatHubContext.AuthenticationId);
         }
         else
         {
-            this.logger.LogCritical("Client\t{id}\tdisconnected\t{exception}", this.Context.ConnectionId, exception);
+            this.logger.LogCritical(
+                "Client\t{id}\tdisconnected\t{exception}",
+                this.Context.ConnectionId,
+                exception);
         }
         
         await base.OnDisconnectedAsync(exception);

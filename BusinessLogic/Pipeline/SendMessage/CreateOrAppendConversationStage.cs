@@ -21,22 +21,15 @@ public class CreateOrAppendConversationStage : IPipelineStage<SendMessagePipelin
         CancellationToken cancellationToken)
     {
         Domain.Result<Conversation, string> conversationResult;
-        if (input.ConversationId is null || input.ConversationId == Guid.Empty)
+        if (input.ConversationId is null)
         {
             conversationResult = await this.conversationService
-                .StartConversation(input.UserId, input.UserMessage);
+                .StartConversation(input.UserProfileId, input.UserMessage);
         }
         else
         {
-            if (input.UserMessage.Id != Guid.Empty)
-            {
-                throw new PipelineException(
-                    $"UserMessage should not have an Id here under any circumstances but here it is {input.UserMessage.Id}");
-            }
-            
-            var notNullConversationId = Guid.Parse(input.ConversationId!.ToString()!);
             conversationResult = await this.conversationService
-                .AppendConversation(input.UserId, notNullConversationId, input.UserMessage);
+                .AppendConversation(input.UserProfileId, input.ConversationId, input.UserMessage);
         }
 
         var conversation = conversationResult.Match(

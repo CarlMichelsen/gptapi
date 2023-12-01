@@ -1,4 +1,5 @@
 ﻿using Domain.Entity;
+using Domain.Entity.Id;
 using Microsoft.EntityFrameworkCore;
 
 namespace Database;
@@ -29,5 +30,45 @@ public sealed class ApplicationContext : DbContext
         modelBuilder.Entity<UserProfile>()
             .HasIndex(e => e.AuthenticationId)
             .IsUnique();
+
+        modelBuilder.Entity<OAuthRecord>(entity =>
+        {
+            // Configure the primary key
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id)
+                .HasConversion(
+                    id => id.Value, // How to convert to Guid
+                    guid => new OAuthRecordId(guid)); // How to convert from Guid
+        });
+        
+        modelBuilder.Entity<UserProfile>(entity =>
+        {
+            // Configure the primary key
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id)
+                .HasConversion(
+                    id => id.Value, // How to convert to Guid
+                    guid => new UserProfileId(guid)); // How to convert from Guid
+        });
+        
+        modelBuilder.Entity<Conversation>(entity =>
+        {
+            // Configure the primary key
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id)
+                .HasConversion(
+                    id => id.Value, // How to convert to Guid
+                    guid => new ConversationId(guid)); // How to convert from Guid
+        });
+
+        modelBuilder.Entity<Message>(entity =>
+        {
+            // Configure the primary key
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id)
+                .HasConversion(
+                    id => id.Value, // How to convert to Guid
+                    guid => new MessageId(guid)); // How to convert from Guid
+        });
     }
 }

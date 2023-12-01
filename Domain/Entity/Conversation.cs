@@ -1,10 +1,12 @@
-﻿namespace Domain.Entity;
+﻿using Domain.Entity.Id;
+
+namespace Domain.Entity;
 
 public class Conversation
 {
-    public required Guid Id { get; init; }
+    public required ConversationId Id { get; init; }
 
-    public required string UserId { get; init; }
+    public required UserProfile UserProfile { get; init; }
 
     public required string? Summary { get; set; }
 
@@ -14,5 +16,5 @@ public class Conversation
 
     public DateTime LastAppended { get; set; } = DateTime.UtcNow;
 
-    public bool Deleted { get; set; } = false;
+    public bool UserDeleted { get; set; } = false;
 }

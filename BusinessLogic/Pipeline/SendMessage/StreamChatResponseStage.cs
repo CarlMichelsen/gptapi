@@ -3,6 +3,7 @@ using BusinessLogic.Hub;
 using BusinessLogic.Map;
 using Domain.Dto.Conversation;
 using Domain.Entity;
+using Domain.Entity.Id;
 using Domain.Exception;
 using Domain.Pipeline;
 using Interface.Client;
@@ -60,7 +61,7 @@ public class StreamChatResponseStage : IPipelineStage<SendMessagePipelineParamet
 
             var messageChunkDto = new MessageChunkDto
             {
-                ConversationId = conv.Id,
+                ConversationId = conv.Id.Value,
                 Index = index,
                 Role = ConversationMapper.Map(Role.Assistant),
                 Content = choice.Delta.Content,
@@ -74,6 +75,7 @@ public class StreamChatResponseStage : IPipelineStage<SendMessagePipelineParamet
             {
                 input.ResponseMessage = new Message
                 {
+                    Id = new MessageId(Guid.NewGuid()),
                     Role = Role.Assistant,
                     Content = await this.CollectAndSortChunks(chunkTasks),
                     ResponseId = responseId,
@@ -86,6 +88,7 @@ public class StreamChatResponseStage : IPipelineStage<SendMessagePipelineParamet
 
         input.ResponseMessage = new Message
         {
+            Id = new MessageId(Guid.NewGuid()),
             Role = Role.Assistant,
             Content = await this.CollectAndSortChunks(chunkTasks),
             ResponseId = responseId,

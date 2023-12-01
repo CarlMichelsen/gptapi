@@ -25,14 +25,10 @@ namespace Api.Migrations
             modelBuilder.Entity("Domain.Entity.Conversation", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("LastAppended")
                         .HasColumnType("timestamp with time zone");
@@ -40,11 +36,15 @@ namespace Api.Migrations
                     b.Property<string>("Summary")
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<bool>("UserDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("UserProfileId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserProfileId");
 
                     b.ToTable("Conversation");
                 });
@@ -52,7 +52,6 @@ namespace Api.Migrations
             modelBuilder.Entity("Domain.Entity.Message", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<bool>("Complete")
@@ -87,11 +86,13 @@ namespace Api.Migrations
             modelBuilder.Entity("Domain.Entity.OAuthRecord", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("AccessToken")
                         .HasColumnType("text");
+
+                    b.Property<int>("AuthenticationMethod")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Error")
                         .HasColumnType("text");
@@ -101,9 +102,6 @@ namespace Api.Migrations
 
                     b.Property<DateTime?>("ReturnedFromThirdParty")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("ThirdParty")
-                        .HasColumnType("integer");
 
                     b.Property<string>("UserId")
                         .HasColumnType("text");
@@ -121,7 +119,6 @@ namespace Api.Migrations
             modelBuilder.Entity("Domain.Entity.UserProfile", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("AuthenticationId")
@@ -143,6 +140,17 @@ namespace Api.Migrations
                         .IsUnique();
 
                     b.ToTable("UserProfile");
+                });
+
+            modelBuilder.Entity("Domain.Entity.Conversation", b =>
+                {
+                    b.HasOne("Domain.Entity.UserProfile", "UserProfile")
+                        .WithMany()
+                        .HasForeignKey("UserProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserProfile");
                 });
 
             modelBuilder.Entity("Domain.Entity.Message", b =>

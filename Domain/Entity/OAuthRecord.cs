@@ -1,10 +1,12 @@
-﻿namespace Domain.Entity;
+﻿using Domain.Entity.Id;
+
+namespace Domain.Entity;
 
 public class OAuthRecord
 {
-    public required Guid Id { get; init; }
+    public required OAuthRecordId Id { get; init; }
 
-    public required AuthenticationMethod ThirdParty { get; init; }
+    public required AuthenticationMethod AuthenticationMethod { get; init; }
 
     public required DateTime RedirectedToThirdParty { get; init; }
 

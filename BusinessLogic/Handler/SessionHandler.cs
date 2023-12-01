@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using Domain;
+using Domain.Claims;
 using Domain.Dto.Steam;
+using Domain.Entity;
 using Domain.Exception;
 using Interface.Factory;
 using Interface.Handler;
@@ -33,8 +35,16 @@ public class SessionHandler : ISessionHandler
 
         try
         {
-            var steamId = this.httpContextAccessor.HttpContext!.User.FindFirst("SteamId")?.Value
-            ?? throw new SessionException("SteamId not found in claims!");
+            var authenticationMethod = this.httpContextAccessor.HttpContext!.User.FindFirst(GptClaimKeys.AuthenticationMethod)?.Value
+                ?? throw new SessionException("AuthenticationMethod not found in claims");
+            
+            if (authenticationMethod != Enum.GetName(AuthenticationMethod.Steam))
+            {
+                throw new SessionException("Only steam authenticationmethod supported");
+            }
+
+            var steamId = this.httpContextAccessor.HttpContext!.User.FindFirst(GptClaimKeys.AuthenticationId)?.Value
+                ?? throw new SessionException("SteamId not found in claims");
 
             var client = this.steamClientFactory.Create();
             return await client.GetSteamPlayerSummary(steamId);

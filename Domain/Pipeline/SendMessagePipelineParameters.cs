@@ -1,10 +1,11 @@
 ﻿using Domain.Entity;
+using Domain.Entity.Id;
 
 namespace Domain.Pipeline;
 
 public class SendMessagePipelineParameters
 {
-    public required string UserId { get; init; }
+    public required UserProfileId UserProfileId { get; init; }
 
     public required string ConnectionId { get; init; }
 
@@ -14,7 +15,7 @@ public class SendMessagePipelineParameters
 
     public Message? ResponseMessage { get; set; }
 
-    public Guid? ConversationId { get; set; }
+    public ConversationId? ConversationId { get; set; }
 
     public Conversation? Conversation { get; set; } = null;
 }

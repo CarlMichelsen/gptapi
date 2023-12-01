@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Domain.Entity.Id;
+using Microsoft.AspNetCore.Http;
 
 namespace Interface.Handler;
 
@@ -7,11 +8,11 @@ public interface ISteamOAuthHandler
     Task<IResult> SteamLogin();
 
     Task<IResult> SteamLoginSuccess(
-        Guid oAuthRecordId,
+        OAuthRecordId oAuthRecordId,
         string tokenType,
         string accessToken);
     
     Task<IResult> SteamLoginFailure(
-        Guid oAuthRecordId,
+        OAuthRecordId oAuthRecordId,
         string error);
 }

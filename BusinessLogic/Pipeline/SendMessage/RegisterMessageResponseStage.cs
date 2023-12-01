@@ -36,7 +36,7 @@ public class RegisterMessageResponseStage : IPipelineStage<SendMessagePipelinePa
             ?? throw new PipelineException("ResponseMessage should be defined at this point");
         
         var conversationResult = await this.conversationService
-                .AppendConversation(input.UserId, conv.Id, responseMessage);
+                .AppendConversation(input.UserProfileId, conv.Id, responseMessage);
 
         input.Conversation = conversationResult.Match(
             (conv) => conv,
@@ -46,7 +46,7 @@ public class RegisterMessageResponseStage : IPipelineStage<SendMessagePipelinePa
         if (msg.Role != Role.Assistant)
         {
             throw new PipelineException(
-                $"The lase message in the conversation should be from the {Enum.GetName(Role.Assistant)}");
+                $"The last message in the conversation should be from the {Enum.GetName(Role.Assistant)}");
         }
 
         await client.ReceiveMessage(ConversationMapper.Map(msg));

@@ -75,7 +75,8 @@ builder.Services
     .AddTransient<SteamClient>()
     .AddTransient<DevelopmentSteamClient>();
 builder.Services
-    .AddTransient<ISteamClientFactory, SteamClientFactory>();
+    .AddTransient<ISteamClientFactory, SteamClientFactory>()
+    .AddTransient<IConversationTemplateFactory, ConversationTemplateFactory>();
 
 // Typed HttpClient Factories
 builder.Services.AddHttpContextAccessor();

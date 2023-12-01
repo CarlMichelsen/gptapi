@@ -1,5 +1,6 @@
 ﻿using BusinessLogic.Pipeline;
 using Domain;
+using Domain.Entity.Id;
 using Domain.Exception;
 using Domain.Pipeline;
 using Interface.Handler;
@@ -35,7 +36,7 @@ public class SteamOAuthHandler : ISteamOAuthHandler
 
         var parameters = new LoginStartPipelineParameters
         {
-            OAuthRecordId = Guid.NewGuid(),
+            OAuthRecordId = new OAuthRecordId(Guid.NewGuid()),
         };
 
         var excecutedParametersResult = await this.ExecutePipeline(
@@ -50,7 +51,7 @@ public class SteamOAuthHandler : ISteamOAuthHandler
     }
 
     public async Task<IResult> SteamLoginFailure(
-        Guid oAuthRecordId,
+        OAuthRecordId oAuthRecordId,
         string error)
     {
         // get cancellation token from somewhere that matters...
@@ -73,7 +74,7 @@ public class SteamOAuthHandler : ISteamOAuthHandler
             (error) => Results.StatusCode(500));
     }
 
-    public async Task<IResult> SteamLoginSuccess(Guid oAuthRecordId, string tokenType, string accessToken)
+    public async Task<IResult> SteamLoginSuccess(OAuthRecordId oAuthRecordId, string tokenType, string accessToken)
     {
         // get cancellation token from somewhere that matters...
         var source = new CancellationTokenSource();

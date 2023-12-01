@@ -23,7 +23,7 @@ public class RegisterLoginAttemptStage : IPipelineStage<LoginStartPipelineParame
         var oAuthRecord = new OAuthRecord
         {
             Id = input.OAuthRecordId,
-            ThirdParty = AuthenticationMethod.Steam,
+            AuthenticationMethod = AuthenticationMethod.Steam,
             RedirectedToThirdParty = DateTime.UtcNow,
             ReturnedFromThirdParty = null,
             UserId = null,

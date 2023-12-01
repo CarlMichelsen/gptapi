@@ -1,4 +1,5 @@
-﻿using Interface.Handler;
+﻿using Domain.Entity.Id;
+using Interface.Handler;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Endpoints;
@@ -31,7 +32,7 @@ public static class ConversationEndpoints
             [FromRoute] Guid id,
             [FromServices] IConversationHandler conversationHandler) =>
         {
-            var conversationResult = await conversationHandler.GetConversation(id);
+            var conversationResult = await conversationHandler.GetConversation(new ConversationId(id));
             return conversationResult.Match(
                 (conversation) => Results.Ok(conversation),
                 (error) => Results.NotFound(error));
@@ -43,7 +44,7 @@ public static class ConversationEndpoints
             [FromRoute] Guid id,
             [FromServices] IConversationHandler conversationHandler) =>
         {
-            var conversationDeletedResult = await conversationHandler.DeleteConversation(id);
+            var conversationDeletedResult = await conversationHandler.DeleteConversation(new ConversationId(id));
             return conversationDeletedResult.Match(
                 (conversationDeleted) => Results.Ok(conversationDeleted),
                 (error) => Results.NotFound(error));

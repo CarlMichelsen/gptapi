@@ -1,20 +1,34 @@
 ﻿using Domain;
 using Domain.Dto.Conversation;
 using Domain.Entity;
+using Domain.Entity.Id;
 
 namespace Interface.Service;
 
 public interface IConversationService
 {
-    Task<Result<List<ConversationMetaDataDto>, string>> GetConversations(string userId);
+    Task<Result<List<ConversationMetaDataDto>, string>> GetConversations(
+        UserProfileId userProfileId);
     
-    Task<Result<Conversation, string>> GetConversation(string userId, Guid conversationId);
+    Task<Result<Conversation, string>> GetConversation(
+        UserProfileId userProfileId,
+        ConversationId conversationId);
 
-    Task<Result<bool, string>> DeleteConversation(string userId, Guid conversationId);
+    Task<Result<bool, string>> DeleteConversation(
+        UserProfileId userProfileId,
+        ConversationId conversationId);
 
-    Task<Result<Conversation, string>> AppendConversation(string userId, Guid conversationId, Message message);
+    Task<Result<Conversation, string>> AppendConversation(
+        UserProfileId userProfileId,
+        ConversationId conversationId,
+        Message message);
     
-    Task<Result<Conversation, string>> StartConversation(string userId, Message message);
+    Task<Result<Conversation, string>> StartConversation(
+        UserProfileId userProfileId,
+        Message message);
 
-    Task<bool> SetConversationSummary(string userId, Guid conversationId, string summary);
+    Task<bool> SetConversationSummary(
+        UserProfileId userProfileId,
+        ConversationId conversationId,
+        string summary);
 }
