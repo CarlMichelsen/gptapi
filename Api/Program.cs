@@ -151,6 +151,7 @@ app.MapGroup("/api/v1")
     .MapSteamOAuthEndpoints()
     .MapSessionEndpoints()
     .MapConversationEndpoints()
+    .MapHealthCheckEndpoints()
     .WithOpenApi();
 
 if (app.Environment.IsDevelopment())
