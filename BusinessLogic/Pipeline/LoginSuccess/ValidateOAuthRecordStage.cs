@@ -1,4 +1,5 @@
 ﻿using Database;
+using Domain.Configuration;
 using Domain.Entity;
 using Domain.Entity.Id;
 using Domain.Exception;
@@ -7,21 +8,25 @@ using Interface.Factory;
 using Interface.Pipeline;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace BusinessLogic.Pipeline.LoginSuccess;
 
 public class ValidateOAuthRecordStage : IPipelineStage<LoginSuccessPipelineParameters>
 {
     private readonly ILogger<ValidateOAuthRecordStage> logger;
+    private readonly IOptions<WhitelistOptions> whitelistOptions;
     private readonly ApplicationContext applicationContext;
     private readonly ISteamClientFactory steamClientFactory;
 
     public ValidateOAuthRecordStage(
         ILogger<ValidateOAuthRecordStage> logger,
+        IOptions<WhitelistOptions> whitelistOptions,
         ApplicationContext applicationContext,
         ISteamClientFactory steamClientFactory)
     {
         this.logger = logger;
+        this.whitelistOptions = whitelistOptions;
         this.applicationContext = applicationContext;
         this.steamClientFactory = steamClientFactory;
     }
@@ -67,6 +72,12 @@ public class ValidateOAuthRecordStage : IPipelineStage<LoginSuccessPipelineParam
         if (!record.IsCompleted())
         {
             throw new OAuthException("OAuth process should have completed by now.");
+        }
+
+        var steamIdWhitelisted = this.whitelistOptions.Value.WhitelistedSteamIds.Exists(w => w == steamId);
+        if (!steamIdWhitelisted)
+        {
+            throw new OAuthException($"Steamid <{steamId}> was not whitelisted and was thus not logged in");
         }
 
         // Try to get userprofile to assign oAuthRecord to it

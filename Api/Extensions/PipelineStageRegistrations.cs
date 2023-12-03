@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using BusinessLogic.Pipeline;
+using Domain.Exception;
 using Interface.Pipeline;
 
 namespace Api.Extensions;
@@ -10,7 +11,7 @@ public static class PipelineStageRegistrations
         this IServiceCollection services)
     {
         var assembly = Assembly.GetAssembly(typeof(Pipeline<>))
-            ?? throw new Exception("Failed to find assembly for PipelineStage registration");
+            ?? throw new ApplicationStartupException("Failed to find assembly for PipelineStage registration");
         
         var implementations = assembly
             .GetTypes()

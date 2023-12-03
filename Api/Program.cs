@@ -30,7 +30,18 @@ builder.Services.AddSwaggerGen();
 builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
 builder.Services
     .AddCors()
-    .Configure<GptOptions>(builder.Configuration.GetSection(GptOptions.SectionName))
+    .Configure<GptOptions>((options) =>
+    {
+        options.ApiKeys = builder.Configuration.GetListFromConfiguration(
+            GptOptions.SectionName,
+            nameof(options.ApiKeys));
+    })
+    .Configure<WhitelistOptions>((options) =>
+    {
+        options.WhitelistedSteamIds = builder.Configuration.GetListFromConfiguration(
+            WhitelistOptions.SectionName,
+            nameof(options.WhitelistedSteamIds));
+    })
     .Configure<SteamOAuthOptions>(builder.Configuration.GetSection(SteamOAuthOptions.SectionName))
     .Configure<ApplicationOptions>(options => options.IsDevelopment = builder.Environment.IsDevelopment());
 
@@ -81,7 +92,7 @@ builder.Services
 // Typed HttpClient Factories
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<GptChatClient>(client =>
-    client.Timeout = TimeSpan.FromMinutes(10));
+    client.Timeout = TimeSpan.FromSeconds(30));
 
 // Security
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -119,7 +130,7 @@ if (app.Environment.IsDevelopment())
 
     // Frontend origin for development
     app.UseCors(policy =>
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins(GptApiConstants.DeveloperFrontendUrl)
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials());

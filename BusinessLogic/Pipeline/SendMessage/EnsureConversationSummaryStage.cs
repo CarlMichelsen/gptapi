@@ -1,7 +1,5 @@
-﻿using System.Text.RegularExpressions;
-using BusinessLogic.Hub;
+﻿using BusinessLogic.Hub;
 using BusinessLogic.Map;
-using Domain.Entity;
 using Domain.Exception;
 using Domain.Gpt;
 using Domain.Pipeline;
@@ -14,15 +12,8 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace BusinessLogic.Pipeline.SendMessage;
 
-/// <summary>
-/// Pretty sure this class is only partial because of the regex implementation.
-/// </summary>
-public partial class EnsureConversationSummaryStage : IPipelineStage<SendMessagePipelineParameters>
+public class EnsureConversationSummaryStage : IPipelineStage<SendMessagePipelineParameters>
 {
-    private const string FinalSystemMessage = @"Respond with a short description of the conversation so far (max 80 characters).
-        Make sure the description is memorable so the conversation can be identified by it later.
-        The description will be used as a title for the conversation. Don't use special characters.";
-    
     private readonly IGptChatClient gptChatClient;
     private readonly IConversationService conversationService;
     private readonly IConversationTemplateFactory conversationTemplateFactory;
@@ -73,9 +64,6 @@ public partial class EnsureConversationSummaryStage : IPipelineStage<SendMessage
 
         return input;
     }
-
-    [GeneratedRegex(@"\s+")]
-    private static partial Regex MyRegex();
 
     private string GetSummaryFromGptResponse(GptChatResponse response)
     {
