@@ -34,11 +34,8 @@ public class DeriveRedirectUriStage : IPipelineStage<LoginStartPipelineParameter
     public static string ParseQueryParameters(string endpoint, Dictionary<string, string> parameters)
     {
         var queryString = string.Join("&", parameters.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
-
         var baseUri = new Uri(endpoint);
-        var uri = new Uri(baseUri, $"?{queryString}");
-
-        return $"?{queryString}";
+        return $"{baseUri}?{queryString}";
     }
 
     public Task<LoginStartPipelineParameters> Process(
