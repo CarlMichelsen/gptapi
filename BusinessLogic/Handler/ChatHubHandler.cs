@@ -1,4 +1,4 @@
-﻿using BusinessLogic.Pipeline;
+﻿using BusinessLogic.Pipeline.SendMessage;
 using Domain.Context;
 using Domain.Dto.Conversation;
 using Domain.Entity;

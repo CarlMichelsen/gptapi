@@ -1,7 +1,7 @@
 import { baseUrl } from "../baseurl";
-import type { SteamPlayer } from "../types/dto/steamPlayer";
+import type { OAuthUser } from "../types/dto/oAuthUser";
 
-export const getUserData = async (): Promise<SteamPlayer | null> => {
+export const getUserData = async (): Promise<OAuthUser | null> => {
     const endpoint = `${baseUrl()}/api/v1/session/UserData`;
     try {
         const response = await fetch(endpoint, {
@@ -16,7 +16,7 @@ export const getUserData = async (): Promise<SteamPlayer | null> => {
             throw new Error(`Error: ${response.status}`);
         }
 
-        return await response.json() as SteamPlayer;
+        return await response.json() as OAuthUser;
     } catch (error) {
         return null;
     }
@@ -38,7 +38,15 @@ export const deleteCookie = async () => {
     }
 }
 
-export const navigateToLoginPage = () => {
-    const loginPage = `${baseUrl()}/api/v1/oauth/SteamLogin`;
+export type LoginType = "Development" | "Steam" | "Github"
+
+export const navigateToLoginPage = (loginType: LoginType) => {
+    const endpoints: Record<LoginType, string> = {
+        "Development": "/api/v1/oauth/DevelopmentLogin",
+        "Steam": "/api/v1/oauth/SteamLogin",
+        "Github": "/api/v1/oauth/GithubLogin"
+    };
+
+    const loginPage = `${baseUrl()}${endpoints[loginType]}`;
     window.location.replace(loginPage);
 }

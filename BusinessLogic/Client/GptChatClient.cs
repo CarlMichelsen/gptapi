@@ -11,6 +11,7 @@ namespace BusinessLogic.Client;
 
 public class GptChatClient : IGptChatClient
 {
+    // TODO: dont have hardcoded urls.
     private const string Uri = "https://api.openai.com/v1/chat/completions";
     private readonly ILogger<GptChatClient> logger;
     private readonly HttpClient gptHttpClient;

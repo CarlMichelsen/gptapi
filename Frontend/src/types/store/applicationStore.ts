@@ -1,12 +1,12 @@
 import type { ConversationMetadata, ConversationType } from "../dto/conversation"
-import type { SteamPlayer } from "../dto/steamPlayer"
+import type { OAuthUser } from "../dto/oAuthUser"
 
 type LoggedOutApplicationStore = {
     user: null
 }
 
 type LoggedInApplicationStore = {
-    user: SteamPlayer
+    user: OAuthUser
     selectedConversation: ConversationType | null;
     conversations: ConversationMetadata[] | null;
 }

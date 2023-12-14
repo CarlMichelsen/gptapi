@@ -1,6 +1,6 @@
 # Database setup
 
-## install tool
+## install entity framework cli tool
 dotnet tool install --global dotnet-ef
 
 ## create migration if there are changes to the database

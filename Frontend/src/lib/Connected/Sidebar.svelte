@@ -16,7 +16,7 @@
 <div class="w-full h-full">
     <div class="left-0 bg-black h-screen grid grid-rows-[auto,auto,1fr] overflow-y-scroll">
         <div>
-            <h1 class="text-xl my-2.5 ml-1 text-zinc-300">Conversations of {$applicationStore.user.personaname}</h1>
+            <h1 class="text-xl my-2.5 ml-1 text-zinc-300">Conversations of {$applicationStore.user.name}</h1>
         </div>
 
         <div class="grid grid-cols-2 space-x-1 mx-1 mb-4">

@@ -1,6 +1,5 @@
-﻿using System.Security.Claims;
-using BusinessLogic.Handler;
-using BusinessLogic.Pipeline;
+﻿using BusinessLogic.Handler;
+using BusinessLogic.Pipeline.SendMessage;
 using Domain.Claims;
 using Domain.Context;
 using Domain.Entity.Id;

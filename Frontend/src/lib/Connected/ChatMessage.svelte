@@ -20,7 +20,7 @@
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#39;"); 
-        return `<div class="bg-black overflow-x-scroll rounded-md">${header(safeCode, language)}<div class="m-1"><pre><code class="lang-${language} select-all">${safeCode}</code></pre></div></div>`;
+        return `<div class="bg-black overflow-x-scroll rounded-md">${header(safeCode, language)}<div class="m-1"><pre><code class="lang-${language}">${safeCode}</code></pre></div></div>`;
     };
 
     const options: MarkedOptions = {

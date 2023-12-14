@@ -4,6 +4,7 @@ using Domain.Claims;
 using Domain.Dto.Steam;
 using Domain.Entity;
 using Domain.Exception;
+using Domain.OAuth;
 using Interface.Factory;
 using Interface.Handler;
 using Microsoft.AspNetCore.Authentication;
@@ -15,17 +16,17 @@ namespace BusinessLogic.Handler;
 public class SessionHandler : ISessionHandler
 {
     private readonly IHttpContextAccessor httpContextAccessor;
-    private readonly ISteamClientFactory steamClientFactory;
+    private readonly IOAuthClientFactory oAuthClientFactory;
 
     public SessionHandler(
         IHttpContextAccessor httpContextAccessor,
-        ISteamClientFactory steamClientFactory)
+        IOAuthClientFactory oAuthClientFactory)
     {
         this.httpContextAccessor = httpContextAccessor;
-        this.steamClientFactory = steamClientFactory;
+        this.oAuthClientFactory = oAuthClientFactory;
     }
 
-    public async Task<Result<SteamPlayerDto, HttpStatusCode>> GetUserData()
+    public async Task<Result<OAuthUserData, HttpStatusCode>> GetUserData()
     {
         if (this.httpContextAccessor.HttpContext!.User.Identity?.IsAuthenticated != true)
         {
@@ -35,19 +36,12 @@ public class SessionHandler : ISessionHandler
 
         try
         {
-            var authenticationMethod = this.httpContextAccessor.HttpContext!.User.FindFirst(GptClaimKeys.AuthenticationMethod)?.Value
-                ?? throw new SessionException("AuthenticationMethod not found in claims");
-            
-            if (authenticationMethod != Enum.GetName(AuthenticationMethod.Steam))
-            {
-                throw new SessionException("Only steam authenticationmethod supported");
-            }
-
             var steamId = this.httpContextAccessor.HttpContext!.User.FindFirst(GptClaimKeys.AuthenticationId)?.Value
                 ?? throw new SessionException("SteamId not found in claims");
 
-            var client = this.steamClientFactory.Create();
-            return await client.GetSteamPlayerSummary(steamId);
+            var client = this.oAuthClientFactory.Create();
+            var oAuthDataConvertible = await client.GetOAuthUserData(steamId);
+            return oAuthDataConvertible.ToOAuthUser();
         }
         catch (Exception)
         {

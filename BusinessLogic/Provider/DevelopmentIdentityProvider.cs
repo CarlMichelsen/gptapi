@@ -55,7 +55,7 @@ public class DevelopmentIdentityProvider : IDevelopmentIdentityProvider
     public Task<DevelopmentIdpResponse> GetDevelopmentUsers()
     {
         var httpContext = this.httpContextAccessor.HttpContext!;
-        var uri = this.linkGenerator.GetUriByName(httpContext, GptApiConstants.SteamLoginSuccessEndPointName)!;
+        var uri = this.linkGenerator.GetUriByName(httpContext, GptApiConstants.LoginSuccessEndPointName)!;
 
         var res = new DevelopmentIdpResponse
         {

@@ -3,8 +3,11 @@ using Api.Extensions;
 using BusinessLogic.Client;
 using BusinessLogic.Factory;
 using BusinessLogic.Handler;
+using BusinessLogic.Handler.OAuth.Github;
+using BusinessLogic.Handler.OAuth.Steam;
 using BusinessLogic.Hub;
-using BusinessLogic.Pipeline;
+using BusinessLogic.Pipeline.SendMessage;
+using BusinessLogic.Pipeline.Steam;
 using BusinessLogic.Provider;
 using BusinessLogic.Service;
 using Database;
@@ -13,6 +16,7 @@ using Domain.Configuration;
 using Interface.Client;
 using Interface.Factory;
 using Interface.Handler;
+using Interface.Handler.OAuth;
 using Interface.Provider;
 using Interface.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -38,11 +42,12 @@ builder.Services
     })
     .Configure<WhitelistOptions>((options) =>
     {
-        options.WhitelistedSteamIds = builder.Configuration.GetListFromConfiguration(
+        options.WhitelistedUserIds = builder.Configuration.GetListFromConfiguration(
             WhitelistOptions.SectionName,
-            nameof(options.WhitelistedSteamIds));
+            nameof(options.WhitelistedUserIds));
     })
     .Configure<SteamOAuthOptions>(builder.Configuration.GetSection(SteamOAuthOptions.SectionName))
+    .Configure<GithubOAuthOptions>(builder.Configuration.GetSection(GithubOAuthOptions.SectionName))
     .Configure<ApplicationOptions>(options => options.IsDevelopment = builder.Environment.IsDevelopment());
 
 // Database
@@ -71,28 +76,34 @@ builder.Services.AddSignalR();
 builder.Services
     .RegisterPipelineStages()
     .AddSingleton<SendMessagePipelineSingleton>()
-    .AddTransient<LoginStartPipeline>()
-    .AddTransient<LoginFailurePipeline>()
-    .AddTransient<LoginSuccessPipeline>();
+    .AddTransient<SteamLoginFailurePipeline>()
+    .AddTransient<SteamLoginSuccessPipeline>();
 
 // Handlers
 builder.Services
     .AddTransient<ISessionHandler, SessionHandler>()
     .AddTransient<IConversationHandler, ConversationHandler>()
-    .AddTransient<ISteamOAuthHandler, SteamOAuthHandler>();
+    .AddTransient<IOAuthLoginSuccessHandler, SteamOAuthLoginSuccessHandler>()
+    .AddTransient<IOAuthLoginFailureHandler, SteamOAuthLoginFailureHandler>();
+
+builder.Services
+    .AddTransient<SteamOAuthLoginHandler>()
+    .AddTransient<GithubOAuthLoginHandler>()
+    .AddTransient<DevelopmentOAuthLoginHandler>();
 
 // Factories
 builder.Services
-    .AddTransient<SteamClient>()
-    .AddTransient<DevelopmentSteamClient>();
+    .AddTransient<SteamOAuthClient>()
+    .AddTransient<DevelopmentOAuthClient>();
 builder.Services
-    .AddTransient<ISteamClientFactory, SteamClientFactory>()
+    .AddTransient<IOAuthClientFactory, OAuthClientFactory>()
     .AddTransient<IConversationTemplateFactory, ConversationTemplateFactory>();
 
 // Typed HttpClient Factories
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<GptChatClient>(client =>
     client.Timeout = TimeSpan.FromSeconds(30));
+builder.Services.AddHttpClient<GithubOAuthClient>();
 
 // Security
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

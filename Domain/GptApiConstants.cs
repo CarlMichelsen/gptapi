@@ -9,7 +9,7 @@ public static class GptApiConstants
 
     public const string FrontendEndpointName = "FrontendEndpoint";
 
-    public const string SteamLoginSuccessEndPointName = "SteamLoginSuccess";
+    public const string LoginSuccessEndPointName = "LoginSuccess";
     
     public const string DeveloperIdpName = "IdentityProvider";
 }

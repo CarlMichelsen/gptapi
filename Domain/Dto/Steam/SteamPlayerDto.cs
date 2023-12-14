@@ -1,8 +1,9 @@
 ﻿using System.Text.Json.Serialization;
+using Domain.OAuth;
 
 namespace Domain.Dto.Steam;
 
-public class SteamPlayerDto
+public class SteamPlayerDto : IOAuthUserDataConvertible
 {
     [JsonPropertyName("steamid")]
     public required string SteamId { get; set; }
@@ -30,4 +31,14 @@ public class SteamPlayerDto
 
     [JsonPropertyName("avatarfull")]
     public string? AvatarFull { get; set; }
+
+    public OAuthUserData ToOAuthUser()
+    {
+        return new OAuthUserData
+        {
+            OAuthId = this.SteamId,
+            Name = this.PersonaName,
+            AvatarUrl = this.Avatar ?? this.AvatarMedium ?? this.AvatarFull ?? string.Empty,
+        };
+    }
 }

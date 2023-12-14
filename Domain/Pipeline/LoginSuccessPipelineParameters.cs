@@ -12,9 +12,7 @@ public class LoginSuccessPipelineParameters
 
     public UserProfileId? UserProfileId { get; set; }
     
-    public string? SteamId { get; set; }
-
-    public bool Authorized { get; set; } = false;
+    public string? UserId { get; set; }
 
     public string? RedirectUri { get; set; }
 }
