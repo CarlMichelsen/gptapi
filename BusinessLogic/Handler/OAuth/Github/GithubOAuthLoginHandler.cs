@@ -66,7 +66,7 @@ public class GithubOAuthLoginHandler : IOAuthLoginHandler
 
         this.logger.LogCritical("github redirect-url: \"{redirectUri}\"", redirectUri);
 
-        var queryString = string.Join("&", parameters.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
+        var queryString = this.endpointUrlProvider.GenerateQueryParamsToAppend(parameters);
         var baseUri = new Uri(this.githubOAuthOptions.Value.OAuthEndpoint);
         return $"{baseUri}?{queryString}";
     }

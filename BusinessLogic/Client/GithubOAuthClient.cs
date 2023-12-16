@@ -36,9 +36,10 @@ public class GithubOAuthClient : IOAuthClient
 
         this.githubOAuthHttpClient = clientFactory.CreateClient(GptApiConstants.GithubHttpClient);
         this.githubOAuthHttpClient.DefaultRequestHeaders.Add("Accept", "application/json");
-
+        
         this.githubApiHttpClient = clientFactory.CreateClient(GptApiConstants.GithubAPIHttpClient);
         this.githubApiHttpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+        this.githubApiHttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("CarlGPT", "0.1"));
     }
 
     public async Task<CodeResponseDto> ExchangeTheCode(string code)
@@ -93,9 +94,9 @@ public class GithubOAuthClient : IOAuthClient
                 = new AuthenticationHeaderValue("Bearer", accessToken);
             response = await this.githubApiHttpClient.GetAsync(UserPath);
 
-            response?.EnsureSuccessStatusCode();
+            response.EnsureSuccessStatusCode();
 
-            return await response?.Content.ReadFromJsonAsync<GithubUser>()
+            return await response.Content.ReadFromJsonAsync<GithubUser>()
                 ?? throw new ClientException("Could not parse GithubUser response");
         }
         catch (HttpRequestException)
@@ -105,8 +106,12 @@ public class GithubOAuthClient : IOAuthClient
         }
         catch (Exception)
         {
-            var jsonStr = await response?.Content.ReadAsStringAsync();
-            this.logger.LogCritical("Probably failed to parse the following string into a GithubUser object:\n{json}", jsonStr);
+            if (response is not null)
+            {
+                var jsonStr = await response.Content.ReadAsStringAsync();
+                this.logger.LogCritical("Probably failed to parse the following string into a GithubUser object:\n{json}", jsonStr);
+            }
+            
             throw;
         }
     }

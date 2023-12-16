@@ -3,10 +3,9 @@ using Domain;
 using Domain.Configuration;
 using Domain.Entity;
 using Domain.Entity.Id;
-using Domain.Exception;
 using Interface.Handler.OAuth;
+using Interface.Provider;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -17,21 +16,18 @@ public class DevelopmentOAuthLoginHandler : IOAuthLoginHandler
     private readonly ILogger<DevelopmentOAuthLoginHandler> logger;
     private readonly ApplicationContext applicationContext;
     private readonly IOptions<ApplicationOptions> applicationOptions;
-    private readonly LinkGenerator linkGenerator;
-    private readonly IHttpContextAccessor httpContextAccessor;
+    private readonly IEndpointUrlProvider endpointUrlProvider;
 
     public DevelopmentOAuthLoginHandler(
         ILogger<DevelopmentOAuthLoginHandler> logger,
         ApplicationContext applicationContext,
         IOptions<ApplicationOptions> applicationOptions,
-        LinkGenerator linkGenerator,
-        IHttpContextAccessor httpContextAccessor)
+        IEndpointUrlProvider endpointUrlProvider)
     {
         this.logger = logger;
         this.applicationContext = applicationContext;
         this.applicationOptions = applicationOptions;
-        this.linkGenerator = linkGenerator;
-        this.httpContextAccessor = httpContextAccessor;
+        this.endpointUrlProvider = endpointUrlProvider;
     }
 
     public async Task<IResult> Login()
@@ -55,6 +51,8 @@ public class DevelopmentOAuthLoginHandler : IOAuthLoginHandler
 
     private string GenerateDevelopmentOAuthUrl(OAuthRecord oAuthRecord)
     {
+        var url = this.endpointUrlProvider.GetEndpointUrlFromEndpointName(GptApiConstants.DeveloperIdpName);
+
         var queryParams = new Dictionary<string, string>
         {
             { "response_type", "token" },
@@ -62,11 +60,7 @@ public class DevelopmentOAuthLoginHandler : IOAuthLoginHandler
             { "state", oAuthRecord.Id.ToString() },
         };
 
-        var httpContext = this.httpContextAccessor.HttpContext
-            ?? throw new OAuthException("HttpContext not available");
-
-        return this.linkGenerator.GetUriByName(httpContext, GptApiConstants.DeveloperIdpName, queryParams)
-            ?? throw new OAuthException("Failed to get development OAuth redirect url");
+        return url + this.endpointUrlProvider.GenerateQueryParamsToAppend(queryParams);
     }
 
     private async Task<OAuthRecord> RegisterOAuthRecord(OAuthRecordId id)
