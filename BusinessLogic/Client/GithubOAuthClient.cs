@@ -35,7 +35,10 @@ public class GithubOAuthClient : IOAuthClient
         this.githubOAuthOptions = githubOAuthOptions;
 
         this.githubOAuthHttpClient = clientFactory.CreateClient(GptApiConstants.GithubHttpClient);
+        this.githubOAuthHttpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+
         this.githubApiHttpClient = clientFactory.CreateClient(GptApiConstants.GithubAPIHttpClient);
+        this.githubApiHttpClient.DefaultRequestHeaders.Add("Accept", "application/json");
     }
 
     public async Task<CodeResponseDto> ExchangeTheCode(string code)
