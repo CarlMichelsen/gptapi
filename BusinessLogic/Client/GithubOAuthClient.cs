@@ -40,7 +40,7 @@ public class GithubOAuthClient : IOAuthClient
     public async Task<CodeResponseDto> ExchangeTheCode(string code)
     {
         var redirectUrl = this.endpointUrlProvider
-            .GetEndpointUrlFromEndpointName(GptApiConstants.GithubLoginSuccessEndPointName);
+            .GetEndpointUrlFromEndpointName(GptApiConstants.GithubLoginRedirectEndPointName);
 
         var payload = new Dictionary<string, string>
         {

@@ -11,7 +11,7 @@ public static class GptApiConstants
 
     public const string DevelopmentLoginSuccessEndPointName = "DevelopmentLoginSuccess";
 
-    public const string GithubLoginSuccessEndPointName = "GithubLoginSuccess";
+    public const string GithubLoginRedirectEndPointName = "GithubLoginRedirect";
 
     public const string GithubHttpClient = "githubHttpClient";
     public const string GithubAPIHttpClient = "githubAPIHttpClient";

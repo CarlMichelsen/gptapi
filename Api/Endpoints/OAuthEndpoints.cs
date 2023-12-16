@@ -45,7 +45,7 @@ public static class OAuthEndpoints
             .WithName(GptApiConstants.DevelopmentLoginSuccessEndPointName);
 
         oAuthGroup.MapGet(
-            "/GithubLoginSuccess",
+            "/GithubLoginRedirect",
             async (
                 [FromServices] ILogger<GithubOAuthLoginSuccessHandler> debugLogger,
                 [FromServices] GithubOAuthLoginSuccessHandler githubOAuthLoginSuccessHandler,
@@ -56,10 +56,10 @@ public static class OAuthEndpoints
                 return await githubOAuthLoginSuccessHandler
                     .LoginSuccess(new OAuthRecordId(oAuthRecordId), code, cancellationToken);
             })
-            .WithName(GptApiConstants.GithubLoginSuccessEndPointName);
+            .WithName(GptApiConstants.GithubLoginRedirectEndPointName);
 
         oAuthGroup.MapGet(
-            "/SteamLoginSuccess",
+            "/SteamLoginRedirect",
             async (
                 [FromServices] SteamOAuthLoginSuccessHandler steamOAuthLoginSuccessHandler,
                 [FromQuery(Name = "access_token")] string accessToken,
@@ -70,7 +70,7 @@ public static class OAuthEndpoints
                 return await steamOAuthLoginSuccessHandler
                     .LoginSuccess(new OAuthRecordId(oAuthRecordId), tokenType, accessToken, cancellationToken);
             })
-            .WithName("SteamLoginSuccess");
+            .WithName("SteamLoginRedirect");
 
         oAuthGroup.MapGet(
             "/SteamLoginFailure",

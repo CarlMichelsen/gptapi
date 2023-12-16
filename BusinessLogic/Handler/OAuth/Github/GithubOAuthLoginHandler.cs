@@ -52,7 +52,7 @@ public class GithubOAuthLoginHandler : IOAuthLoginHandler
     private string GenerateGithubOAuthUrl(OAuthRecord oAuthRecord)
     {
         var redirectUri = this.endpointUrlProvider
-            .GetEndpointUrlFromEndpointName(GptApiConstants.GithubLoginSuccessEndPointName);
+            .GetEndpointUrlFromEndpointName(GptApiConstants.GithubLoginRedirectEndPointName);
 
         var parameters = new Dictionary<string, string>
         {

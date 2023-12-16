@@ -37,7 +37,7 @@ public class SteamOAuthLoginSuccessHandler : BasePipelineExecutorHandler
             this.logger,
             this.steamLoginSuccessPipeline,
             parameters,
-            "SteamLoginSuccess",
+            "SteamLoginRedirect",
             cancellationToken);
         
         return excecutedParametersResult.Match(

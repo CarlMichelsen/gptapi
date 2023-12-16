@@ -2,7 +2,6 @@
 using BusinessLogic.Pipeline.Github;
 using Domain.Entity.Id;
 using Domain.Pipeline;
-using Interface.Factory;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
