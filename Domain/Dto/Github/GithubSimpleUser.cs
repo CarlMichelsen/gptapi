@@ -26,9 +26,6 @@ public class GithubSimpleUser : GithubSimpleUserUrl, IOAuthUserDataConvertible
     [JsonPropertyName("site_admin")]
     public required bool SiteAdmin { get; set; }
 
-    [JsonPropertyName("starred_at")]
-    public required string StarredAt { get; set; }
-
     public OAuthUserData ToOAuthUser()
     {
         return new OAuthUserData
