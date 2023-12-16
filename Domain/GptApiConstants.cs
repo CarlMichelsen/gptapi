@@ -9,7 +9,9 @@ public static class GptApiConstants
 
     public const string FrontendEndpointName = "FrontendEndpoint";
 
-    public const string LoginSuccessEndPointName = "LoginSuccess";
+    public const string DevelopmentLoginSuccessEndPointName = "DevelopmentLoginSuccess";
+
+    public const string GithubLoginSuccessEndPointName = "GithubLoginSuccess";
     
     public const string DeveloperIdpName = "IdentityProvider";
 }

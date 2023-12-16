@@ -3,9 +3,12 @@ using Api.Extensions;
 using BusinessLogic.Client;
 using BusinessLogic.Factory;
 using BusinessLogic.Handler;
+using BusinessLogic.Handler.OAuth.Development;
 using BusinessLogic.Handler.OAuth.Github;
 using BusinessLogic.Handler.OAuth.Steam;
 using BusinessLogic.Hub;
+using BusinessLogic.Pipeline.Development;
+using BusinessLogic.Pipeline.Github;
 using BusinessLogic.Pipeline.SendMessage;
 using BusinessLogic.Pipeline.Steam;
 using BusinessLogic.Provider;
@@ -40,12 +43,6 @@ builder.Services
             GptOptions.SectionName,
             nameof(options.ApiKeys));
     })
-    .Configure<WhitelistOptions>((options) =>
-    {
-        options.WhitelistedUserIds = builder.Configuration.GetListFromConfiguration(
-            WhitelistOptions.SectionName,
-            nameof(options.WhitelistedUserIds));
-    })
     .Configure<SteamOAuthOptions>(builder.Configuration.GetSection(SteamOAuthOptions.SectionName))
     .Configure<GithubOAuthOptions>(builder.Configuration.GetSection(GithubOAuthOptions.SectionName))
     .Configure<ApplicationOptions>(options => options.IsDevelopment = builder.Environment.IsDevelopment());
@@ -67,6 +64,7 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
 builder.Services
     .AddTransient<IGptChatClient, GptChatClient>()
     .AddTransient<IConversationService, ConversationService>()
+    .AddTransient<IOAuthRecordValidatorService, OAuthRecordValidatorService>()
     .AddScoped<IDevelopmentIdentityProvider, DevelopmentIdentityProvider>()
     .AddTransient<IGptApiKeyProvider, GptApiKeyProvider>();
 
@@ -76,6 +74,8 @@ builder.Services.AddSignalR();
 builder.Services
     .RegisterPipelineStages()
     .AddSingleton<SendMessagePipelineSingleton>()
+    .AddTransient<DevelopmentLoginPipeline>()
+    .AddTransient<GithubLoginPipeline>()
     .AddTransient<SteamLoginFailurePipeline>()
     .AddTransient<SteamLoginSuccessPipeline>();
 
@@ -83,7 +83,8 @@ builder.Services
 builder.Services
     .AddTransient<ISessionHandler, SessionHandler>()
     .AddTransient<IConversationHandler, ConversationHandler>()
-    .AddTransient<IOAuthLoginSuccessHandler, SteamOAuthLoginSuccessHandler>()
+    .AddTransient<SteamOAuthLoginSuccessHandler>()
+    .AddTransient<DevelopmentOAuthLoginSuccessHandler>()
     .AddTransient<IOAuthLoginFailureHandler, SteamOAuthLoginFailureHandler>();
 
 builder.Services

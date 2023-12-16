@@ -5,7 +5,7 @@ using Interface.Pipeline;
 
 namespace BusinessLogic.Pipeline.Steam.LoginFailure;
 
-public class RegisterLoginFailureStage : IPipelineStage<LoginFailurePipelineParameters>
+public class RegisterLoginFailureStage : IPipelineStage<SteamLoginFailurePipelineParameters>
 {
     private readonly ApplicationContext applicationContext;
 
@@ -15,8 +15,8 @@ public class RegisterLoginFailureStage : IPipelineStage<LoginFailurePipelinePara
         this.applicationContext = applicationContext;
     }
 
-    public async Task<LoginFailurePipelineParameters> Process(
-        LoginFailurePipelineParameters input,
+    public async Task<SteamLoginFailurePipelineParameters> Process(
+        SteamLoginFailurePipelineParameters input,
         CancellationToken cancellationToken)
     {
         var oAuthRecord = await this.applicationContext.OAuthRecord.FindAsync(input.OAuthRecordId)

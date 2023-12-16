@@ -36,11 +36,19 @@ public class SessionHandler : ISessionHandler
 
         try
         {
-            var steamId = this.httpContextAccessor.HttpContext!.User.FindFirst(GptClaimKeys.AuthenticationId)?.Value
-                ?? throw new SessionException("SteamId not found in claims");
+            var authenticationId = this.httpContextAccessor.HttpContext!.User.FindFirst(GptClaimKeys.AuthenticationId)?.Value
+                ?? throw new SessionException("authenticationId not found in claims");
 
-            var client = this.oAuthClientFactory.Create();
-            var oAuthDataConvertible = await client.GetOAuthUserData(steamId);
+            var authenticationMethodString = this.httpContextAccessor.HttpContext!.User.FindFirst(GptClaimKeys.AuthenticationMethod)?.Value
+                ?? throw new SessionException("authenticationMethodString not found in claims");
+            
+            if (!Enum.TryParse(authenticationMethodString, out AuthenticationMethod authenticationMethod))
+            {
+                throw new SessionException($"authenticationMethodString ({authenticationMethodString}) not valid");
+            }
+
+            var client = this.oAuthClientFactory.Create(authenticationMethod);
+            var oAuthDataConvertible = await client.GetOAuthUserData(authenticationId);
             return oAuthDataConvertible.ToOAuthUser();
         }
         catch (Exception)

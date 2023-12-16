@@ -1,37 +1,58 @@
 ﻿using Database;
-using Domain.Configuration;
 using Domain.Entity;
-using Domain.Entity.Id;
 using Domain.Exception;
 using Domain.Pipeline;
+using Domain.Service;
 using Interface.Factory;
 using Interface.Pipeline;
-using Microsoft.EntityFrameworkCore;
+using Interface.Service;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace BusinessLogic.Pipeline.Steam.LoginSuccess;
 
-public class ValidateOAuthRecordStage : IPipelineStage<LoginSuccessPipelineParameters>
+public class ValidateSteamOAuthRecordStage : IPipelineStage<ILoginPipelineParameters>
 {
-    private readonly ILogger<ValidateOAuthRecordStage> logger;
-    private readonly IOptions<WhitelistOptions> whitelistOptions;
+    private readonly ILogger<ValidateSteamOAuthRecordStage> logger;
+    private readonly IOAuthRecordValidatorService oAuthRecordValidatorService;
     private readonly ApplicationContext applicationContext;
     private readonly IOAuthClientFactory oAuthClientFactory;
 
-    public ValidateOAuthRecordStage(
-        ILogger<ValidateOAuthRecordStage> logger,
-        IOptions<WhitelistOptions> whitelistOptions,
+    public ValidateSteamOAuthRecordStage(
+        ILogger<ValidateSteamOAuthRecordStage> logger,
+        IOAuthRecordValidatorService oAuthRecordValidatorService,
         ApplicationContext applicationContext,
         IOAuthClientFactory oAuthClientFactory)
     {
         this.logger = logger;
-        this.whitelistOptions = whitelistOptions;
+        this.oAuthRecordValidatorService = oAuthRecordValidatorService;
         this.applicationContext = applicationContext;
         this.oAuthClientFactory = oAuthClientFactory;
     }
 
-    public async Task<LoginSuccessPipelineParameters> Process(
+    public async Task<ILoginPipelineParameters> Process(
+        ILoginPipelineParameters input,
+        CancellationToken cancellationToken)
+    {
+        var oAuthRecordValidationResult = await this.oAuthRecordValidatorService.ValidateOAuthRecord(
+            input.OAuthRecordId,
+            input.AccessToken,
+            AuthenticationMethod.Steam);
+        
+        return oAuthRecordValidationResult.Match(
+            (oAuthRecord) => this.HandlePipelineParameters(input, oAuthRecord),
+            (error) => throw new OAuthException(error));
+    }
+
+    private ILoginPipelineParameters HandlePipelineParameters(
+        ILoginPipelineParameters input,
+        OAuthRecordValidatorResult oAuthRecordValidatorResult)
+    {
+        input.UserId = oAuthRecordValidatorResult.OAuthRecord.UserId;
+        input.UserProfileId = oAuthRecordValidatorResult.UserProfileId;
+        return input;
+    }
+
+    /*public async Task<LoginSuccessPipelineParameters> Process(
         LoginSuccessPipelineParameters input,
         CancellationToken cancellationToken)
     {
@@ -66,7 +87,7 @@ public class ValidateOAuthRecordStage : IPipelineStage<LoginSuccessPipelineParam
         }
 
         // If the accessToken receieved from redirect query parameters can't be exchanged for a steamId, don't grant access.
-        var client = this.oAuthClientFactory.Create();
+        var client = this.oAuthClientFactory.Create(record.AuthenticationMethod);
         var steamId = await client.GetOAuthId(record.AccessToken);
         if (steamId is null)
         {
@@ -102,7 +123,7 @@ public class ValidateOAuthRecordStage : IPipelineStage<LoginSuccessPipelineParam
             {
                 Id = new UserProfileId(Guid.NewGuid()),
                 AuthenticationId = steamId,
-                AuthenticationIdType = Domain.Entity.AuthenticationMethod.Steam,
+                AuthenticationIdType = AuthenticationMethod.Steam,
                 Created = now,
                 LastLogin = now,
             };
@@ -115,5 +136,5 @@ public class ValidateOAuthRecordStage : IPipelineStage<LoginSuccessPipelineParam
 
         input.UserProfileId = userProfile.Id;
         return input;
-    }
+    }*/
 }

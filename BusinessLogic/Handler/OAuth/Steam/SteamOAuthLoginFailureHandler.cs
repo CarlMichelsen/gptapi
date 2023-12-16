@@ -25,7 +25,7 @@ public class SteamOAuthLoginFailureHandler : BasePipelineExecutorHandler, IOAuth
         string error,
         CancellationToken cancellationToken)
     {
-        var parameters = new LoginFailurePipelineParameters
+        var parameters = new SteamLoginFailurePipelineParameters
         {
             OAuthRecordId = oAuthRecordId,
             Error = error,

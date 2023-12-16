@@ -1,13 +1,13 @@
-﻿using BusinessLogic.Pipeline.Shared;
-using BusinessLogic.Pipeline.Steam.LoginSuccess;
+using BusinessLogic.Pipeline.Development.Login;
+using BusinessLogic.Pipeline.Shared;
 using Domain.Pipeline;
 
-namespace BusinessLogic.Pipeline.Steam;
+namespace BusinessLogic.Pipeline.Development;
 
-public class SteamLoginSuccessPipeline : Pipeline<ILoginPipelineParameters>
+public class DevelopmentLoginPipeline : Pipeline<ILoginPipelineParameters>
 {
-    public SteamLoginSuccessPipeline(
-        ValidateSteamOAuthRecordStage validateOAuthRecordStage,
+    public DevelopmentLoginPipeline(
+        ValidateDevelopmentOAuthRecordStage validateOAuthRecordStage,
         AppendCookieHeaderStage appendCookieHeaderStage,
         DeriveSuccessRedirectUriStage deriveSuccessRedirectUriStage)
     {

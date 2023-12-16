@@ -1,22 +1,22 @@
-﻿using BusinessLogic.Pipeline.Steam;
+﻿using BusinessLogic.Pipeline.Github;
 using Domain.Entity.Id;
 using Domain.Pipeline;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace BusinessLogic.Handler.OAuth.Steam;
+namespace BusinessLogic.Handler.OAuth.Github;
 
-public class SteamOAuthLoginSuccessHandler : BasePipelineExecutorHandler
+public class GithubOAuthLoginSuccessHandler : BasePipelineExecutorHandler
 {
-    private readonly ILogger<SteamOAuthLoginSuccessHandler> logger;
-    private readonly SteamLoginSuccessPipeline steamLoginSuccessPipeline;
+    private readonly ILogger<GithubOAuthLoginSuccessHandler> logger;
+    private readonly GithubLoginPipeline githubLoginPipeline;
 
-    public SteamOAuthLoginSuccessHandler(
-        ILogger<SteamOAuthLoginSuccessHandler> logger,
-        SteamLoginSuccessPipeline steamLoginSuccessPipeline)
+    public GithubOAuthLoginSuccessHandler(
+        ILogger<GithubOAuthLoginSuccessHandler> logger,
+        GithubLoginPipeline githubLoginPipeline)
     {
         this.logger = logger;
-        this.steamLoginSuccessPipeline = steamLoginSuccessPipeline;
+        this.githubLoginPipeline = githubLoginPipeline;
     }
 
     public async Task<IResult> LoginSuccess(
@@ -25,19 +25,19 @@ public class SteamOAuthLoginSuccessHandler : BasePipelineExecutorHandler
         string accessToken,
         CancellationToken cancellationToken)
     {
-        var parameters = new SteamLoginSuccessPipelineParameters
+        var parameters = new GithubLoginSuccessPipelineParameters
         {
             OAuthRecordId = oAuthRecordId,
             TokenType = tokenType,
             AccessToken = accessToken,
-            AuthenticationMethod = Domain.Entity.AuthenticationMethod.Steam,
+            AuthenticationMethod = Domain.Entity.AuthenticationMethod.Development,
         };
 
         var excecutedParametersResult = await this.ExecutePipeline(
             this.logger,
-            this.steamLoginSuccessPipeline,
+            this.githubLoginPipeline,
             parameters,
-            "SteamLoginSuccess",
+            "GithubLoginSuccess",
             cancellationToken);
         
         return excecutedParametersResult.Match(

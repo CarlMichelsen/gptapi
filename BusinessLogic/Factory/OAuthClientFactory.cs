@@ -1,36 +1,33 @@
 ﻿using BusinessLogic.Client;
-using Domain.Configuration;
+using Domain.Entity;
 using Domain.Exception;
 using Interface.Client;
 using Interface.Factory;
-using Microsoft.Extensions.Options;
 
 namespace BusinessLogic.Factory;
 
 public class OAuthClientFactory : IOAuthClientFactory
 {
-    private readonly IOptions<ApplicationOptions> applicationOptions;
     private readonly IServiceProvider serviceProvider;
 
-    public OAuthClientFactory(
-        IOptions<ApplicationOptions> applicationOptions,
-        IServiceProvider serviceProvider)
+    public OAuthClientFactory(IServiceProvider serviceProvider)
     {
-        this.applicationOptions = applicationOptions;
         this.serviceProvider = serviceProvider;
     }
     
-    public IOAuthClient Create()
+    public IOAuthClient Create(AuthenticationMethod authenticationMethod)
     {
-        if (this.applicationOptions.Value.IsDevelopment)
+        switch (authenticationMethod)
         {
-            return this.GetService<DevelopmentOAuthClient>();
+            case AuthenticationMethod.Development: return this.GetService<DevelopmentOAuthClient>();
+            case AuthenticationMethod.Steam: return this.GetService<SteamOAuthClient>();
+            case AuthenticationMethod.Github: return this.GetService<GithubOAuthClient>();
+            default: throw new OAuthException("Unsupported authentication method");
         }
-
-        return this.GetService<SteamOAuthClient>();
     }
 
     private T GetService<T>()
+        where T : class
     {
         var type = typeof(T);
         var obj = this.serviceProvider.GetService(type);
@@ -39,6 +36,6 @@ public class OAuthClientFactory : IOAuthClientFactory
             throw new ClientException($"Failed to create {type.Name}");
         }
 
-        return (T)obj;
+        return (obj as T) ?? throw new ClientException("Somehow the service became null after a null-check???");
     }
 }

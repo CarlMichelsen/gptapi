@@ -1,22 +1,22 @@
-﻿using BusinessLogic.Pipeline.Steam;
+﻿using BusinessLogic.Pipeline.Development;
 using Domain.Entity.Id;
 using Domain.Pipeline;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace BusinessLogic.Handler.OAuth.Steam;
+namespace BusinessLogic.Handler.OAuth.Development;
 
-public class SteamOAuthLoginSuccessHandler : BasePipelineExecutorHandler
+public class DevelopmentOAuthLoginSuccessHandler : BasePipelineExecutorHandler
 {
-    private readonly ILogger<SteamOAuthLoginSuccessHandler> logger;
-    private readonly SteamLoginSuccessPipeline steamLoginSuccessPipeline;
+    private readonly ILogger<DevelopmentOAuthLoginSuccessHandler> logger;
+    private readonly DevelopmentLoginPipeline developmentLoginPipeline;
 
-    public SteamOAuthLoginSuccessHandler(
-        ILogger<SteamOAuthLoginSuccessHandler> logger,
-        SteamLoginSuccessPipeline steamLoginSuccessPipeline)
+    public DevelopmentOAuthLoginSuccessHandler(
+        ILogger<DevelopmentOAuthLoginSuccessHandler> logger,
+        DevelopmentLoginPipeline developmentLoginPipeline)
     {
         this.logger = logger;
-        this.steamLoginSuccessPipeline = steamLoginSuccessPipeline;
+        this.developmentLoginPipeline = developmentLoginPipeline;
     }
 
     public async Task<IResult> LoginSuccess(
@@ -30,14 +30,14 @@ public class SteamOAuthLoginSuccessHandler : BasePipelineExecutorHandler
             OAuthRecordId = oAuthRecordId,
             TokenType = tokenType,
             AccessToken = accessToken,
-            AuthenticationMethod = Domain.Entity.AuthenticationMethod.Steam,
+            AuthenticationMethod = Domain.Entity.AuthenticationMethod.Development,
         };
 
         var excecutedParametersResult = await this.ExecutePipeline(
             this.logger,
-            this.steamLoginSuccessPipeline,
+            this.developmentLoginPipeline,
             parameters,
-            "SteamLoginSuccess",
+            "DevelopmentLoginSuccess",
             cancellationToken);
         
         return excecutedParametersResult.Match(

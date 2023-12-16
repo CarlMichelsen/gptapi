@@ -1,7 +1,9 @@
-﻿using Interface.Client;
+﻿using Domain.Entity;
+using Interface.Client;
 
 namespace Interface.Factory;
 
-public interface IOAuthClientFactory : IFactory<IOAuthClient>
+public interface IOAuthClientFactory
 {
+    IOAuthClient Create(AuthenticationMethod authenticationMethod);
 }

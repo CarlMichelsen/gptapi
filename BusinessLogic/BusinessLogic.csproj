@@ -19,4 +19,10 @@
     <ProjectReference Include="..\Database\Database.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Handler\OAuth\Development\" />
+    <Folder Include="Pipeline\Github\Login\" />
+    <Folder Include="Pipeline\Shared\" />
+  </ItemGroup>
+
 </Project>

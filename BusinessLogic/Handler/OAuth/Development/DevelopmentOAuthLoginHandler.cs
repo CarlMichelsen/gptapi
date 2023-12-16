@@ -10,18 +10,18 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace BusinessLogic.Handler.OAuth.Steam;
+namespace BusinessLogic.Handler.OAuth.Development;
 
 public class DevelopmentOAuthLoginHandler : IOAuthLoginHandler
 {
-    private readonly ILogger<SteamOAuthLoginHandler> logger;
+    private readonly ILogger<DevelopmentOAuthLoginHandler> logger;
     private readonly ApplicationContext applicationContext;
     private readonly IOptions<ApplicationOptions> applicationOptions;
     private readonly LinkGenerator linkGenerator;
     private readonly IHttpContextAccessor httpContextAccessor;
 
     public DevelopmentOAuthLoginHandler(
-        ILogger<SteamOAuthLoginHandler> logger,
+        ILogger<DevelopmentOAuthLoginHandler> logger,
         ApplicationContext applicationContext,
         IOptions<ApplicationOptions> applicationOptions,
         LinkGenerator linkGenerator,
@@ -71,11 +71,6 @@ public class DevelopmentOAuthLoginHandler : IOAuthLoginHandler
 
     private async Task<OAuthRecord> RegisterOAuthRecord(OAuthRecordId id)
     {
-        if (!this.applicationOptions.Value.IsDevelopment)
-        {
-            throw new OAuthException("Attempted to log in using developmentOAuth in production is a big nono");
-        }
-
         var oAuthRecord = new OAuthRecord
         {
             Id = id,

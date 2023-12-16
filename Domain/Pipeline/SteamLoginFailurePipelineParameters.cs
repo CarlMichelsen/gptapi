@@ -2,7 +2,7 @@
 
 namespace Domain.Pipeline;
 
-public class LoginFailurePipelineParameters
+public class SteamLoginFailurePipelineParameters
 {
     public required OAuthRecordId OAuthRecordId { get; init; }
 

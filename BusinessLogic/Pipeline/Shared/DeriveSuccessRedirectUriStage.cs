@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
 
-namespace BusinessLogic.Pipeline.Steam.LoginSuccess;
+namespace BusinessLogic.Pipeline.Shared;
 
-public class DeriveSuccessRedirectUriStage : IPipelineStage<LoginSuccessPipelineParameters>
+public class DeriveSuccessRedirectUriStage : IPipelineStage<ILoginPipelineParameters>
 {
     private readonly IOptions<ApplicationOptions> applicationOptions;
     private readonly LinkGenerator linkGenerator;
@@ -25,8 +25,8 @@ public class DeriveSuccessRedirectUriStage : IPipelineStage<LoginSuccessPipeline
         this.httpContextAccessor = httpContextAccessor;
     }
 
-    public Task<LoginSuccessPipelineParameters> Process(
-        LoginSuccessPipelineParameters input,
+    public Task<ILoginPipelineParameters> Process(
+        ILoginPipelineParameters input,
         CancellationToken cancellationToken)
     {
         if (this.applicationOptions.Value.IsDevelopment)

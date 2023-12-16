@@ -3,7 +3,7 @@ using Domain.Pipeline;
 
 namespace BusinessLogic.Pipeline.Steam;
 
-public class SteamLoginFailurePipeline : Pipeline<LoginFailurePipelineParameters>
+public class SteamLoginFailurePipeline : Pipeline<SteamLoginFailurePipelineParameters>
 {
     public SteamLoginFailurePipeline(
         RegisterLoginFailureStage registerLoginFailureStage)

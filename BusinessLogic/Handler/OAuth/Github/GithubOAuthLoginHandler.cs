@@ -58,7 +58,7 @@ public class GithubOAuthLoginHandler : IOAuthLoginHandler
         var httpContext = this.httpContextAccessor.HttpContext
             ?? throw new OAuthException("HttpContext not available");
 
-        var redirectUri = this.linkGenerator.GetUriByName(httpContext, GptApiConstants.LoginSuccessEndPointName)
+        var redirectUri = this.linkGenerator.GetUriByName(httpContext, GptApiConstants.GithubLoginSuccessEndPointName)
             ?? throw new OAuthException("Failed to get development OAuth redirect url");
 
         var parameters = new Dictionary<string, string>
