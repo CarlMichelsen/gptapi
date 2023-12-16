@@ -47,7 +47,7 @@ public class GithubOAuthLoginSuccessHandler : BasePipelineExecutorHandler
                 AccessToken = codeResponse.AccessToken,
                 CommaSeparatedScopes = codeResponse.CommaSeparatedScopes,
                 Code = code,
-                AuthenticationMethod = Domain.Entity.AuthenticationMethod.Development,
+                AuthenticationMethod = Domain.Entity.AuthenticationMethod.Github,
             };
 
             var excecutedParametersResult = await this.ExecutePipeline(

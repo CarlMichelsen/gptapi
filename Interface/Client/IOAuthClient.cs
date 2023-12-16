@@ -7,5 +7,5 @@ public interface IOAuthClient
 {
     Task<string> GetOAuthId(string accessToken);
 
-    Task<IOAuthUserDataConvertible> GetOAuthUserData(OAuthRecord oauthRecord);
+    Task<IOAuthUserDataConvertible> GetOAuthUserData(OAuthRecord oAuthRecord);
 }
