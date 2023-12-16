@@ -1,12 +1,40 @@
-﻿using Domain.Pipeline;
+﻿using Domain.Entity;
+using Domain.Exception;
+using Domain.Pipeline;
+using Domain.Service;
 using Interface.Pipeline;
+using Interface.Service;
 
 namespace BusinessLogic;
 
 public class ValidateGithubOAuthRecordStage : IPipelineStage<ILoginPipelineParameters>
 {
-    public Task<ILoginPipelineParameters> Process(ILoginPipelineParameters input, CancellationToken cancellationToken)
+    private readonly IOAuthRecordValidatorService oAuthRecordValidatorService;
+
+    public ValidateGithubOAuthRecordStage(
+        IOAuthRecordValidatorService oAuthRecordValidatorService)
     {
-        throw new NotImplementedException();
+        this.oAuthRecordValidatorService = oAuthRecordValidatorService;
+    }
+
+    public async Task<ILoginPipelineParameters> Process(ILoginPipelineParameters input, CancellationToken cancellationToken)
+    {
+        var oAuthRecordValidationResult = await this.oAuthRecordValidatorService.ValidateOAuthRecord(
+            input.OAuthRecordId,
+            input.AccessToken,
+            AuthenticationMethod.Github);
+        
+        return oAuthRecordValidationResult.Match(
+            (oAuthRecordValidatorResult) => this.HandlePipelineParameters(input, oAuthRecordValidatorResult),
+            (error) => throw new OAuthException(error));
+    }
+
+    private ILoginPipelineParameters HandlePipelineParameters(
+        ILoginPipelineParameters input,
+        OAuthRecordValidatorResult oAuthRecordValidatorResult)
+    {
+        input.UserId = oAuthRecordValidatorResult.OAuthRecord.UserId;
+        input.UserProfileId = oAuthRecordValidatorResult.UserProfileId;
+        return input;
     }
 }
