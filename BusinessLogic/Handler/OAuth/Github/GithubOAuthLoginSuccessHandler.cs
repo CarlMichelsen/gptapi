@@ -19,7 +19,6 @@ public class GithubOAuthLoginSuccessHandler : BasePipelineExecutorHandler
     {
         this.logger = logger;
         this.githubLoginPipeline = githubLoginPipeline;
-        this.oAuthClientFactory = oAuthClientFactory;
     }
 
     public async Task<IResult> LoginSuccess(
