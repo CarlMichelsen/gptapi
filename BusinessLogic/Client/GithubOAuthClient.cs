@@ -77,7 +77,16 @@ public class GithubOAuthClient : IOAuthClient
         var response = await this.githubApiHttpClient.GetAsync(UserPath);
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadFromJsonAsync<GithubUser>()
-            ?? throw new ClientException("Could not parse GithubUser response");
+        try
+        {
+            return await response.Content.ReadFromJsonAsync<GithubUser>()
+                ?? throw new ClientException("Could not parse GithubUser response");
+        }
+        catch (Exception)
+        {
+            var jsonStr = await response.Content.ReadAsStringAsync();
+            this.logger.LogCritical("Failed to parse the following string into a GithubUser object:\n{json}", jsonStr);
+            throw;
+        }
     }
 }
