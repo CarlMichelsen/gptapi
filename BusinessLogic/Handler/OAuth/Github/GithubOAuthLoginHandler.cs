@@ -59,7 +59,7 @@ public class GithubOAuthLoginHandler : IOAuthLoginHandler
             { "response_type", "token" },
             { "client_id", this.githubOAuthOptions.Value.ClientId },
             { "redirect_uri", redirectUri },
-            { "scope", "user" },
+            { "scope", "read:user" },
             { "state", oAuthRecord.Id.ToString() },
             { "allow_signup", "false" },
         };

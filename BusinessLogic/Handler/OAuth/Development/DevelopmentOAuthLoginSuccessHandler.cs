@@ -1,6 +1,9 @@
 ﻿using BusinessLogic.Pipeline.Development;
+using Domain;
 using Domain.Entity.Id;
+using Domain.Exception;
 using Domain.Pipeline;
+using Interface.Provider;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -10,13 +13,16 @@ public class DevelopmentOAuthLoginSuccessHandler : BasePipelineExecutorHandler
 {
     private readonly ILogger<DevelopmentOAuthLoginSuccessHandler> logger;
     private readonly DevelopmentLoginPipeline developmentLoginPipeline;
+    private readonly IEndpointUrlProvider endpointUrlProvider;
 
     public DevelopmentOAuthLoginSuccessHandler(
         ILogger<DevelopmentOAuthLoginSuccessHandler> logger,
-        DevelopmentLoginPipeline developmentLoginPipeline)
+        DevelopmentLoginPipeline developmentLoginPipeline,
+        IEndpointUrlProvider endpointUrlProvider)
     {
         this.logger = logger;
         this.developmentLoginPipeline = developmentLoginPipeline;
+        this.endpointUrlProvider = endpointUrlProvider;
     }
 
     public async Task<IResult> LoginSuccess(
@@ -25,23 +31,46 @@ public class DevelopmentOAuthLoginSuccessHandler : BasePipelineExecutorHandler
         string accessToken,
         CancellationToken cancellationToken)
     {
-        var parameters = new SteamLoginSuccessPipelineParameters
+        try
         {
-            OAuthRecordId = oAuthRecordId,
-            TokenType = tokenType,
-            AccessToken = accessToken,
-            AuthenticationMethod = Domain.Entity.AuthenticationMethod.Development,
-        };
+            var parameters = new DevelopmentLoginPipelineParameters
+            {
+                OAuthRecordId = oAuthRecordId,
+                TokenType = tokenType,
+                AccessToken = accessToken,
+                AuthenticationMethod = Domain.Entity.AuthenticationMethod.Development,
+            };
 
-        var excecutedParametersResult = await this.ExecutePipeline(
-            this.logger,
-            this.developmentLoginPipeline,
-            parameters,
-            "DevelopmentLoginSuccess",
-            cancellationToken);
-        
-        return excecutedParametersResult.Match(
-            (parameters) => Results.Redirect(parameters.RedirectUri!),
-            (error) => Results.StatusCode(500));
+            var excecutedParametersResult = await this.ExecutePipeline(
+                this.logger,
+                this.developmentLoginPipeline,
+                parameters,
+                "DevelopmentLoginSuccess",
+                cancellationToken);
+            
+            return excecutedParametersResult.Match(
+                (parameters) => Results.Redirect(parameters.RedirectUri!),
+                (error) => Results.StatusCode(500));
+        }
+        catch (OAuthException e)
+        {
+            this.logger.LogWarning(
+                "An OAuthException occured in {handlername}:\n{exception}\nredirecting...",
+                nameof(DevelopmentOAuthLoginSuccessHandler),
+                e);
+
+            var redirectUrl = this.endpointUrlProvider.GetEndpointUrlFromEndpointName(GptApiConstants.FrontendEndpointName);
+            return Results.Redirect(redirectUrl);
+        }
+        catch (Exception e)
+        {
+            this.logger.LogCritical(
+                "A critical unhandled exception occured in {handlername}:\n{exception}\nredirecting...",
+                nameof(DevelopmentOAuthLoginSuccessHandler),
+                e);
+            
+            var redirectUrl = this.endpointUrlProvider.GetEndpointUrlFromEndpointName(GptApiConstants.FrontendEndpointName);
+            return Results.Redirect(redirectUrl);
+        }
     }
 }
