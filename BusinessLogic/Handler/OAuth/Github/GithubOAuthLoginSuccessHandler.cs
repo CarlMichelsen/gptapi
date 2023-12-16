@@ -61,16 +61,6 @@ public class GithubOAuthLoginSuccessHandler : BasePipelineExecutorHandler
                 (parameters) => Results.Redirect(parameters.RedirectUri!),
                 (error) => Results.StatusCode(500));
         }
-        catch (OAuthException e)
-        {
-            this.logger.LogWarning(
-                "An OAuthException occured in {handlername}:\n{exception}\nredirecting...",
-                nameof(GithubOAuthLoginSuccessHandler),
-                e);
-
-            var redirectUrl = this.endpointUrlProvider.GetEndpointUrlFromEndpointName(GptApiConstants.FrontendEndpointName);
-            return Results.Redirect(redirectUrl);
-        }
         catch (Exception e)
         {
             this.logger.LogCritical(

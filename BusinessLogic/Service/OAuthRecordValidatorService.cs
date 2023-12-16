@@ -54,15 +54,24 @@ public class OAuthRecordValidatorService : IOAuthRecordValidatorService
             return "No accessToken.";
         }
 
-        // Only accept specific AuthenticationMethods
+        // Only accept specific AuthenticationMethod
         if (record.AuthenticationMethod != validAuthenticationMethod)
         {
             return "AuthenticationMethod invalid.";
         }
 
         // If the accessToken receieved from redirect query parameters can't be exchanged for a userId, don't grant access.
-        var client = this.oAuthClientFactory.Create(record.AuthenticationMethod);
-        var userId = await client.GetOAuthId(record.AccessToken);
+        string userId;
+        try
+        {
+            var client = this.oAuthClientFactory.Create(record.AuthenticationMethod);
+            userId = await client.GetOAuthId(record.AccessToken);
+        }
+        catch (HttpRequestException)
+        {
+            return "Did not have access to OAuthId.";
+        }
+        
         if (userId is null)
         {
             return "Failed to exchange accessToken for a userId.";

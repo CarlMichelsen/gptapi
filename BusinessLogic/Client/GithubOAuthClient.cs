@@ -86,21 +86,27 @@ public class GithubOAuthClient : IOAuthClient
 
     private async Task<GithubUser> GetUser(string accessToken)
     {
-        this.githubApiHttpClient.DefaultRequestHeaders.Authorization
-            = new AuthenticationHeaderValue("Bearer", accessToken);
-        
-        var response = await this.githubApiHttpClient.GetAsync(UserPath);
-        response.EnsureSuccessStatusCode();
-
+        HttpResponseMessage? response = default;
         try
         {
-            return await response.Content.ReadFromJsonAsync<GithubUser>()
+            this.githubApiHttpClient.DefaultRequestHeaders.Authorization
+                = new AuthenticationHeaderValue("Bearer", accessToken);
+            response = await this.githubApiHttpClient.GetAsync(UserPath);
+
+            response?.EnsureSuccessStatusCode();
+
+            return await response?.Content.ReadFromJsonAsync<GithubUser>()
                 ?? throw new ClientException("Could not parse GithubUser response");
+        }
+        catch (HttpRequestException)
+        {
+            this.logger.LogCritical("No access to github User data");
+            throw;
         }
         catch (Exception)
         {
-            var jsonStr = await response.Content.ReadAsStringAsync();
-            this.logger.LogCritical("Failed to parse the following string into a GithubUser object:\n{json}", jsonStr);
+            var jsonStr = await response?.Content.ReadAsStringAsync();
+            this.logger.LogCritical("Probably failed to parse the following string into a GithubUser object:\n{json}", jsonStr);
             throw;
         }
     }
