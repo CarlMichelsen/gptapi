@@ -9,20 +9,24 @@ using Interface.Handler;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace BusinessLogic.Handler;
 
 public class SessionHandler : ISessionHandler
 {
+    private readonly ILogger<SessionHandler> logger;
     private readonly IHttpContextAccessor httpContextAccessor;
     private readonly IOAuthClientFactory oAuthClientFactory;
     private readonly ApplicationContext applicationContext;
 
     public SessionHandler(
+        ILogger<SessionHandler> logger,
         IHttpContextAccessor httpContextAccessor,
         IOAuthClientFactory oAuthClientFactory,
         ApplicationContext applicationContext)
     {
+        this.logger = logger;
         this.httpContextAccessor = httpContextAccessor;
         this.oAuthClientFactory = oAuthClientFactory;
         this.applicationContext = applicationContext;
@@ -48,8 +52,9 @@ public class SessionHandler : ISessionHandler
             var oAuthDataConvertible = await client.GetOAuthUserData(oAuthRecord);
             return oAuthDataConvertible.ToOAuthUser();
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            this.logger.LogWarning("GetUserData in SessionHandler threw an exception\n{exception}", e);
             return HttpStatusCode.InternalServerError;
         }
     }
