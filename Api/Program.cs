@@ -45,6 +45,7 @@ builder.Services
     })
     .Configure<SteamOAuthOptions>(builder.Configuration.GetSection(SteamOAuthOptions.SectionName))
     .Configure<GithubOAuthOptions>(builder.Configuration.GetSection(GithubOAuthOptions.SectionName))
+    .Configure<DiscordOptions>(builder.Configuration.GetSection(DiscordOptions.SectionName))
     .Configure<ApplicationOptions>(options => options.IsDevelopment = builder.Environment.IsDevelopment());
 
 // Database
@@ -63,6 +64,7 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
 // Services
 builder.Services
     .AddTransient<IGptChatClient, GptChatClient>()
+    .AddTransient<IDiscordMessageClient, DiscordMessageClient>()
     .AddTransient<IConversationService, ConversationService>()
     .AddTransient<IOAuthRecordValidatorService, OAuthRecordValidatorService>()
     .AddScoped<IDevelopmentIdentityProvider, DevelopmentIdentityProvider>()
@@ -105,10 +107,15 @@ builder.Services
 
 // Typed HttpClient Factories
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient<DiscordMessageClient>();
 builder.Services.AddHttpClient<GptChatClient>(client =>
     client.Timeout = TimeSpan.FromSeconds(30));
-builder.Services.AddHttpClient(GptApiConstants.GithubHttpClient, options => options.BaseAddress = new Uri("https://github.com"));
-builder.Services.AddHttpClient(GptApiConstants.GithubAPIHttpClient, options => options.BaseAddress = new Uri("https://api.github.com"));
+
+builder.Services.AddHttpClient(GptApiConstants.GithubHttpClient, options =>
+    options.BaseAddress = new Uri(builder.Configuration.GetSection(GithubOAuthOptions.SectionName)[nameof(GithubOAuthOptions.BaseUrl)]!));
+
+builder.Services.AddHttpClient(GptApiConstants.GithubAPIHttpClient, options =>
+    options.BaseAddress = new Uri(builder.Configuration.GetSection(GithubOAuthOptions.SectionName)[nameof(GithubOAuthOptions.ApiBaseUrl)]!));
 
 // Security
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

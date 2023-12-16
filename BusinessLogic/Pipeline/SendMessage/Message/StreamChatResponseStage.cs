@@ -80,7 +80,6 @@ public class StreamChatResponseStage : IPipelineStage<SendMessagePipelineParamet
                     Content = await this.CollectAndSortChunks(chunkTasks),
                     ResponseId = responseId,
                     Created = DateTime.UtcNow,
-                    Complete = false,
                 };
                 return input;
             }
@@ -93,7 +92,6 @@ public class StreamChatResponseStage : IPipelineStage<SendMessagePipelineParamet
             Content = await this.CollectAndSortChunks(chunkTasks),
             ResponseId = responseId,
             Created = DateTime.UtcNow,
-            Complete = true,
         };
 
         return input;

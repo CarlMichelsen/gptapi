@@ -9,4 +9,8 @@ public class GithubOAuthOptions
     public required string ClientSecret { get; init; }
 
     public required string OAuthEndpoint { get; init; }
+
+    public required string BaseUrl { get; init; }
+    
+    public required string ApiBaseUrl { get; init; }
 }

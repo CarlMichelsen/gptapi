@@ -1,50 +1,63 @@
 ﻿using Domain;
 using Domain.Configuration;
-using Domain.Exception;
+using Domain.Dto.Discord;
 using Domain.Pipeline;
+using Interface.Client;
 using Interface.Pipeline;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
+using Interface.Provider;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace BusinessLogic.Pipeline.Shared;
 
 public class DeriveSuccessRedirectUriStage : IPipelineStage<ILoginPipelineParameters>
 {
+    private readonly ILogger<DeriveSuccessRedirectUriStage> logger;
     private readonly IOptions<ApplicationOptions> applicationOptions;
-    private readonly LinkGenerator linkGenerator;
-    private readonly IHttpContextAccessor httpContextAccessor;
+    private readonly IEndpointUrlProvider endpointUrlProvider;
+    private readonly IDiscordMessageClient discordMessageClient;
 
     public DeriveSuccessRedirectUriStage(
+        ILogger<DeriveSuccessRedirectUriStage> logger,
         IOptions<ApplicationOptions> applicationOptions,
-        LinkGenerator linkGenerator,
-        IHttpContextAccessor httpContextAccessor)
+        IEndpointUrlProvider endpointUrlProvider,
+        IDiscordMessageClient discordMessageClient)
     {
+        this.logger = logger;
         this.applicationOptions = applicationOptions;
-        this.linkGenerator = linkGenerator;
-        this.httpContextAccessor = httpContextAccessor;
+        this.endpointUrlProvider = endpointUrlProvider;
+        this.discordMessageClient = discordMessageClient;
     }
 
-    public Task<ILoginPipelineParameters> Process(
+    public async Task<ILoginPipelineParameters> Process(
         ILoginPipelineParameters input,
         CancellationToken cancellationToken)
     {
         if (this.applicationOptions.Value.IsDevelopment)
         {
             input.RedirectUri = GptApiConstants.DeveloperFrontendUrl;
-            return Task.FromResult(input);
+            await this.LogLogin(input);
+            return input;
         }
-
-        var httpContext = this.httpContextAccessor.HttpContext
-            ?? throw new PipelineException("HttpContext not available during DeriveSuccessRedirectUriStage pipeline stage.");
-        var uri = this.linkGenerator.GetUriByName(httpContext, GptApiConstants.FrontendEndpointName);
-
-        if (string.IsNullOrWhiteSpace(uri))
-        {
-            throw new PipelineException("LinkGenerator could not find frontendUrl by endpoint name.");
-        }
+        
+        var uri = this.endpointUrlProvider.GetEndpointUrlFromEndpointName(GptApiConstants.FrontendEndpointName);
 
         input.RedirectUri = uri;
-        return Task.FromResult(input);
+        await this.LogLogin(input);
+        return input;
+    }
+
+    private async Task LogLogin(ILoginPipelineParameters input)
+    {
+        var message = new DiscordWebhookMessage
+        {
+            Content = $"A user ({input.UserProfileId}) logged in using {Enum.GetName(input.AuthenticationMethod)} OAuth",
+        };
+
+        var logged = await this.discordMessageClient.SendMessage(message);
+        if (!logged)
+        {
+            this.logger.LogCritical("Failed to log to DISCORD");
+        }
     }
 }

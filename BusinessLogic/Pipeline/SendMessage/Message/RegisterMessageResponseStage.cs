@@ -35,6 +35,9 @@ public class RegisterMessageResponseStage : IPipelineStage<SendMessagePipelinePa
         var responseMessage = input.ResponseMessage
             ?? throw new PipelineException("ResponseMessage should be defined at this point");
         
+        // Mark as complete
+        responseMessage.Complete = true;
+        
         var conversationResult = await this.conversationService
                 .AppendConversation(input.UserProfileId, conv.Id, responseMessage);
 
