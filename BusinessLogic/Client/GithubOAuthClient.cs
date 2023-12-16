@@ -54,8 +54,17 @@ public class GithubOAuthClient : IOAuthClient
         var response = await this.githubOAuthHttpClient.PostAsync(AccessTokenPath, new FormUrlEncodedContent(payload));
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadFromJsonAsync<CodeResponseDto>()
-            ?? throw new ClientException("Could not parse code-exchange response");
+        try
+        {
+            return await response.Content.ReadFromJsonAsync<CodeResponseDto>()
+                ?? throw new ClientException("Could not parse code-exchange response");
+        }
+        catch (Exception)
+        {
+            var jsonStr = await response.Content.ReadAsStringAsync();
+            this.logger.LogCritical("Failed to parse the following string into a CodeResponseDto object:\n{json}", jsonStr);
+            throw;
+        }
     }
     
     public async Task<string> GetOAuthId(string accessToken)
@@ -66,7 +75,10 @@ public class GithubOAuthClient : IOAuthClient
 
     public async Task<IOAuthUserDataConvertible> GetOAuthUserData(OAuthRecord oAuthRecord)
     {
-        return await this.GetUser(oAuthRecord.AccessToken ?? throw new ClientException("No AccessToken for github GetOAuthUserData"));
+        var accessToken = oAuthRecord.AccessToken
+            ?? throw new ClientException("No AccessToken for github GetOAuthUserData");
+
+        return await this.GetUser(accessToken);
     }
 
     private async Task<GithubUser> GetUser(string accessToken)
