@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Domain.OAuth;
 
-namespace Domain.Github;
+namespace Domain.Dto.Github;
 
 public class GithubSimpleUser : GithubSimpleUserUrl, IOAuthUserDataConvertible
 {

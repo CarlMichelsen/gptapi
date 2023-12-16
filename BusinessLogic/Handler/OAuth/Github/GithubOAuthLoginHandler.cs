@@ -3,10 +3,9 @@ using Domain;
 using Domain.Configuration;
 using Domain.Entity;
 using Domain.Entity.Id;
-using Domain.Exception;
 using Interface.Handler.OAuth;
+using Interface.Provider;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -17,21 +16,18 @@ public class GithubOAuthLoginHandler : IOAuthLoginHandler
     private readonly ILogger<GithubOAuthLoginHandler> logger;
     private readonly ApplicationContext applicationContext;
     private readonly IOptions<GithubOAuthOptions> githubOAuthOptions;
-    private readonly LinkGenerator linkGenerator;
-    private readonly IHttpContextAccessor httpContextAccessor;
+    private readonly IEndpointUrlProvider endpointUrlProvider;
 
     public GithubOAuthLoginHandler(
         ILogger<GithubOAuthLoginHandler> logger,
         ApplicationContext applicationContext,
         IOptions<GithubOAuthOptions> githubOAuthOptions,
-        LinkGenerator linkGenerator,
-        IHttpContextAccessor httpContextAccessor)
+        IEndpointUrlProvider endpointUrlProvider)
     {
         this.logger = logger;
         this.applicationContext = applicationContext;
         this.githubOAuthOptions = githubOAuthOptions;
-        this.linkGenerator = linkGenerator;
-        this.httpContextAccessor = httpContextAccessor;
+        this.endpointUrlProvider = endpointUrlProvider;
     }
 
     public async Task<IResult> Login()
@@ -55,23 +51,20 @@ public class GithubOAuthLoginHandler : IOAuthLoginHandler
 
     private string GenerateGithubOAuthUrl(OAuthRecord oAuthRecord)
     {
-        var httpContext = this.httpContextAccessor.HttpContext
-            ?? throw new OAuthException("HttpContext not available");
-
-        var redirectUri = this.linkGenerator.GetUriByName(httpContext, GptApiConstants.GithubLoginSuccessEndPointName)
-            ?? throw new OAuthException("Failed to get development OAuth redirect url");
+        var redirectUri = this.endpointUrlProvider
+            .GetEndpointUrlFromEndpointName(GptApiConstants.GithubLoginSuccessEndPointName);
 
         var parameters = new Dictionary<string, string>
         {
             { "response_type", "token" },
             { "client_id", this.githubOAuthOptions.Value.ClientId },
-            { "redirect_uri", redirectUri.Replace("http", "https") },
+            { "redirect_uri", redirectUri },
             { "scope", "user" },
             { "state", oAuthRecord.Id.ToString() },
             { "allow_signup", "false" },
         };
 
-        this.logger.LogCritical("url: \"{redirectUri}\"", redirectUri);
+        this.logger.LogCritical("github redirect-url: \"{redirectUri}\"", redirectUri);
 
         var queryString = string.Join("&", parameters.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
         var baseUri = new Uri(this.githubOAuthOptions.Value.OAuthEndpoint);

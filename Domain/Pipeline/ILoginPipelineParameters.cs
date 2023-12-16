@@ -9,7 +9,7 @@ public interface ILoginPipelineParameters
 
     string TokenType { get; init; }
 
-    string AccessToken { get; init; }
+    string AccessToken { get; set; }
 
     AuthenticationMethod AuthenticationMethod { get; init; }
 

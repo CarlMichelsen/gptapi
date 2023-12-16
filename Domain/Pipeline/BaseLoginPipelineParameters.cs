@@ -9,7 +9,7 @@ public abstract class BaseLoginPipelineParameters : ILoginPipelineParameters
 
     public required string TokenType { get; init; }
 
-    public required string AccessToken { get; init; }
+    public required string AccessToken { get; set; }
 
     public required AuthenticationMethod AuthenticationMethod { get; init; }
 

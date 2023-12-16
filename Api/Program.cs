@@ -66,7 +66,8 @@ builder.Services
     .AddTransient<IConversationService, ConversationService>()
     .AddTransient<IOAuthRecordValidatorService, OAuthRecordValidatorService>()
     .AddScoped<IDevelopmentIdentityProvider, DevelopmentIdentityProvider>()
-    .AddTransient<IGptApiKeyProvider, GptApiKeyProvider>();
+    .AddTransient<IGptApiKeyProvider, GptApiKeyProvider>()
+    .AddTransient<IEndpointUrlProvider, EndpointUrlProvider>();
 
 builder.Services.AddSignalR();
 
@@ -95,6 +96,7 @@ builder.Services
 // Factories
 builder.Services
     .AddTransient<SteamOAuthClient>()
+    .AddTransient<GithubOAuthClient>()
     .AddTransient<DevelopmentOAuthClient>();
 builder.Services
     .AddTransient<IOAuthClientFactory, OAuthClientFactory>()
@@ -104,7 +106,8 @@ builder.Services
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<GptChatClient>(client =>
     client.Timeout = TimeSpan.FromSeconds(30));
-builder.Services.AddHttpClient<GithubOAuthClient>();
+builder.Services.AddHttpClient(GptApiConstants.GithubHttpClient, options => options.BaseAddress = new Uri("https://github.com"));
+builder.Services.AddHttpClient(GptApiConstants.GithubAPIHttpClient, options => options.BaseAddress = new Uri("https://api.github.com"));
 
 // Security
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

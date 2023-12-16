@@ -49,19 +49,12 @@ public static class OAuthEndpoints
             async (
                 [FromServices] ILogger<GithubOAuthLoginSuccessHandler> debugLogger,
                 [FromServices] GithubOAuthLoginSuccessHandler githubOAuthLoginSuccessHandler,
-                [FromQuery(Name = "access_token")] string accessToken,
-                [FromQuery(Name = "token_type")] string tokenType,
+                [FromQuery(Name = "code")] string code,
                 [FromQuery(Name = "state")] Guid oAuthRecordId,
                 CancellationToken cancellationToken) => 
             {
-                debugLogger.LogCritical(
-                    "GithubLoginSuccess DEBUG log\naccess_token: {access_token}\n token_type: {token_type}\n state: {state}",
-                    accessToken,
-                    tokenType,
-                    oAuthRecordId);
-
                 return await githubOAuthLoginSuccessHandler
-                    .LoginSuccess(new OAuthRecordId(oAuthRecordId), tokenType, accessToken, cancellationToken);
+                    .LoginSuccess(new OAuthRecordId(oAuthRecordId), code, cancellationToken);
             })
             .WithName(GptApiConstants.GithubLoginSuccessEndPointName);
 
