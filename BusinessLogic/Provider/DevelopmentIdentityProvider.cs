@@ -1,23 +1,17 @@
 ﻿using Domain;
 using Domain.Dto.Steam;
 using Interface.Provider;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
 namespace BusinessLogic.Provider;
 
 public class DevelopmentIdentityProvider : IDevelopmentIdentityProvider
 {
-    private readonly LinkGenerator linkGenerator;
+    private readonly IEndpointUrlProvider endpointUrlProvider;
 
-    private readonly IHttpContextAccessor httpContextAccessor;
-
-    public DevelopmentIdentityProvider(
-        LinkGenerator linkGenerator,
-        IHttpContextAccessor httpContextAccessor)
+    public DevelopmentIdentityProvider(IEndpointUrlProvider endpointUrlProvider)
     {
-        this.linkGenerator = linkGenerator;
-        this.httpContextAccessor = httpContextAccessor;
+        this.endpointUrlProvider = endpointUrlProvider;
     }
 
     public static List<SteamDevelopmentPlayerDto> DevelopmentUsers 
@@ -54,8 +48,7 @@ public class DevelopmentIdentityProvider : IDevelopmentIdentityProvider
 
     public Task<DevelopmentIdpResponse> GetDevelopmentUsers()
     {
-        var httpContext = this.httpContextAccessor.HttpContext!;
-        var uri = this.linkGenerator.GetUriByName(httpContext, GptApiConstants.DevelopmentLoginSuccessEndPointName)!;
+        var uri = this.endpointUrlProvider.GetEndpointUrlFromEndpointName(GptApiConstants.DevelopmentLoginSuccessEndPointName);
 
         var res = new DevelopmentIdpResponse
         {

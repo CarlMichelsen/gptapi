@@ -2,6 +2,7 @@
 using Database;
 using Domain;
 using Domain.Claims;
+using Domain.Entity.Id;
 using Domain.Exception;
 using Domain.OAuth;
 using Interface.Factory;
@@ -45,7 +46,8 @@ public class SessionHandler : ISessionHandler
             var oAuthRecordId = this.httpContextAccessor.HttpContext!.User.FindFirst(GptClaimKeys.OAuthRecordId)?.Value
                 ?? throw new SessionException("oAuthRecordId not found in claims");
             
-            var oAuthRecord = this.applicationContext.OAuthRecord.Find(oAuthRecordId)
+            var identifier = new OAuthRecordId(Guid.Parse(oAuthRecordId));
+            var oAuthRecord = this.applicationContext.OAuthRecord.Find(identifier)
                 ?? throw new SessionException("Could not find OAuthRecord in database");
 
             var client = this.oAuthClientFactory.Create(oAuthRecord.AuthenticationMethod);

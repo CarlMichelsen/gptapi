@@ -68,7 +68,7 @@ public class GithubOAuthLoginHandler : IOAuthLoginHandler
 
         var queryString = this.endpointUrlProvider.GenerateQueryParamsToAppend(parameters);
         var baseUri = new Uri(this.githubOAuthOptions.Value.OAuthEndpoint);
-        return $"{baseUri}?{queryString}";
+        return baseUri + queryString;
     }
 
     private async Task<OAuthRecord> RegisterOAuthRecord(OAuthRecordId id)

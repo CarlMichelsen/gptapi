@@ -26,7 +26,7 @@ public class EndpointUrlProvider : IEndpointUrlProvider
 
     public string GenerateQueryParamsToAppend(Dictionary<string, string> keyValuePairs)
     {
-        return string.Join("&", keyValuePairs.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
+        return "?" + string.Join("&", keyValuePairs.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
     }
 
     public string GetEndpointUrlFromEndpointName(string endpointName)

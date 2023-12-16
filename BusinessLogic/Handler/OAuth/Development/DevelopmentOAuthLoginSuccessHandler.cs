@@ -1,7 +1,6 @@
 ﻿using BusinessLogic.Pipeline.Development;
 using Domain;
 using Domain.Entity.Id;
-using Domain.Exception;
 using Domain.Pipeline;
 using Interface.Provider;
 using Microsoft.AspNetCore.Http;
