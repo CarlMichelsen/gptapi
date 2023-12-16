@@ -5,11 +5,11 @@ namespace Domain.Dto.Github;
 
 public class GithubSimpleUser : GithubSimpleUserUrl, IOAuthUserDataConvertible
 {
-    [JsonPropertyName("login")]
-    public required string Login { get; set; }
-
     [JsonPropertyName("id")]
     public required int Id { get; set; }
+
+    [JsonPropertyName("login")]
+    public required string Login { get; set; }
 
     [JsonPropertyName("node_id")]
     public required string NodeId { get; set; }

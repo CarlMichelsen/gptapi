@@ -1,4 +1,5 @@
-﻿using Domain.Exception;
+﻿using Domain.Entity;
+using Domain.Exception;
 using Domain.OAuth;
 using Interface.Client;
 using Interface.Provider;
@@ -26,12 +27,12 @@ public class DevelopmentOAuthClient : IOAuthClient
         return user.SteamId;
     }
 
-    public async Task<IOAuthUserDataConvertible> GetOAuthUserData(string oAuthId, string? code = null)
+    public async Task<IOAuthUserDataConvertible> GetOAuthUserData(OAuthRecord oAuthRecord)
     {
         var devUsers = await this.developmentIdentityProvider
             .GetDevelopmentUsers();
         
-        return devUsers.Players.FirstOrDefault(d => d.SteamId == oAuthId)
+        return devUsers.Players.FirstOrDefault(d => d.SteamId == oAuthRecord.UserId)
             ?? throw new ClientException("Failed to find development user that matches the steamId");
     }
 }

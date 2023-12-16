@@ -1,8 +1,7 @@
 ﻿using System.Net;
+using Database;
 using Domain;
 using Domain.Claims;
-using Domain.Dto.Steam;
-using Domain.Entity;
 using Domain.Exception;
 using Domain.OAuth;
 using Interface.Factory;
@@ -17,13 +16,16 @@ public class SessionHandler : ISessionHandler
 {
     private readonly IHttpContextAccessor httpContextAccessor;
     private readonly IOAuthClientFactory oAuthClientFactory;
+    private readonly ApplicationContext applicationContext;
 
     public SessionHandler(
         IHttpContextAccessor httpContextAccessor,
-        IOAuthClientFactory oAuthClientFactory)
+        IOAuthClientFactory oAuthClientFactory,
+        ApplicationContext applicationContext)
     {
         this.httpContextAccessor = httpContextAccessor;
         this.oAuthClientFactory = oAuthClientFactory;
+        this.applicationContext = applicationContext;
     }
 
     public async Task<Result<OAuthUserData, HttpStatusCode>> GetUserData()
@@ -36,19 +38,14 @@ public class SessionHandler : ISessionHandler
 
         try
         {
-            var authenticationId = this.httpContextAccessor.HttpContext!.User.FindFirst(GptClaimKeys.AuthenticationId)?.Value
-                ?? throw new SessionException("authenticationId not found in claims");
-
-            var authenticationMethodString = this.httpContextAccessor.HttpContext!.User.FindFirst(GptClaimKeys.AuthenticationMethod)?.Value
-                ?? throw new SessionException("authenticationMethodString not found in claims");
+            var oAuthRecordId = this.httpContextAccessor.HttpContext!.User.FindFirst(GptClaimKeys.OAuthRecordId)?.Value
+                ?? throw new SessionException("oAuthRecordId not found in claims");
             
-            if (!Enum.TryParse(authenticationMethodString, out AuthenticationMethod authenticationMethod))
-            {
-                throw new SessionException($"authenticationMethodString ({authenticationMethodString}) not valid");
-            }
+            var oAuthRecord = this.applicationContext.OAuthRecord.Find(oAuthRecordId)
+                ?? throw new SessionException("Could not find OAuthRecord in database");
 
-            var client = this.oAuthClientFactory.Create(authenticationMethod);
-            var oAuthDataConvertible = await client.GetOAuthUserData(authenticationId);
+            var client = this.oAuthClientFactory.Create(oAuthRecord.AuthenticationMethod);
+            var oAuthDataConvertible = await client.GetOAuthUserData(oAuthRecord);
             return oAuthDataConvertible.ToOAuthUser();
         }
         catch (Exception)

@@ -2,6 +2,7 @@
 using BusinessLogic.Pipeline.Github;
 using Domain.Entity.Id;
 using Domain.Pipeline;
+using Interface.Factory;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -11,13 +12,16 @@ public class GithubOAuthLoginSuccessHandler : BasePipelineExecutorHandler
 {
     private readonly ILogger<GithubOAuthLoginSuccessHandler> logger;
     private readonly GithubLoginPipeline githubLoginPipeline;
+    private readonly IOAuthClientFactory oAuthClientFactory;
 
     public GithubOAuthLoginSuccessHandler(
         ILogger<GithubOAuthLoginSuccessHandler> logger,
-        GithubLoginPipeline githubLoginPipeline)
+        GithubLoginPipeline githubLoginPipeline,
+        IOAuthClientFactory oAuthClientFactory)
     {
         this.logger = logger;
         this.githubLoginPipeline = githubLoginPipeline;
+        this.oAuthClientFactory = oAuthClientFactory;
     }
 
     public async Task<IResult> LoginSuccess(
@@ -25,11 +29,14 @@ public class GithubOAuthLoginSuccessHandler : BasePipelineExecutorHandler
         string code,
         CancellationToken cancellationToken)
     {
+        var client = (GithubOAuthClient)this.oAuthClientFactory.Create(Domain.Entity.AuthenticationMethod.Github);
+        var codeResponse = await client.ExchangeTheCode(code);
+
         var parameters = new GithubLoginSuccessPipelineParameters
         {
             OAuthRecordId = oAuthRecordId,
             TokenType = "bearer",
-            AccessToken = string.Empty,
+            AccessToken = codeResponse.AccessToken,
             Code = code,
             AuthenticationMethod = Domain.Entity.AuthenticationMethod.Development,
         };

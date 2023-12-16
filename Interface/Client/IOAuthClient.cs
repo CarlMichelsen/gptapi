@@ -1,4 +1,5 @@
-﻿using Domain.OAuth;
+﻿using Domain.Entity;
+using Domain.OAuth;
 
 namespace Interface.Client;
 
@@ -6,5 +7,5 @@ public interface IOAuthClient
 {
     Task<string> GetOAuthId(string accessToken);
 
-    Task<IOAuthUserDataConvertible> GetOAuthUserData(string oAuthId, string? code = null);
+    Task<IOAuthUserDataConvertible> GetOAuthUserData(OAuthRecord oauthRecord);
 }

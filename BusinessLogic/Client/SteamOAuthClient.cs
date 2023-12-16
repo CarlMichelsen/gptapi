@@ -1,4 +1,5 @@
-﻿using Domain.OAuth;
+﻿using Domain.Entity;
+using Domain.OAuth;
 using Interface.Client;
 
 namespace BusinessLogic.Client;
@@ -12,7 +13,7 @@ public class SteamOAuthClient : IOAuthClient
         throw new NotImplementedException();
     }
 
-    public Task<IOAuthUserDataConvertible> GetOAuthUserData(string oAuthId, string? code = null)
+    public Task<IOAuthUserDataConvertible> GetOAuthUserData(OAuthRecord oAuthRecord)
     {
         // https://partner.steamgames.com/doc/webapi/ISteamUser#GetPlayerSummaries
         // https://partner.steam-api.com/ISteamUser/GetPlayerSummaries/v2/

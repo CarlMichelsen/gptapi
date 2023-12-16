@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Domain;
 using Domain.Configuration;
 using Domain.Dto.Github;
+using Domain.Entity;
 using Domain.Exception;
 using Domain.OAuth;
 using Interface.Client;
@@ -59,19 +60,16 @@ public class GithubOAuthClient : IOAuthClient
     
     public async Task<string> GetOAuthId(string accessToken)
     {
-        var codeResponse = await this.ExchangeTheCode(accessToken);
-        await this.GetThings(codeResponse.AccessToken);
-
-        // POST https://github.com/login/oauth/access_token
-        throw new NotImplementedException();
+        var user = await this.GetUser(accessToken);
+        return user.Id.ToString();
     }
 
-    public Task<IOAuthUserDataConvertible> GetOAuthUserData(string oAuthId, string? code = null)
+    public async Task<IOAuthUserDataConvertible> GetOAuthUserData(OAuthRecord oAuthRecord)
     {
-        throw new NotImplementedException();
+        return await this.GetUser(oAuthRecord.AccessToken ?? throw new ClientException("No AccessToken for github GetOAuthUserData"));
     }
 
-    private async Task GetThings(string accessToken)
+    private async Task<GithubUser> GetUser(string accessToken)
     {
         this.githubApiHttpClient.DefaultRequestHeaders.Authorization
             = new AuthenticationHeaderValue("Bearer", accessToken);
@@ -79,8 +77,7 @@ public class GithubOAuthClient : IOAuthClient
         var response = await this.githubApiHttpClient.GetAsync(UserPath);
         response.EnsureSuccessStatusCode();
 
-        var resContent = await response.Content.ReadAsStringAsync();
-
-        this.logger.LogCritical("githubuser: {resContent}", resContent);
+        return await response.Content.ReadFromJsonAsync<GithubUser>()
+            ?? throw new ClientException("Could not parse GithubUser response");
     }
 }
