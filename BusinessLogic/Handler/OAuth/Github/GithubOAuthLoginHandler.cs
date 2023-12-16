@@ -71,6 +71,8 @@ public class GithubOAuthLoginHandler : IOAuthLoginHandler
             { "allow_signup", "false" },
         };
 
+        this.logger.LogCritical("url: \"{redirectUri}\"", redirectUri);
+
         var queryString = string.Join("&", parameters.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
         var baseUri = new Uri(this.githubOAuthOptions.Value.OAuthEndpoint);
         return $"{baseUri}?{queryString}";
