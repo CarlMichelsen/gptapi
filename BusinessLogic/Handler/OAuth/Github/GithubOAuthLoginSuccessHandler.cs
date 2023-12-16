@@ -12,12 +12,10 @@ public class GithubOAuthLoginSuccessHandler : BasePipelineExecutorHandler
 {
     private readonly ILogger<GithubOAuthLoginSuccessHandler> logger;
     private readonly GithubLoginPipeline githubLoginPipeline;
-    private readonly IOAuthClientFactory oAuthClientFactory;
 
     public GithubOAuthLoginSuccessHandler(
         ILogger<GithubOAuthLoginSuccessHandler> logger,
-        GithubLoginPipeline githubLoginPipeline,
-        IOAuthClientFactory oAuthClientFactory)
+        GithubLoginPipeline githubLoginPipeline)
     {
         this.logger = logger;
         this.githubLoginPipeline = githubLoginPipeline;

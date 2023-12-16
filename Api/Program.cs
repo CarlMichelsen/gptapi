@@ -86,11 +86,12 @@ builder.Services
     .AddTransient<IConversationHandler, ConversationHandler>()
     .AddTransient<SteamOAuthLoginSuccessHandler>()
     .AddTransient<DevelopmentOAuthLoginSuccessHandler>()
-    .AddTransient<IOAuthLoginFailureHandler, SteamOAuthLoginFailureHandler>();
+    .AddTransient<SteamOAuthLoginFailureHandler>();
 
 builder.Services
     .AddTransient<SteamOAuthLoginHandler>()
     .AddTransient<GithubOAuthLoginHandler>()
+    .AddTransient<GithubOAuthLoginSuccessHandler>()
     .AddTransient<DevelopmentOAuthLoginHandler>();
 
 // Factories
