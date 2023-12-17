@@ -41,7 +41,6 @@ public class DeriveSuccessRedirectUriStage : IPipelineStage<ILoginPipelineParame
         }
         
         var uri = this.endpointUrlProvider.GetEndpointUrlFromEndpointName(GptApiConstants.FrontendEndpointName);
-
         input.RedirectUri = uri;
         await this.LogLogin(input);
         return input;

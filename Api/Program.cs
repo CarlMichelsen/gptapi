@@ -161,6 +161,10 @@ if (app.Environment.IsDevelopment())
     var hubContext = app.Services.GetRequiredService<IHubContext<ChatHub>>();
     app.Lifetime.ApplicationStopping.Register(() => hubContext.Clients.All.SendAsync("Disconnect"));
 }
+else
+{
+    app.Services.EnsureDatabaseUpdated();
+}
 
 app.UseRouting();
 
