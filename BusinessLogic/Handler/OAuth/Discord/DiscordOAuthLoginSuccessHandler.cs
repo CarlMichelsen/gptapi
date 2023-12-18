@@ -39,16 +39,14 @@ public class DiscordOAuthLoginSuccessHandler : BasePipelineExecutorHandler
             var client = (DiscordOAuthClient)this.oAuthClientFactory.Create(Domain.Entity.AuthMethods.Discord);
             var codeResponse = await client.ExchangeTheCode(code);
 
-            return Results.Ok();
-
-            /*var parameters = new DiscordLoginSuccessPipelineParameters
+            var parameters = new DiscordLoginSuccessPipelineParameters
             {
                 OAuthRecordId = oAuthRecordId,
                 TokenType = codeResponse.TokenType,
                 AccessToken = codeResponse.AccessToken,
-                Scopes = codeResponse.CommaSeparatedScopes,
+                Scopes = codeResponse.SpaceSeparatedScopes,
                 Code = code,
-                AuthenticationMethod = Domain.Entity.AuthMethods.Github,
+                AuthenticationMethod = Domain.Entity.AuthMethods.Discord,
             };
 
             var excecutedParametersResult = await this.ExecutePipeline(
@@ -60,7 +58,7 @@ public class DiscordOAuthLoginSuccessHandler : BasePipelineExecutorHandler
             
             return excecutedParametersResult.Match(
                 (parameters) => Results.Redirect(parameters.RedirectUri!),
-                (error) => Results.StatusCode(500));*/
+                (error) => Results.StatusCode(500));
         }
         catch (Exception e)
         {

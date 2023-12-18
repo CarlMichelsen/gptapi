@@ -2,7 +2,7 @@
 
 namespace Domain.Dto.Github;
 
-public class CodeResponseDto
+public class GithubCodeResponseDto
 {
     [JsonPropertyName("access_token")]
     public required string AccessToken { get; init; }

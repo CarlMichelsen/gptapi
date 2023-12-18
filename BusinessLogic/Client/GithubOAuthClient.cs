@@ -42,7 +42,7 @@ public class GithubOAuthClient : IOAuthClient
         this.githubApiHttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("CarlGPT", "0.1"));
     }
 
-    public async Task<CodeResponseDto> ExchangeTheCode(string code)
+    public async Task<GithubCodeResponseDto> ExchangeTheCode(string code)
     {
         var redirectUrl = this.endpointUrlProvider
             .GetEndpointUrlFromEndpointName(GptApiConstants.GithubLoginRedirectEndPointName);
@@ -60,7 +60,7 @@ public class GithubOAuthClient : IOAuthClient
 
         try
         {
-            return await response.Content.ReadFromJsonAsync<CodeResponseDto>()
+            return await response.Content.ReadFromJsonAsync<GithubCodeResponseDto>()
                 ?? throw new ClientException("Could not parse code-exchange response");
         }
         catch (Exception)
