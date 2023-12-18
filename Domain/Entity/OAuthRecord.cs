@@ -6,7 +6,7 @@ public class OAuthRecord
 {
     public required OAuthRecordId Id { get; init; }
 
-    public required AuthenticationMethod AuthenticationMethod { get; init; }
+    public required AuthMethods AuthenticationMethod { get; init; }
 
     public required DateTime RedirectedToThirdParty { get; init; }
 

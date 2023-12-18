@@ -9,7 +9,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  @apply bg-zinc-800;
+  @apply bg-black;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

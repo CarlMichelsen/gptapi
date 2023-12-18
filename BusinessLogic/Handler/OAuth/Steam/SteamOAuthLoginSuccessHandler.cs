@@ -30,7 +30,7 @@ public class SteamOAuthLoginSuccessHandler : BasePipelineExecutorHandler
             OAuthRecordId = oAuthRecordId,
             TokenType = tokenType,
             AccessToken = accessToken,
-            AuthenticationMethod = Domain.Entity.AuthenticationMethod.Steam,
+            AuthenticationMethod = Domain.Entity.AuthMethods.Steam,
         };
 
         var excecutedParametersResult = await this.ExecutePipeline(

@@ -37,7 +37,7 @@ public class DevelopmentOAuthLoginSuccessHandler : BasePipelineExecutorHandler
                 OAuthRecordId = oAuthRecordId,
                 TokenType = tokenType,
                 AccessToken = accessToken,
-                AuthenticationMethod = Domain.Entity.AuthenticationMethod.Development,
+                AuthenticationMethod = Domain.Entity.AuthMethods.Development,
             };
 
             var excecutedParametersResult = await this.ExecutePipeline(

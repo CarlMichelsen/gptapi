@@ -13,7 +13,10 @@ public static class GptApiConstants
 
     public const string GithubLoginRedirectEndPointName = "GithubLoginRedirect";
 
+    public const string DiscordLoginRedirectEndPointName = "DiscordLoginRedirect";
+
     public const string GithubHttpClient = "githubHttpClient";
+
     public const string GithubAPIHttpClient = "githubAPIHttpClient";
     
     public const string DeveloperIdpName = "IdentityProvider";

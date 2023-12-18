@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using BusinessLogic.Handler.OAuth.Development;
+using BusinessLogic.Handler.OAuth.Discord;
 using BusinessLogic.Handler.OAuth.Github;
 using BusinessLogic.Handler.OAuth.Steam;
 using Domain;
@@ -29,6 +30,11 @@ public static class OAuthEndpoints
             "/SteamLogin",
             async ([FromServices] SteamOAuthLoginHandler steamOAuthLoginHandler) => await steamOAuthLoginHandler.Login())
             .WithName("SteamLogin");
+        
+        oAuthGroup.MapGet(
+            "/DiscordLogin",
+            async ([FromServices] DiscordOAuthLoginHandler discordOAuthLoginHandler) => await discordOAuthLoginHandler.Login())
+            .WithName("DiscordLogin");
 
         oAuthGroup.MapGet(
             "/DevelopmentLoginSuccess",
@@ -47,7 +53,6 @@ public static class OAuthEndpoints
         oAuthGroup.MapGet(
             "/GithubLoginRedirect",
             async (
-                [FromServices] ILogger<GithubOAuthLoginSuccessHandler> debugLogger,
                 [FromServices] GithubOAuthLoginSuccessHandler githubOAuthLoginSuccessHandler,
                 [FromQuery(Name = "code")] string code,
                 [FromQuery(Name = "state")] Guid oAuthRecordId,
@@ -57,6 +62,30 @@ public static class OAuthEndpoints
                     .LoginSuccess(new OAuthRecordId(oAuthRecordId), code, cancellationToken);
             })
             .WithName(GptApiConstants.GithubLoginRedirectEndPointName);
+        
+        oAuthGroup.MapGet(
+            "/DiscordLoginRedirect",
+            (
+                [FromServices] ILogger<DiscordOAuthLoginSuccessHandler> debugLogger,
+                [FromServices] DiscordOAuthLoginSuccessHandler discordOAuthLoginSuccessHandler,
+                [FromQuery(Name = "scope")] string scope,
+                [FromQuery(Name = "code")] string code,
+                [FromQuery(Name = "token_type")] string tokenType,
+                [FromQuery(Name = "state")] Guid oAuthRecordId,
+                CancellationToken cancellationToken) => 
+            {
+                debugLogger.LogCritical(
+                    "DiscordLoginRedirect query parameters\nscope: {scope}\ncode: {code}\ntoken_type: {token_type}\nstate: {state}",
+                    scope,
+                    code,
+                    tokenType,
+                    oAuthRecordId);
+
+                return Results.Ok();
+                /*return await discordOAuthLoginSuccessHandler
+                    .LoginSuccess(new OAuthRecordId(oAuthRecordId), code, cancellationToken);*/
+            })
+            .WithName(GptApiConstants.DiscordLoginRedirectEndPointName);
 
         oAuthGroup.MapGet(
             "/SteamLoginRedirect",

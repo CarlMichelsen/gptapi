@@ -15,13 +15,13 @@ public class OAuthClientFactory : IOAuthClientFactory
         this.serviceProvider = serviceProvider;
     }
     
-    public IOAuthClient Create(AuthenticationMethod authenticationMethod)
+    public IOAuthClient Create(AuthMethods authenticationMethod)
     {
         switch (authenticationMethod)
         {
-            case AuthenticationMethod.Development: return this.GetService<DevelopmentOAuthClient>();
-            case AuthenticationMethod.Steam: return this.GetService<SteamOAuthClient>();
-            case AuthenticationMethod.Github: return this.GetService<GithubOAuthClient>();
+            case AuthMethods.Development: return this.GetService<DevelopmentOAuthClient>();
+            case AuthMethods.Steam: return this.GetService<SteamOAuthClient>();
+            case AuthMethods.Github: return this.GetService<GithubOAuthClient>();
             default: throw new OAuthException("Unsupported authentication method");
         }
     }

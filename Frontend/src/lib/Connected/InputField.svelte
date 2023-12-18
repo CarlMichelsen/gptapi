@@ -43,7 +43,3 @@
         Send
     </button>
 </div>
-
-<style>
-    /* Additional styles if needed */
-</style>

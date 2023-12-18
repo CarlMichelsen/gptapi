@@ -10,5 +10,5 @@ public interface IOAuthRecordValidatorService
     Task<Result<OAuthRecordValidatorResult, string>> ValidateOAuthRecord(
         OAuthRecordId oAuthRecordId,
         string accessToken,
-        AuthenticationMethod validAuthenticationMethod);
+        AuthMethods validAuthenticationMethod);
 }

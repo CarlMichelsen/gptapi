@@ -1,7 +1,7 @@
 ﻿namespace Domain.Entity;
 
 [Flags]
-public enum AuthenticationMethod
+public enum AuthMethods
 {
     /// <summary>
     /// User authenticated using Development OAuth, this should not happen in production.
@@ -17,4 +17,9 @@ public enum AuthenticationMethod
     /// User authenticated using Github OAuth.
     /// </summary>
     Github = 4,
+
+    /// <summary>
+    /// User authenticated using Discord OAuth.
+    /// </summary>
+    Discord = 8,
 }

@@ -22,7 +22,7 @@ public class ValidateGithubOAuthRecordStage : IPipelineStage<ILoginPipelineParam
         var oAuthRecordValidationResult = await this.oAuthRecordValidatorService.ValidateOAuthRecord(
             input.OAuthRecordId,
             input.AccessToken,
-            AuthenticationMethod.Github);
+            AuthMethods.Github);
         
         return oAuthRecordValidationResult.Match(
             (oAuthRecordValidatorResult) => this.HandlePipelineParameters(input, oAuthRecordValidatorResult),

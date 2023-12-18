@@ -2,6 +2,7 @@
     import ChatMessage from "../ChatMessage.svelte";
     import type { Message } from "../../../types/dto/message";
     import { applicationStore } from "../../../store/applicationStore";
+    import NewConversation from "./NewConversation.svelte";
 
     export let activeMessage: Message = {
         id: "streaming-message",
@@ -56,7 +57,7 @@
                     {/if}
                 </ol>
         {:else}
-            <p>This is a new conversation</p>
+            <NewConversation />
         {/if}
     </div>
 </div>

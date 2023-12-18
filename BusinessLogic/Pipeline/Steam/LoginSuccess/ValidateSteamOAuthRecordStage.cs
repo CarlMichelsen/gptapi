@@ -36,7 +36,7 @@ public class ValidateSteamOAuthRecordStage : IPipelineStage<ILoginPipelineParame
         var oAuthRecordValidationResult = await this.oAuthRecordValidatorService.ValidateOAuthRecord(
             input.OAuthRecordId,
             input.AccessToken,
-            AuthenticationMethod.Steam);
+            AuthMethods.Steam);
         
         return oAuthRecordValidationResult.Match(
             (oAuthRecord) => this.HandlePipelineParameters(input, oAuthRecord),

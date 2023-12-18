@@ -11,7 +11,7 @@ public abstract class BaseLoginPipelineParameters : ILoginPipelineParameters
 
     public required string AccessToken { get; set; }
 
-    public required AuthenticationMethod AuthenticationMethod { get; init; }
+    public required AuthMethods AuthenticationMethod { get; init; }
 
     public UserProfileId? UserProfileId { get; set; }
     

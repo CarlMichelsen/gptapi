@@ -11,7 +11,7 @@ public static class GptClaimKeys
 
     /// <summary>
     /// The type of OAuth service used for login.
-    /// This value is derived from the name of this enum <see cref="Entity.AuthenticationMethod" />.
+    /// This value is derived from the name of this enum <see cref="Entity.AuthMethods" />.
     /// </summary>
     public const string AuthenticationMethod = "AuthenticationMethod";
 

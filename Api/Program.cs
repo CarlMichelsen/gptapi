@@ -4,6 +4,7 @@ using BusinessLogic.Client;
 using BusinessLogic.Factory;
 using BusinessLogic.Handler;
 using BusinessLogic.Handler.OAuth.Development;
+using BusinessLogic.Handler.OAuth.Discord;
 using BusinessLogic.Handler.OAuth.Github;
 using BusinessLogic.Handler.OAuth.Steam;
 using BusinessLogic.Hub;
@@ -88,18 +89,21 @@ builder.Services
     .AddTransient<IConversationHandler, ConversationHandler>()
     .AddTransient<SteamOAuthLoginSuccessHandler>()
     .AddTransient<DevelopmentOAuthLoginSuccessHandler>()
+    .AddTransient<GithubOAuthLoginSuccessHandler>()
+    .AddTransient<DiscordOAuthLoginSuccessHandler>()
     .AddTransient<SteamOAuthLoginFailureHandler>();
 
 builder.Services
     .AddTransient<SteamOAuthLoginHandler>()
     .AddTransient<GithubOAuthLoginHandler>()
-    .AddTransient<GithubOAuthLoginSuccessHandler>()
+    .AddTransient<DiscordOAuthLoginHandler>()
     .AddTransient<DevelopmentOAuthLoginHandler>();
 
 // Factories
 builder.Services
     .AddTransient<SteamOAuthClient>()
     .AddTransient<GithubOAuthClient>()
+    .AddTransient<DiscordOAuthClient>()
     .AddTransient<DevelopmentOAuthClient>();
 builder.Services
     .AddTransient<IOAuthClientFactory, OAuthClientFactory>()

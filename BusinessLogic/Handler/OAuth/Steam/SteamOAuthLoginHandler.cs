@@ -63,7 +63,7 @@ public class SteamOAuthLoginHandler : IOAuthLoginHandler
         var oAuthRecord = new OAuthRecord
         {
             Id = id,
-            AuthenticationMethod = AuthenticationMethod.Steam,
+            AuthenticationMethod = AuthMethods.Steam,
             RedirectedToThirdParty = DateTime.UtcNow,
             ReturnedFromThirdParty = null,
             UserId = null,

@@ -5,5 +5,5 @@ namespace Interface.Factory;
 
 public interface IOAuthClientFactory
 {
-    IOAuthClient Create(AuthenticationMethod authenticationMethod);
+    IOAuthClient Create(AuthMethods authenticationMethod);
 }

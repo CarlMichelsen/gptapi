@@ -9,24 +9,24 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace BusinessLogic.Handler.OAuth.Development;
+namespace BusinessLogic.Handler.OAuth.Discord;
 
-public class DevelopmentOAuthLoginHandler : IOAuthLoginHandler
+public class DiscordOAuthLoginHandler : IOAuthLoginHandler
 {
-    private readonly ILogger<DevelopmentOAuthLoginHandler> logger;
+    private readonly ILogger<DiscordOAuthLoginHandler> logger;
     private readonly ApplicationContext applicationContext;
-    private readonly IOptions<ApplicationOptions> applicationOptions;
+    private readonly IOptions<DiscordOptions> discordOptions;
     private readonly IEndpointUrlProvider endpointUrlProvider;
 
-    public DevelopmentOAuthLoginHandler(
-        ILogger<DevelopmentOAuthLoginHandler> logger,
+    public DiscordOAuthLoginHandler(
+        ILogger<DiscordOAuthLoginHandler> logger,
         ApplicationContext applicationContext,
-        IOptions<ApplicationOptions> applicationOptions,
+        IOptions<DiscordOptions> discordOptions,
         IEndpointUrlProvider endpointUrlProvider)
     {
         this.logger = logger;
         this.applicationContext = applicationContext;
-        this.applicationOptions = applicationOptions;
+        this.discordOptions = discordOptions;
         this.endpointUrlProvider = endpointUrlProvider;
     }
 
@@ -35,32 +35,39 @@ public class DevelopmentOAuthLoginHandler : IOAuthLoginHandler
         try
         {
             var oAuthRecord = await this.RegisterOAuthRecord(new OAuthRecordId(Guid.NewGuid()));
-            var url = this.GenerateDevelopmentOAuthUrl(oAuthRecord);
+            var url = this.GenerateGithubOAuthUrl(oAuthRecord);
             return Results.Redirect(url);
         }
         catch (Exception e)
         {
             this.logger.LogCritical(
                 "Critical failure in {handlername} {exception}",
-                nameof(DevelopmentOAuthLoginHandler),
+                nameof(DiscordOAuthLoginHandler),
                 e);
             
             return Results.StatusCode(500);
         }
     }
 
-    private string GenerateDevelopmentOAuthUrl(OAuthRecord oAuthRecord)
+    private string GenerateGithubOAuthUrl(OAuthRecord oAuthRecord)
     {
-        var url = this.endpointUrlProvider.GetEndpointUrlFromEndpointName(GptApiConstants.DeveloperIdpName);
+        var redirectUri = this.endpointUrlProvider
+            .GetEndpointUrlFromEndpointName(GptApiConstants.DiscordLoginRedirectEndPointName);
 
-        var queryParams = new Dictionary<string, string>
+        var parameters = new Dictionary<string, string>
         {
-            { "response_type", "token" },
-            { "client_id", "development-client-id" },
+            { "response_type", "code" },
+            { "client_id", this.discordOptions.Value.ClientId },
+            { "redirect_uri", redirectUri },
+            { "scope", "identify,email" },
             { "state", oAuthRecord.Id.ToString() },
         };
 
-        return url + this.endpointUrlProvider.GenerateQueryParamsToAppend(queryParams);
+        this.logger.LogCritical("discord redirect-url: \"{redirectUri}\"", redirectUri);
+
+        var queryString = this.endpointUrlProvider.GenerateQueryParamsToAppend(parameters);
+        var baseUri = new Uri(this.discordOptions.Value.OAuthEndpoint);
+        return baseUri + queryString;
     }
 
     private async Task<OAuthRecord> RegisterOAuthRecord(OAuthRecordId id)
@@ -68,7 +75,7 @@ public class DevelopmentOAuthLoginHandler : IOAuthLoginHandler
         var oAuthRecord = new OAuthRecord
         {
             Id = id,
-            AuthenticationMethod = AuthMethods.Development,
+            AuthenticationMethod = AuthMethods.Discord,
             RedirectedToThirdParty = DateTime.UtcNow,
             ReturnedFromThirdParty = null,
             UserId = null,

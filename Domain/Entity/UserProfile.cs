@@ -8,7 +8,7 @@ public class UserProfile
 
     public required string AuthenticationId { get; init; }
 
-    public required AuthenticationMethod AuthenticationIdType { get; init; }
+    public required AuthMethods AuthenticationIdType { get; init; }
 
     public required DateTime Created { get; init; }
 

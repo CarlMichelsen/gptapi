@@ -11,7 +11,7 @@ public interface ILoginPipelineParameters
 
     string AccessToken { get; set; }
 
-    AuthenticationMethod AuthenticationMethod { get; init; }
+    AuthMethods AuthenticationMethod { get; init; }
 
     UserProfileId? UserProfileId { get; set; }
     

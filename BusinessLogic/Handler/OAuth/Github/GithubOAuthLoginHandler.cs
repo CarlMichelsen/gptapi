@@ -59,7 +59,7 @@ public class GithubOAuthLoginHandler : IOAuthLoginHandler
             { "response_type", "token" },
             { "client_id", this.githubOAuthOptions.Value.ClientId },
             { "redirect_uri", redirectUri },
-            { "scope", "read:user" },
+            { "scope", "read:user,read:email" },
             { "state", oAuthRecord.Id.ToString() },
             { "allow_signup", "false" },
         };
@@ -76,7 +76,7 @@ public class GithubOAuthLoginHandler : IOAuthLoginHandler
         var oAuthRecord = new OAuthRecord
         {
             Id = id,
-            AuthenticationMethod = AuthenticationMethod.Github,
+            AuthenticationMethod = AuthMethods.Github,
             RedirectedToThirdParty = DateTime.UtcNow,
             ReturnedFromThirdParty = null,
             UserId = null,

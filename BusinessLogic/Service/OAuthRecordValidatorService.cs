@@ -30,7 +30,7 @@ public class OAuthRecordValidatorService : IOAuthRecordValidatorService
     public async Task<Result<OAuthRecordValidatorResult, string>> ValidateOAuthRecord(
         OAuthRecordId oAuthRecordId,
         string accessToken,
-        AuthenticationMethod validAuthenticationMethod)
+        AuthMethods validAuthenticationMethod)
     {
         var record = await this.applicationContext.OAuthRecord
             .FindAsync(oAuthRecordId);

@@ -24,7 +24,7 @@ public class ValidateDevelopmentOAuthRecordStage : IPipelineStage<ILoginPipeline
         var oAuthRecordValidationResult = await this.oAuthRecordValidatorService.ValidateOAuthRecord(
             input.OAuthRecordId,
             input.AccessToken,
-            AuthenticationMethod.Development);
+            AuthMethods.Development);
         
         return oAuthRecordValidationResult.Match(
             (oAuthRecordValidatorResult) => this.HandlePipelineParameters(input, oAuthRecordValidatorResult),

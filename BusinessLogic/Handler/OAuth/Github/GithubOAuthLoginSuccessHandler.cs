@@ -37,7 +37,7 @@ public class GithubOAuthLoginSuccessHandler : BasePipelineExecutorHandler
     {
         try
         {
-            var client = (GithubOAuthClient)this.oAuthClientFactory.Create(Domain.Entity.AuthenticationMethod.Github);
+            var client = (GithubOAuthClient)this.oAuthClientFactory.Create(Domain.Entity.AuthMethods.Github);
             var codeResponse = await client.ExchangeTheCode(code);
 
             var parameters = new GithubLoginSuccessPipelineParameters
@@ -47,7 +47,7 @@ public class GithubOAuthLoginSuccessHandler : BasePipelineExecutorHandler
                 AccessToken = codeResponse.AccessToken,
                 CommaSeparatedScopes = codeResponse.CommaSeparatedScopes,
                 Code = code,
-                AuthenticationMethod = Domain.Entity.AuthenticationMethod.Github,
+                AuthenticationMethod = Domain.Entity.AuthMethods.Github,
             };
 
             var excecutedParametersResult = await this.ExecutePipeline(
