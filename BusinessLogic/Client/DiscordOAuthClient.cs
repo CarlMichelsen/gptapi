@@ -68,18 +68,16 @@ public class DiscordOAuthClient : IOAuthClient
 
     public async Task<string> GetOAuthId(string accessToken)
     {
-        var str = await this.GetUser(accessToken);
-        this.logger.LogCritical("User:\n{str}", str);
-
-        throw new NotImplementedException();
+        var discordUser = await this.GetUser(accessToken);
+        return discordUser.Id;
     }
 
-    public Task<IOAuthUserDataConvertible> GetOAuthUserData(OAuthRecord oAuthRecord)
+    public async Task<IOAuthUserDataConvertible> GetOAuthUserData(OAuthRecord oAuthRecord)
     {
-        throw new NotImplementedException();
+        return await this.GetUser(oAuthRecord.AccessToken!);
     }
 
-    private async Task<string> GetUser(string accessToken)
+    private async Task<DiscordUser> GetUser(string accessToken)
     {
         this.httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         var response = await this.httpClient.GetAsync(UserPath);
@@ -87,7 +85,8 @@ public class DiscordOAuthClient : IOAuthClient
 
         try
         {
-            return await response.Content.ReadAsStringAsync();
+            return await response.Content.ReadFromJsonAsync<DiscordUser>()
+                ?? throw new ClientException("Could not parse code-exchange response");
         }
         catch (Exception)
         {
