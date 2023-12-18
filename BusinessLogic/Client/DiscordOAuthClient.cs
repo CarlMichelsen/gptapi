@@ -38,6 +38,8 @@ public class DiscordOAuthClient : IOAuthClient
 
         var payload = new Dictionary<string, string>
         {
+            { "client_id", this.discordOptions.Value.ClientId },
+            { "client_secret", this.discordOptions.Value.ClientSecret },
             { "grant_type", "authorization_code" },
             { "code", code },
             { "redirect_uri", redirectUrl },
