@@ -58,12 +58,18 @@ public class DiscordOAuthLoginHandler : IOAuthLoginHandler
         {
             { "response_type", "code" },
             { "client_id", this.discordOptions.Value.ClientId },
-            { "redirect_uri", Uri.EscapeDataString(redirectUri) },
+            { "redirect_uri", redirectUri },
             { "scope", "identify+email" },
             { "state", oAuthRecord.Id.ToString() },
         };
 
-        this.logger.LogCritical("discord redirect-url: \"{redirectUri}\"", redirectUri);
+        this.logger.LogCritical(
+            "DiscordLogin\nresponse_type: {response_type}\nclient_id: {client_id}\nredirect_uri: {redirect_uri}\nscope: {scope}\nstate: {state}",
+            parameters["response_type"],
+            parameters["client_id"],
+            parameters["redirect_uri"],
+            parameters["scope"],
+            parameters["state"]);
 
         var queryString = this.endpointUrlProvider.GenerateQueryParamsToAppend(parameters);
         var baseUri = new Uri(this.discordOptions.Value.OAuthEndpoint);

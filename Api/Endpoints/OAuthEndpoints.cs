@@ -68,17 +68,13 @@ public static class OAuthEndpoints
             (
                 [FromServices] ILogger<DiscordOAuthLoginSuccessHandler> debugLogger,
                 [FromServices] DiscordOAuthLoginSuccessHandler discordOAuthLoginSuccessHandler,
-                [FromQuery(Name = "scope")] string scope,
                 [FromQuery(Name = "code")] string code,
-                [FromQuery(Name = "token_type")] string tokenType,
                 [FromQuery(Name = "state")] Guid oAuthRecordId,
                 CancellationToken cancellationToken) => 
             {
                 debugLogger.LogCritical(
-                    "DiscordLoginRedirect query parameters\nscope: {scope}\ncode: {code}\ntoken_type: {token_type}\nstate: {state}",
-                    scope,
+                    "DiscordLoginRedirect query parameters\n\ncode: {code}\nstate: {state}",
                     code,
-                    tokenType,
                     oAuthRecordId);
 
                 return Results.Ok();
