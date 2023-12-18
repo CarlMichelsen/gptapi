@@ -2,7 +2,7 @@
     import type { LoginType } from "../clients/userDataClient";
     import LoginButton from "./LoginButton.svelte";
 
-    const loginTypes: LoginType[] = [ "Github" ];
+    const loginTypes: LoginType[] = [ "Discord", "Github" ];
 
     if (process.env.NODE_ENV === 'development') {
         loginTypes.push("Development");

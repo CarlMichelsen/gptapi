@@ -58,8 +58,8 @@ public class DiscordOAuthLoginHandler : IOAuthLoginHandler
         {
             { "response_type", "code" },
             { "client_id", this.discordOptions.Value.ClientId },
-            { "redirect_uri", redirectUri },
-            { "scope", "identify,email" },
+            { "redirect_uri", Uri.EscapeDataString(redirectUri) },
+            { "scope", "identify+email" },
             { "state", oAuthRecord.Id.ToString() },
         };
 

@@ -38,13 +38,14 @@ export const deleteCookie = async () => {
     }
 }
 
-export type LoginType = "Development" | "Steam" | "Github"
+export type LoginType = "Development" | "Steam" | "Github" | "Discord"
 
 export const navigateToLoginPage = (loginType: LoginType) => {
     const endpoints: Record<LoginType, string> = {
         "Development": "/api/v1/oauth/DevelopmentLogin",
         "Steam": "/api/v1/oauth/SteamLogin",
-        "Github": "/api/v1/oauth/GithubLogin"
+        "Github": "/api/v1/oauth/GithubLogin",
+        "Discord": "/api/v1/oauth/DiscordLogin"
     };
 
     const loginPage = `${baseUrl()}${endpoints[loginType]}`;
