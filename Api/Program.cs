@@ -116,7 +116,6 @@ builder.Services.AddHttpClient<DiscordMessageClient>();
 builder.Services.AddHttpClient<DiscordOAuthClient>(options =>
 {
     options.BaseAddress = new Uri(builder.Configuration.GetSection(DiscordOptions.SectionName)[nameof(DiscordOptions.BaseUrl)]!);
-    options.DefaultRequestHeaders.Add("Content-Type", "application/x-www-form-urlencoded");
 });
 
 builder.Services.AddHttpClient<GptChatClient>(client =>
