@@ -22,6 +22,7 @@ public class OAuthClientFactory : IOAuthClientFactory
             case AuthMethods.Development: return this.GetService<DevelopmentOAuthClient>();
             case AuthMethods.Steam: return this.GetService<SteamOAuthClient>();
             case AuthMethods.Github: return this.GetService<GithubOAuthClient>();
+            case AuthMethods.Discord: return this.GetService<DiscordOAuthClient>();
             default: throw new OAuthException("Unsupported authentication method");
         }
     }
