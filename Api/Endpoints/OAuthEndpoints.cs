@@ -65,7 +65,7 @@ public static class OAuthEndpoints
         
         oAuthGroup.MapGet(
             "/DiscordLoginRedirect",
-            (
+            async (
                 [FromServices] ILogger<DiscordOAuthLoginSuccessHandler> debugLogger,
                 [FromServices] DiscordOAuthLoginSuccessHandler discordOAuthLoginSuccessHandler,
                 [FromQuery(Name = "code")] string code,

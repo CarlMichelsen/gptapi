@@ -31,7 +31,6 @@ public class DiscordOAuthLoginSuccessHandler : BasePipelineExecutorHandler
 
     public async Task<IResult> LoginSuccess(
         OAuthRecordId oAuthRecordId,
-        string tokenType,
         string code,
         CancellationToken cancellationToken)
     {
