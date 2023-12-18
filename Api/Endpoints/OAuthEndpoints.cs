@@ -77,9 +77,8 @@ public static class OAuthEndpoints
                     code,
                     oAuthRecordId);
 
-                return Results.Ok();
-                /*return await discordOAuthLoginSuccessHandler
-                    .LoginSuccess(new OAuthRecordId(oAuthRecordId), code, cancellationToken);*/
+                return await discordOAuthLoginSuccessHandler
+                    .LoginSuccess(new OAuthRecordId(oAuthRecordId), code, cancellationToken);
             })
             .WithName(GptApiConstants.DiscordLoginRedirectEndPointName);
 
