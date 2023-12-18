@@ -9,6 +9,7 @@ using BusinessLogic.Handler.OAuth.Github;
 using BusinessLogic.Handler.OAuth.Steam;
 using BusinessLogic.Hub;
 using BusinessLogic.Pipeline.Development;
+using BusinessLogic.Pipeline.Discord;
 using BusinessLogic.Pipeline.Github;
 using BusinessLogic.Pipeline.SendMessage;
 using BusinessLogic.Pipeline.Steam;
@@ -79,6 +80,7 @@ builder.Services
     .AddSingleton<SendMessagePipelineSingleton>()
     .AddTransient<DevelopmentLoginPipeline>()
     .AddTransient<GithubLoginPipeline>()
+    .AddTransient<DiscordLoginPipeline>()
     .AddTransient<SteamLoginFailurePipeline>()
     .AddTransient<SteamLoginSuccessPipeline>();
 
@@ -111,6 +113,12 @@ builder.Services
 // Typed HttpClient Factories
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<DiscordMessageClient>();
+builder.Services.AddHttpClient<DiscordOAuthClient>(options =>
+{
+    options.BaseAddress = new Uri(builder.Configuration.GetSection(DiscordOptions.SectionName)[nameof(DiscordOptions.BaseUrl)]!);
+    options.DefaultRequestHeaders.Add("Content-Type", "application/x-www-form-urlencoded");
+});
+
 builder.Services.AddHttpClient<GptChatClient>(client =>
     client.Timeout = TimeSpan.FromSeconds(30));
 
