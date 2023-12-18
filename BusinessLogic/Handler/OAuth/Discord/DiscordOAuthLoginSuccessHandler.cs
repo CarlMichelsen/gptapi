@@ -36,7 +36,7 @@ public class DiscordOAuthLoginSuccessHandler : BasePipelineExecutorHandler
     {
         try
         {
-            var client = (DiscordOAuthClient)this.oAuthClientFactory.Create(Domain.Entity.AuthMethods.Github);
+            var client = (DiscordOAuthClient)this.oAuthClientFactory.Create(Domain.Entity.AuthMethods.Discord);
             var codeResponse = await client.ExchangeTheCode(code);
 
             return Results.Ok();
