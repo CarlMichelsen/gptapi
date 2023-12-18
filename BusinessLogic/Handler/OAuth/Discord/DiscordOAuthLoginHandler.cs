@@ -54,12 +54,18 @@ public class DiscordOAuthLoginHandler : IOAuthLoginHandler
         var redirectUri = this.endpointUrlProvider
             .GetEndpointUrlFromEndpointName(GptApiConstants.DiscordLoginRedirectEndPointName);
 
+        var scopes = new List<string>
+        {
+            "identify",
+            "email",
+        };
+
         var parameters = new Dictionary<string, string>
         {
             { "response_type", "code" },
             { "client_id", this.discordOptions.Value.ClientId },
             { "redirect_uri", redirectUri },
-            { "scope", "identify+email" },
+            { "scope", string.Join(' ', scopes) },
             { "state", oAuthRecord.Id.ToString() },
         };
 

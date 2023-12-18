@@ -20,7 +20,6 @@ using Domain.Configuration;
 using Interface.Client;
 using Interface.Factory;
 using Interface.Handler;
-using Interface.Handler.OAuth;
 using Interface.Provider;
 using Interface.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -35,7 +34,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Configuration
-builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
+builder.Configuration.AddJsonFile("secrets.json", optional: false, reloadOnChange: true);
 builder.Services
     .AddCors()
     .Configure<GptOptions>((options) =>
