@@ -18,6 +18,10 @@
   -webkit-text-size-adjust: 100%;
 }
 
+.height-screen-minus-50 {
+  height: calc(100vh - 50px);
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

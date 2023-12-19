@@ -38,12 +38,6 @@
 <ConversationContainer className="overflow-y-auto mx-auto" id={messageContainer}>
     <div class="container">
         {#if $applicationStore.selectedConversation}
-            {#if $applicationStore.selectedConversation.summary}
-                <div class="mx-2.5">
-                    <h1 class="text-2xl my-2">{$applicationStore.selectedConversation.summary}</h1>
-                    <hr class="mb-3">
-                </div>
-            {/if}
                 <ol class="space-y-2 p-1">
                     {#each $applicationStore.selectedConversation.messages as message}
                     <li>

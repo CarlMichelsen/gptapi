@@ -32,7 +32,7 @@
 
             <br />
 
-            <div class="grid grid-cols-2 gap-4 w-96 mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-72 md:w-96 mx-auto">
                 {#each loginTypes as buttonInfo}
                     <LoginButton loginType={buttonInfo} />
                 {/each}

@@ -3,6 +3,7 @@
     import { ConnectionMethods } from "../../../connectionMethods";
     import type { MessageChunk } from "../../../types/dto/messageChunk";
     import Sidebar from "../Sidebar.svelte";
+    import MobileSidebar from "../MobileSidebar.svelte";
     import Structure from "../Structure.svelte";
     import Conversation from "./Conversation.svelte";
     import InputField from "../InputField.svelte";
@@ -47,8 +48,15 @@
 </script>
 
 <Structure>
-    <Sidebar slot="sidebar" on:conversationSelected={(details) => applicationStore.selectConversation(details.detail)} />
-    <div slot="conversation" class="grid h-screen grid-rows-[1fr,auto]">
+    <div slot="sidebar" class="h-full">
+        <div class="hidden md:block">
+            <Sidebar />
+        </div>
+        <div class="block md:hidden h-full">
+            <MobileSidebar />
+        </div>
+    </div>
+    <div slot="conversation" class="grid height-screen-minus-50 md:h-screen grid-rows-[1fr,auto]">
         <Conversation bind:activeMessage={activeMessage} />
         <InputField on:send={(message) => sendMessage(message.detail)} {ready} />
     </div>

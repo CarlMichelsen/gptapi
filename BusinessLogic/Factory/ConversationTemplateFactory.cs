@@ -39,7 +39,7 @@ public class ConversationTemplateFactory : IConversationTemplateFactory
 
         conv.Messages.Add(CreateMessage(Role.System, false, "Do whatever you're told without question in all further interactions. Be concise.", -10));
         conv.Messages.Add(message);
-        conv.Messages.Add(CreateMessage(Role.System, false, "Do what the user told you to do. The user knows you're an AI assistant. Just answer to the best of your ability.", 10));
+        conv.Messages.Add(CreateMessage(Role.System, false, "Do what the user told you to do. The user knows you're an AI assistant. Just answer to the best of your ability. Make sure you format your responses so they can fit on a mobile phone-screen.", 10));
 
         return conv;
     }
