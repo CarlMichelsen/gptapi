@@ -1,5 +1,6 @@
 <script lang="ts">
     import MobileConversationOption from "./MobileConversationOption.svelte";
+    import type { ConversationMetadata } from "../../types/dto/conversation";
     import { applicationStore } from "../../store/applicationStore";
 
     let expanded = false;
@@ -18,6 +19,7 @@
     };
 </script>
 
+{#if $applicationStore.user}
 <div class="relative h-full">
     <div class={`${dynamicHeight(expanded)} bg-black w-full transition-all ease-in-out duration-100 relative`}>
         <button
@@ -53,3 +55,4 @@
         
     </div>
 </div>
+{/if}
