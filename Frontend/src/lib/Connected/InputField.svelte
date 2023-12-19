@@ -14,7 +14,6 @@
     }
 
     const handleOnSend = () => {
-        console.log(inputValue);
         if (readyToSend()) {
             dispatch("send", inputValue);
             inputValue = '';

@@ -23,8 +23,10 @@
     renderer.code = (code: string, language: string | undefined): string => {
         language && loadLanguage(language);
         const safeCode = removeUnsafeTags(code); 
-        return `<div class="bg-black overflow-x-scroll rounded-md">${header(safeCode, language)}<div class="m-1"><code class="lang-${language}">${safeCode}</code></div></div>`;
+        return `<div class="bg-black overflow-x-scroll rounded-md">${header(safeCode, language)}<div class="m-1"><pre><code class="lang-${language}">${safeCode}</code></pre></div></div>`;
     };
+
+    renderer.text = (text: string) => text.replace(/(\r\n|\r|\n)/g, '<br />');
 
     const options: MarkedOptions = {
         gfm: true,
@@ -33,17 +35,13 @@
     };
 
     const processContent = (msg: Message): string => {
-        return msg.role === "assistant" ? marked(msg.content, options) : msg.content;
+        return msg.role === "assistant" ? marked(msg.content, options) : msg.content.replace(/(\r\n|\r|\n)/g, '<br />');
     }
 </script>
 
 <div class="rounded-sm px-2 pb-2 outline-1">
     <p class="text-sm text-gray-400">{message.role}</p>
     <div class="overflow-x-scroll">
-        {#if message.role === "assistant"}
-            <pre class="font-sans">{@html content}</pre>
-        {:else}
-            <pre class="font-sans">{content}</pre>
-        {/if}
+        {@html content}
     </div>
 </div>

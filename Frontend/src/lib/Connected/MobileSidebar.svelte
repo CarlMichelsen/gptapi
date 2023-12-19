@@ -3,7 +3,7 @@
     import type { ConversationMetadata } from "../../types/dto/conversation";
     import { applicationStore } from "../../store/applicationStore";
 
-    let expanded = false;
+    let expanded = true;
 
     const dynamicHeight = (expanded: boolean): string => {
         return expanded ? "absolute h-96" : "h-full";
@@ -38,15 +38,19 @@
             </div>
         </div>
 
-        <div class={`${expanded ? "block" : "hidden"}`}>
-            <hr class="mt-1">
-            <ol class="overflow-y-scroll">
+        <div class={`${expanded ? "block" : "hidden"} overflow-y-scroll`}>
+            <hr class="mt-1 my-1">
+            <ol class="ml-1 h-full space-y-1">
                 {#if $applicationStore.conversations === null}
                     <p>Loading conversations...</p>
                 {:else}
                     {#each $applicationStore.conversations as conv}
                         <li>
-                            <MobileConversationOption metaData={conv} {onSelected} {onDelete} isSelected={(conv.id === $applicationStore.selectedConversation?.id)} expanded={expanded} />
+                            <MobileConversationOption
+                                metaData={conv}
+                                {onSelected}
+                                {onDelete}
+                                isSelected={(conv.id === $applicationStore.selectedConversation?.id)} />
                         </li>
                     {/each}
                 {/if}
