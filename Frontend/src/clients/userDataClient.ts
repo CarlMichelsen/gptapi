@@ -38,7 +38,7 @@ export const deleteCookie = async () => {
     }
 }
 
-export type LoginType = "Development" | "Steam" | "Github" | "Discord"
+export type LoginType = "Development" | "Steam" | "Github" | "Discord";
 
 export const navigateToLoginPage = (loginType: LoginType) => {
     const endpoints: Record<LoginType, string> = {

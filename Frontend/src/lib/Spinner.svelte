@@ -13,5 +13,5 @@
 </script>
 
 <div class={`w-32 h-32 relative ${className}`}>
-    <div class="absolute w-32 h-32 border border-white rounded-2xl" style="transform: rotate({rotation}deg)"></div>
+    <div class="absolute w-full h-full border border-white rounded-2xl" style="transform: rotate({rotation}deg)"></div>
 </div>

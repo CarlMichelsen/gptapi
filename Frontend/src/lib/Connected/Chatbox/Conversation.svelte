@@ -3,6 +3,7 @@
     import type { Message } from "../../../types/dto/message";
     import { applicationStore } from "../../../store/applicationStore";
     import NewConversation from "./NewConversation.svelte";
+    import ConversationContainer from "../ConversationContainer.svelte";
 
     export let activeMessage: Message = {
         id: "streaming-message",
@@ -34,7 +35,7 @@
 </script>
 
 {#if $applicationStore.user}
-<div class="overflow-y-auto" id={messageContainer}>
+<ConversationContainer className="overflow-y-auto mx-auto" id={messageContainer}>
     <div class="container">
         {#if $applicationStore.selectedConversation}
             {#if $applicationStore.selectedConversation.summary}
@@ -60,5 +61,5 @@
             <NewConversation />
         {/if}
     </div>
-</div>
+</ConversationContainer>
 {/if}

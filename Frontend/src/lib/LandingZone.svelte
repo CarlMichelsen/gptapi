@@ -9,7 +9,7 @@
     }
 </script>
 
-<div class="lg:container mx-auto shadow-2xl lg:p-2 lg:rounded-lg bg-zinc-900 lg:mt-5">
+<div class="lg:container mx-auto lg:p-2 lg:mt-5">
     <article class="max-w-4xl mx-auto p-6">
         <header class="text-white p-4 rounded-t-lg">
             <h1 class="text-2xl font-bold">CarlGPT: A Totally "New" Chat Experience</h1>

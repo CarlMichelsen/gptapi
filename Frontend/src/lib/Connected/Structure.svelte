@@ -2,7 +2,7 @@
 
 </script>
 
-<div class="grid grid-cols-[300px_minmax(0,1fr)]">
+<div class="grid grid-cols-[50px_minmax(0,1fr)] sm:grid-cols-[300px_minmax(0,1fr)]">
     <div>
         <slot name="sidebar"></slot>
     </div>
