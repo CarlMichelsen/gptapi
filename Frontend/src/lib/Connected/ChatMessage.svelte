@@ -26,7 +26,8 @@
         return `<div class="bg-black overflow-x-scroll rounded-md">${header(safeCode, language)}<div class="m-1"><pre><code class="lang-${language}">${safeCode}</code></pre></div></div>`;
     };
 
-    renderer.text = (text: string) => text.replace(/(\r\n|\r|\n)/g, '<br />');
+    const originalTextRenderer = renderer.text;
+    renderer.text = (text: string) => originalTextRenderer(text.replace(/(\r\n|\r|\n)/g, '<br />'));
 
     const options: MarkedOptions = {
         gfm: true,
