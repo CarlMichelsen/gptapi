@@ -5,6 +5,8 @@ namespace Domain.Entity;
 public class Message
 {
     public required MessageId Id { get; set; }
+
+    public required MessageId? PreviousMessageId { get; set; }
     
     public string? ResponseId { get; set; }
 

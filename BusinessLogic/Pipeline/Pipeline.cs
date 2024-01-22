@@ -5,7 +5,7 @@ namespace BusinessLogic.Pipeline;
 
 public abstract class Pipeline<T> : IPipeline<T>
 {
-    private readonly List<IPipelineStage<T>> stages = new();
+    private readonly List<IPipelineStep<T>> stages = new();
 
     public virtual async Task<T> Execute(T input, CancellationToken cancellationToken)
     {
@@ -29,7 +29,7 @@ public abstract class Pipeline<T> : IPipeline<T>
         return current;
     }
 
-    public Pipeline<T> AddStage(IPipelineStage<T> stage)
+    public Pipeline<T> AddStage(IPipelineStep<T> stage)
     {
         this.stages.Add(stage);
         return this;

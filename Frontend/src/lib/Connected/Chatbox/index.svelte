@@ -14,13 +14,13 @@
     let activeMessage: Message;
     let chunks: MessageChunk[] = []
 
-    const sendMessage = (message: string) => {
+    const sendMessage = (message: string, responseToMessageId: string) => {
         if (!$applicationStore.user) return;
 
         chunks = [];
         activeMessage = { ...activeMessage, content: "" };
         ready = false;
-        ConnectionMethods.sendMessage(message, $applicationStore.selectedConversation?.id ?? null);
+        ConnectionMethods.sendMessage(message, responseToMessageId, $applicationStore.selectedConversation?.id ?? null);
     }
 
     onMount(() => {
@@ -47,6 +47,7 @@
     });
 </script>
 
+{#if $applicationStore.user}
 <Structure>
     <div slot="sidebar" class="h-full">
         <div class="hidden md:block">
@@ -58,6 +59,7 @@
     </div>
     <div slot="conversation" class="grid height-screen-minus-50 md:h-screen grid-rows-[1fr,auto]">
         <Conversation bind:activeMessage={activeMessage} />
-        <InputField on:send={(message) => sendMessage(message.detail)} {ready} />
+        <InputField on:send={(message) => sendMessage(message.detail, $applicationStore.selectedConversation?.messages.last()?.id ?? null)} {ready} />
     </div>
 </Structure>
+{/if}

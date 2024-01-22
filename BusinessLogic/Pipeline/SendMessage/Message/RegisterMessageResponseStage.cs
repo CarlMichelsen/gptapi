@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace BusinessLogic.Pipeline.SendMessage.Message;
 
-public class RegisterMessageResponseStage : IPipelineStage<SendMessagePipelineParameters>
+public class RegisterMessageResponseStage : IPipelineStep<SendMessagePipelineParameters>
 {
     private readonly IConversationService conversationService;
     private readonly IHubContext<ChatHub, IChatClient> chatHub;

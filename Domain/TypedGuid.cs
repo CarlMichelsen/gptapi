@@ -5,7 +5,7 @@ namespace Domain;
 public abstract class TypedGuid<T>
     where T : TypedGuid<T>
 {
-    public TypedGuid(Guid value)
+    protected TypedGuid(Guid value)
     {
         if (value == Guid.Empty)
         {

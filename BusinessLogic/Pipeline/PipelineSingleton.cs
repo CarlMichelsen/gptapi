@@ -32,7 +32,7 @@ public abstract class PipelineSingleton<T> : IPipeline<T>
                         $"Failed to instantiate PipelineStage of type {stageType.Name}");
                 }
 
-                current = await (obj as IPipelineStage<T>)!.Process(current, cancellationToken);
+                current = await (obj as IPipelineStep<T>)!.Process(current, cancellationToken);
             }
             catch (PipelineException e)
             {
@@ -48,7 +48,7 @@ public abstract class PipelineSingleton<T> : IPipeline<T>
 
     public PipelineSingleton<T> AddStageType(Type pipelineStage)
     {
-        if (pipelineStage.IsAssignableFrom(typeof(IPipelineStage<T>)))
+        if (pipelineStage.IsAssignableFrom(typeof(IPipelineStep<T>)))
         {
             throw new PipelineException(
                 "Attempted to register a pipelineStage that is does not implement IPipelineStage");
