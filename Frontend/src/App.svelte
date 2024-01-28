@@ -7,7 +7,7 @@
 </script>
 
 <main>
-	{#if $applicationStore?.user}
+	{#if $applicationStore.state === "logged-in"}
   		<Authenticated />
 	{:else}
 		<LandingZone />

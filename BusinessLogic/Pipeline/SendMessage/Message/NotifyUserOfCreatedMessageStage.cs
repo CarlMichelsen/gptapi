@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace BusinessLogic.Pipeline.SendMessage.Message;
 
-public class NotifyUserOfCreatedMessageStage : IPipelineStage<SendMessagePipelineParameters>
+public class NotifyUserOfCreatedMessageStage : IPipelineStep<SendMessagePipelineParameters>
 {
     private readonly IHubContext<ChatHub, IChatClient> chatHub;
 

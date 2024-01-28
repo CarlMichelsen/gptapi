@@ -21,26 +21,12 @@ public sealed class ApplicationContext : DbContext
 
     public DbSet<Conversation> Conversation { get; init; }
 
-    public DbSet<OAuthRecord> OAuthRecord { get; init; }
-
     public DbSet<UserProfile> UserProfile { get; init; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<UserProfile>()
-            .HasIndex(e => e.AuthenticationId)
-            .IsUnique();
+        modelBuilder.HasDefaultSchema("GptApi");
 
-        modelBuilder.Entity<OAuthRecord>(entity =>
-        {
-            // Configure the primary key
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id)
-                .HasConversion(
-                    id => id.Value, // How to convert to Guid
-                    guid => new OAuthRecordId(guid)); // How to convert from Guid
-        });
-        
         modelBuilder.Entity<UserProfile>(entity =>
         {
             // Configure the primary key

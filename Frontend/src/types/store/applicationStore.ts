@@ -1,11 +1,12 @@
 import type { ConversationMetadata, ConversationType } from "../dto/conversation"
 import type { OAuthUser } from "../dto/oAuthUser"
 
-type LoggedOutApplicationStore = {
-    user: null
+export type LoggedOutApplicationStore = {
+    state: "logged-out"
 }
 
-type LoggedInApplicationStore = {
+export type LoggedInApplicationStore = {
+    state: "logged-in"
     user: OAuthUser
     selectedConversation: ConversationType | null;
     conversations: ConversationMetadata[] | null;

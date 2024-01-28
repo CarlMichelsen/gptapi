@@ -1,6 +1,5 @@
 ﻿using BusinessLogic.Map;
 using Domain;
-using Domain.Claims;
 using Domain.Dto.Conversation;
 using Domain.Entity.Id;
 using Interface.Handler;
@@ -50,17 +49,9 @@ public class ConversationHandler : IConversationHandler
         return this.conversationService.GetConversations(userProfileId);
     }
 
-    private string GetClaimValue(string claimType)
-    {
-        var httpContext = this.httpContextAccessor.HttpContext;
-        var claims = httpContext!.User.Claims.ToList();
-        return claims.First(c => c.Type == claimType).Value;
-    }
-
     private UserProfileId GetUserProfileId()
     {
-        var stringId = this.GetClaimValue(GptClaimKeys.UserProfileId);
-        var guid = Guid.Parse(stringId);
-        return new UserProfileId(guid);
+        // TODO: actually get userprofileid
+        return new UserProfileId(Guid.NewGuid());
     }
 }

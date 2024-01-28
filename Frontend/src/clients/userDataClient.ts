@@ -1,4 +1,4 @@
-import { baseUrl } from "../baseurl";
+import { baseUrl, loginUrl } from "../baseurl";
 import type { OAuthUser } from "../types/dto/oAuthUser";
 
 export const getUserData = async (): Promise<OAuthUser | null> => {
@@ -23,7 +23,7 @@ export const getUserData = async (): Promise<OAuthUser | null> => {
 }
 
 export const deleteCookie = async () => {
-    const endpoint = `${baseUrl()}/api/v1/session/Logout`;
+    const endpoint = `${loginUrl()}/api/v1/Login/Logout`;
     try {
         const response = await fetch(endpoint, {
             method: 'DELETE',
@@ -38,16 +38,16 @@ export const deleteCookie = async () => {
     }
 }
 
-export type LoginType = "Development" | "Steam" | "Github" | "Discord";
+export type LoginType = "Development" | "Guest" | "Github" | "Discord";
 
 export const navigateToLoginPage = (loginType: LoginType) => {
     const endpoints: Record<LoginType, string> = {
-        "Development": "/api/v1/oauth/DevelopmentLogin",
-        "Steam": "/api/v1/oauth/SteamLogin",
-        "Github": "/api/v1/oauth/GithubLogin",
-        "Discord": "/api/v1/oauth/DiscordLogin"
+        "Development": "/api/v1/Login/Development",
+        "Guest": "/api/v1/Login/Guest",
+        "Github": "/api/v1/Login/Github",
+        "Discord": "/api/v1/Login/Discord"
     };
 
-    const loginPage = `${baseUrl()}${endpoints[loginType]}`;
+    const loginPage = `${loginUrl()}${endpoints[loginType]}?redirect=${encodeURIComponent(document.location.origin)}`;
     window.location.replace(loginPage);
 }

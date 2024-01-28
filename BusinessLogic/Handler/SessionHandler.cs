@@ -1,76 +1,33 @@
 ﻿using System.Net;
-using Database;
 using Domain;
-using Domain.Claims;
-using Domain.Entity.Id;
-using Domain.Exception;
-using Domain.OAuth;
-using Interface.Factory;
+using Domain.Dto.Session;
 using Interface.Handler;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
+using Interface.Service;
 
 namespace BusinessLogic.Handler;
 
 public class SessionHandler : ISessionHandler
 {
-    private readonly ILogger<SessionHandler> logger;
-    private readonly IHttpContextAccessor httpContextAccessor;
-    private readonly IOAuthClientFactory oAuthClientFactory;
-    private readonly ApplicationContext applicationContext;
+    private readonly ISessionService sessionService;
 
-    public SessionHandler(
-        ILogger<SessionHandler> logger,
-        IHttpContextAccessor httpContextAccessor,
-        IOAuthClientFactory oAuthClientFactory,
-        ApplicationContext applicationContext)
+    public SessionHandler(ISessionService sessionService)
     {
-        this.logger = logger;
-        this.httpContextAccessor = httpContextAccessor;
-        this.oAuthClientFactory = oAuthClientFactory;
-        this.applicationContext = applicationContext;
+        this.sessionService = sessionService;
     }
 
-    public async Task<Result<OAuthUserData, HttpStatusCode>> GetUserData()
+    public async Task<Result<UserDto, HttpStatusCode>> GetUserData()
     {
-        if (this.httpContextAccessor.HttpContext!.User.Identity?.IsAuthenticated != true)
+        var sessiondata = await this.sessionService.GetSessionData();
+        if (sessiondata is null)
         {
-            // This is a redundant check. Better safe than sorry tho.
             return HttpStatusCode.Unauthorized;
         }
 
-        try
+        return new UserDto
         {
-            var oAuthRecordId = this.httpContextAccessor.HttpContext!.User.FindFirst(GptClaimKeys.OAuthRecordId)?.Value
-                ?? throw new SessionException("oAuthRecordId not found in claims");
-            
-            var identifier = new OAuthRecordId(Guid.Parse(oAuthRecordId));
-            var oAuthRecord = this.applicationContext.OAuthRecord.Find(identifier)
-                ?? throw new SessionException("Could not find OAuthRecord in database");
-
-            var client = this.oAuthClientFactory.Create(oAuthRecord.AuthenticationMethod);
-            var oAuthDataConvertible = await client.GetOAuthUserData(oAuthRecord);
-            return oAuthDataConvertible.ToOAuthUser();
-        }
-        catch (Exception e)
-        {
-            this.logger.LogWarning("GetUserData in SessionHandler threw an exception\n{exception}", e);
-            return HttpStatusCode.InternalServerError;
-        }
-    }
-
-    public async Task<Result<bool, HttpStatusCode>> Logout()
-    {
-        try
-        {
-            await this.httpContextAccessor.HttpContext!.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return true;
-        }
-        catch (Exception)
-        {
-            return HttpStatusCode.InternalServerError;
-        }
+            Id = sessiondata.User.Id,
+            Name = sessiondata.User.Name,
+            AvatarUrl = sessiondata.User.AvatarUrl,
+        };
     }
 }

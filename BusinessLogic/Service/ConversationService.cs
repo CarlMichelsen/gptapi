@@ -4,6 +4,7 @@ using Domain;
 using Domain.Dto.Conversation;
 using Domain.Entity;
 using Domain.Entity.Id;
+using Domain.Exception;
 using Interface.Factory;
 using Interface.Service;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +33,11 @@ public class ConversationService : IConversationService
         ConversationId conversationId,
         Message message)
     {
+        if (message.PreviousMessage is null)
+        {
+            throw new ServiceException("PreviousMessageId can't be null when attempting to append a conversation");
+        }
+
         var conversationResult = await this.GetConversation(userProfileId, conversationId);
         var conv = conversationResult.Match<Conversation?>(
             c => c,

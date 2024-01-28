@@ -20,7 +20,7 @@ public class Result<TValue, TError>
     }
 
     public bool IsError { get; private set; }
-
+    
     public bool IsSuccess => !this.IsError;
 
     public static implicit operator Result<TValue, TError>(TValue value) => new(value);

@@ -9,10 +9,11 @@ type ConnectionMethod = (...args: any[]) => any;
 export class ConnectionMethods {
     public static connection: HubConnection;
 
-    public static sendMessage(content: string, conversationId: string|undefined|null) {
+    public static sendMessage(content: string, responseToMessageId: string | null, conversationId: string|undefined|null) {
         const request: SendMessageRequest = {
             messageContent: content,
             conversationId: conversationId ?? null,
+            previousMessageId: responseToMessageId
         };
 
         this.connection.invoke("SendMessage", request);

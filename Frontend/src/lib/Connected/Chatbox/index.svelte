@@ -14,13 +14,14 @@
     let activeMessage: Message;
     let chunks: MessageChunk[] = []
 
-    const sendMessage = (message: string) => {
-        if (!$applicationStore.user) return;
+    const sendMessage = (message: string, branchFromMessageId: string|null = null) => {
+        if ($applicationStore.state !== "logged-in") return;
+        const responseToMessageId = branchFromMessageId ?? $applicationStore.selectedConversation?.messages.slice(-1)[0]?.id ?? null;
 
         chunks = [];
         activeMessage = { ...activeMessage, content: "" };
         ready = false;
-        ConnectionMethods.sendMessage(message, $applicationStore.selectedConversation?.id ?? null);
+        ConnectionMethods.sendMessage(message, responseToMessageId, $applicationStore.selectedConversation?.id ?? null);
     }
 
     onMount(() => {
@@ -47,6 +48,7 @@
     });
 </script>
 
+{#if $applicationStore.state === "logged-in"}
 <Structure>
     <div slot="sidebar" class="h-full">
         <div class="hidden md:block">
@@ -61,3 +63,4 @@
         <InputField on:send={(message) => sendMessage(message.detail)} {ready} />
     </div>
 </Structure>
+{/if}

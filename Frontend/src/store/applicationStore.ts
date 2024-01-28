@@ -13,10 +13,10 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
     const conversationQueryParameterName = "c";
 
     const login = async () => {
-        const steamPlayer = await getUserData();
-        if (steamPlayer) {
+        const oauthUser = await getUserData();
+        if (oauthUser) {
             const conversations = await getConversationOptions();
-            store.update((value) => ({ ...value, user: steamPlayer, conversations } as ApplicationStore));
+            store.update((value) => ({ ...value, user: oauthUser, conversations, state: "logged-in" } as ApplicationStore));
             
             const queryConversationId = getQueryParams()[conversationQueryParameterName] ?? null;
             if (queryConversationId) selectConversation(queryConversationId);
@@ -25,7 +25,7 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
 
     const logout = async () => {
         await deleteCookie();
-        store.set({ user: null });
+        store.set({ state: "logged-out" });
     }
 
     const selectConversation = async (conversationId: string | null) => {
@@ -35,7 +35,7 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
         }
         
         store.update((value)  => {
-            if (!value.user) return value;
+            if (value.state !== "logged-in") return value;
             return { ...value, selectedConversation: conv } as ApplicationStore;
         });
         setQueryParam(conversationQueryParameterName, conv?.id);
@@ -43,7 +43,7 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
 
     const addNewConversation = async (conversationId: string) => {
         store.update((value) => {
-            if (!value.user) return value;
+            if (value.state  !== "logged-in") return value;
             const conv: ConversationMetadata = {
                 id: conversationId,
                 summary: null,
@@ -63,7 +63,7 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
         if (!deleted) return;
 
         store.update((value) => {
-            if (!value.user) return value;
+            if (value.state !== "logged-in") return value;
             const conversationListId = value.conversations?.findIndex(c => c.id === conversationId) ?? -1;
 
             if (conversationListId === -1) return value;
@@ -81,7 +81,7 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
 
     const updateConversationSummary = (conversationId: string, summary: string) => {
         store.update((value) => {
-            if (!value.user) return value;
+            if (value.state !== "logged-in") return value;
             const convMetadata = value.conversations?.find(o => o.id === conversationId) ?? null;
             if (convMetadata !== null) {
                 convMetadata.summary = summary;
@@ -93,7 +93,7 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
 
     const receieveMessage = (message: Message) => {
         store.update((value) => {
-            if (!value.user) return value;
+            if (value.state == "logged-out") return value;
             if (!value.selectedConversation) return value;
 
             value.selectedConversation.messages.push(message);
@@ -115,7 +115,7 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
 
 // Initial state
 const initialState: ApplicationStore = {
-    user: null,
+    state: "logged-out",
 };
 
 // Create the store with initial value

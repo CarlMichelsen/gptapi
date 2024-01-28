@@ -16,7 +16,7 @@ public static class PipelineStageRegistrations
         var implementations = assembly
             .GetTypes()
             .Where(type => type.IsClass && !type.IsAbstract)
-            .Where(type => Array.Exists(type.GetInterfaces(), i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IPipelineStage<>)))
+            .Where(type => Array.Exists(type.GetInterfaces(), i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IPipelineStep<>)))
             .ToList();
 
         foreach (var implementation in implementations)

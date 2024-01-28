@@ -12,7 +12,7 @@
     };
 </script>
 
-{#if $applicationStore.user}
+{#if $applicationStore.state === "logged-in"}
 <div class="w-full h-full">
     <div class="left-0 bg-black h-screen grid grid-rows-[auto,auto,1fr] overflow-y-scroll">
         <div>

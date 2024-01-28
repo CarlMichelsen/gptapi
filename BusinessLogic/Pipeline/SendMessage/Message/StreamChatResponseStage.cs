@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace BusinessLogic.Pipeline.SendMessage.Message;
 
-public class StreamChatResponseStage : IPipelineStage<SendMessagePipelineParameters>
+public class StreamChatResponseStage : IPipelineStep<SendMessagePipelineParameters>
 {
     private readonly IGptChatClient gptChatClient;
     private readonly IHubContext<ChatHub, IChatClient> chatHub;
@@ -71,11 +71,12 @@ public class StreamChatResponseStage : IPipelineStage<SendMessagePipelineParamet
             chunkTasks.Add(this.SendChunkToCallerAndReturnIt(client, messageChunkDto));
             index++;
 
-            if (input.StopFurtherMessageStreaming)
+            if (cancellationToken.IsCancellationRequested)
             {
                 input.ResponseMessage = new Domain.Entity.Message
                 {
                     Id = new MessageId(Guid.NewGuid()),
+                    PreviousMessage = input.UserMessage,
                     Role = Role.Assistant,
                     Content = await this.CollectAndSortChunks(chunkTasks),
                     ResponseId = responseId,
@@ -88,6 +89,7 @@ public class StreamChatResponseStage : IPipelineStage<SendMessagePipelineParamet
         input.ResponseMessage = new Domain.Entity.Message
         {
             Id = new MessageId(Guid.NewGuid()),
+            PreviousMessage = input.UserMessage,
             Role = Role.Assistant,
             Content = await this.CollectAndSortChunks(chunkTasks),
             ResponseId = responseId,

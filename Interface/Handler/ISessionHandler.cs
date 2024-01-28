@@ -1,12 +1,10 @@
 ﻿using System.Net;
 using Domain;
-using Domain.OAuth;
+using Domain.Dto.Session;
 
 namespace Interface.Handler;
 
 public interface ISessionHandler
 {
-    Task<Result<OAuthUserData, HttpStatusCode>> GetUserData();
-
-    Task<Result<bool, HttpStatusCode>> Logout();
+    Task<Result<UserDto, HttpStatusCode>> GetUserData();
 }

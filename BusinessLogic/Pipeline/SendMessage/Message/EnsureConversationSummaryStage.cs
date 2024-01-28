@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace BusinessLogic.Pipeline.SendMessage.Message;
 
-public class EnsureConversationSummaryStage : IPipelineStage<SendMessagePipelineParameters>
+public class EnsureConversationSummaryStage : IPipelineStep<SendMessagePipelineParameters>
 {
     private readonly IGptChatClient gptChatClient;
     private readonly IConversationService conversationService;

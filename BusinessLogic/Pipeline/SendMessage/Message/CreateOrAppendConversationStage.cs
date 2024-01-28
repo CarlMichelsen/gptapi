@@ -6,7 +6,7 @@ using Interface.Service;
 
 namespace BusinessLogic.Pipeline.SendMessage.Message;
 
-public class CreateOrAppendConversationStage : IPipelineStage<SendMessagePipelineParameters>
+public class CreateOrAppendConversationStage : IPipelineStep<SendMessagePipelineParameters>
 {
     private readonly IConversationService conversationService;
 
@@ -28,8 +28,15 @@ public class CreateOrAppendConversationStage : IPipelineStage<SendMessagePipelin
         }
         else
         {
-            conversationResult = await this.conversationService
-                .AppendConversation(input.UserProfileId, input.ConversationId, input.UserMessage);
+            try
+            {
+                conversationResult = await this.conversationService
+                    .AppendConversation(input.UserProfileId, input.ConversationId, input.UserMessage);
+            }
+            catch (ServiceException e)
+            {
+                throw new PipelineException("Service threw an exception inside SendMessagePipeline", e);
+            }
         }
 
         var conversation = conversationResult.Match(
