@@ -25,6 +25,8 @@ public sealed class ApplicationContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasDefaultSchema("GptApi");
+
         modelBuilder.Entity<UserProfile>(entity =>
         {
             // Configure the primary key
@@ -53,10 +55,6 @@ public sealed class ApplicationContext : DbContext
                 .HasConversion(
                     id => id.Value, // How to convert to Guid
                     guid => new MessageId(guid)); // How to convert from Guid
-
-            entity.HasOne(c => c.PreviousMessageId)
-                .WithMany()
-                .HasForeignKey(c => c.PreviousMessageId);
         });
     }
 }

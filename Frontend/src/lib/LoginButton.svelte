@@ -6,7 +6,7 @@
 
     const buttonInformationMap: Record<LoginType, ButtonInformation> = {
         "Development": { text: "Development Login" },
-        "Steam": { text: "Login with Steam" },
+        "Guest": { text: "Guest with Steam" },
         "Discord": { text: "Login with Discord" },
         "Github": { text: "Login with Github" },
     }

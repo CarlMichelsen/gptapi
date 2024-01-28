@@ -19,7 +19,7 @@
     };
 </script>
 
-{#if $applicationStore.user}
+{#if $applicationStore.state === "logged-in"}
 <div class="relative h-full">
     <div class={`${dynamicHeight(expanded)} bg-black w-full transition-all ease-in-out duration-100 relative`}>
         <button

@@ -11,15 +11,15 @@ namespace Api.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "GptApi");
+
             migrationBuilder.CreateTable(
                 name: "UserProfile",
+                schema: "GptApi",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    AuthenticationId = table.Column<string>(type: "text", nullable: false),
-                    AuthenticationIdType = table.Column<int>(type: "integer", nullable: false),
-                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LastLogin = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -28,6 +28,7 @@ namespace Api.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Conversation",
+                schema: "GptApi",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -43,39 +44,19 @@ namespace Api.Migrations
                     table.ForeignKey(
                         name: "FK_Conversation_UserProfile_UserProfileId",
                         column: x => x.UserProfileId,
+                        principalSchema: "GptApi",
                         principalTable: "UserProfile",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "OAuthRecord",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    AuthenticationMethod = table.Column<int>(type: "integer", nullable: false),
-                    RedirectedToThirdParty = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ReturnedFromThirdParty = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    UserId = table.Column<string>(type: "text", nullable: true),
-                    AccessToken = table.Column<string>(type: "text", nullable: true),
-                    Error = table.Column<string>(type: "text", nullable: true),
-                    UserProfileId = table.Column<Guid>(type: "uuid", nullable: true),
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OAuthRecord", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_OAuthRecord_UserProfile_UserProfileId",
-                        column: x => x.UserProfileId,
-                        principalTable: "UserProfile",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Message",
+                schema: "GptApi",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    PreviousMessageId = table.Column<Guid>(type: "uuid", nullable: true),
                     ResponseId = table.Column<string>(type: "text", nullable: true),
                     Visible = table.Column<bool>(type: "boolean", nullable: false),
                     Role = table.Column<int>(type: "integer", nullable: false),
@@ -90,46 +71,50 @@ namespace Api.Migrations
                     table.ForeignKey(
                         name: "FK_Message_Conversation_ConversationId",
                         column: x => x.ConversationId,
+                        principalSchema: "GptApi",
                         principalTable: "Conversation",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Message_Message_PreviousMessageId",
+                        column: x => x.PreviousMessageId,
+                        principalSchema: "GptApi",
+                        principalTable: "Message",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Conversation_UserProfileId",
+                schema: "GptApi",
                 table: "Conversation",
                 column: "UserProfileId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Message_ConversationId",
+                schema: "GptApi",
                 table: "Message",
                 column: "ConversationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OAuthRecord_UserProfileId",
-                table: "OAuthRecord",
-                column: "UserProfileId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserProfile_AuthenticationId",
-                table: "UserProfile",
-                column: "AuthenticationId",
-                unique: true);
+                name: "IX_Message_PreviousMessageId",
+                schema: "GptApi",
+                table: "Message",
+                column: "PreviousMessageId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Message");
+                name: "Message",
+                schema: "GptApi");
 
             migrationBuilder.DropTable(
-                name: "OAuthRecord");
+                name: "Conversation",
+                schema: "GptApi");
 
             migrationBuilder.DropTable(
-                name: "Conversation");
-
-            migrationBuilder.DropTable(
-                name: "UserProfile");
+                name: "UserProfile",
+                schema: "GptApi");
         }
     }
 }

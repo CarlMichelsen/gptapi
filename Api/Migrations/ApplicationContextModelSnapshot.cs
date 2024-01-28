@@ -17,6 +17,7 @@ namespace Api.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("GptApi")
                 .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -46,7 +47,7 @@ namespace Api.Migrations
 
                     b.HasIndex("UserProfileId");
 
-                    b.ToTable("Conversation");
+                    b.ToTable("Conversation", "GptApi");
                 });
 
             modelBuilder.Entity("Domain.Entity.Message", b =>
@@ -67,6 +68,9 @@ namespace Api.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("PreviousMessageId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("ResponseId")
                         .HasColumnType("text");
 
@@ -80,40 +84,9 @@ namespace Api.Migrations
 
                     b.HasIndex("ConversationId");
 
-                    b.ToTable("Message");
-                });
+                    b.HasIndex("PreviousMessageId");
 
-            modelBuilder.Entity("Domain.Entity.OAuthRecord", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("AccessToken")
-                        .HasColumnType("text");
-
-                    b.Property<int>("AuthenticationMethod")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Error")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("RedirectedToThirdParty")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("ReturnedFromThirdParty")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("UserProfileId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserProfileId");
-
-                    b.ToTable("OAuthRecord");
+                    b.ToTable("Message", "GptApi");
                 });
 
             modelBuilder.Entity("Domain.Entity.UserProfile", b =>
@@ -121,25 +94,9 @@ namespace Api.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("AuthenticationId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("AuthenticationIdType")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("LastLogin")
-                        .HasColumnType("timestamp with time zone");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("AuthenticationId")
-                        .IsUnique();
-
-                    b.ToTable("UserProfile");
+                    b.ToTable("UserProfile", "GptApi");
                 });
 
             modelBuilder.Entity("Domain.Entity.Conversation", b =>
@@ -158,23 +115,17 @@ namespace Api.Migrations
                     b.HasOne("Domain.Entity.Conversation", null)
                         .WithMany("Messages")
                         .HasForeignKey("ConversationId");
-                });
 
-            modelBuilder.Entity("Domain.Entity.OAuthRecord", b =>
-                {
-                    b.HasOne("Domain.Entity.UserProfile", null)
-                        .WithMany("OAuthRecords")
-                        .HasForeignKey("UserProfileId");
+                    b.HasOne("Domain.Entity.Message", "PreviousMessage")
+                        .WithMany()
+                        .HasForeignKey("PreviousMessageId");
+
+                    b.Navigation("PreviousMessage");
                 });
 
             modelBuilder.Entity("Domain.Entity.Conversation", b =>
                 {
                     b.Navigation("Messages");
-                });
-
-            modelBuilder.Entity("Domain.Entity.UserProfile", b =>
-                {
-                    b.Navigation("OAuthRecords");
                 });
 #pragma warning restore 612, 618
         }

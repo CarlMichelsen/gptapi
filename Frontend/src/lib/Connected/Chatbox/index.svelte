@@ -14,8 +14,9 @@
     let activeMessage: Message;
     let chunks: MessageChunk[] = []
 
-    const sendMessage = (message: string, responseToMessageId: string) => {
-        if (!$applicationStore.user) return;
+    const sendMessage = (message: string, branchFromMessageId: string|null = null) => {
+        if ($applicationStore.state !== "logged-in") return;
+        const responseToMessageId = branchFromMessageId ?? $applicationStore.selectedConversation?.messages.slice(-1)[0]?.id ?? null;
 
         chunks = [];
         activeMessage = { ...activeMessage, content: "" };
@@ -47,7 +48,7 @@
     });
 </script>
 
-{#if $applicationStore.user}
+{#if $applicationStore.state === "logged-in"}
 <Structure>
     <div slot="sidebar" class="h-full">
         <div class="hidden md:block">
@@ -59,7 +60,7 @@
     </div>
     <div slot="conversation" class="grid height-screen-minus-50 md:h-screen grid-rows-[1fr,auto]">
         <Conversation bind:activeMessage={activeMessage} />
-        <InputField on:send={(message) => sendMessage(message.detail, $applicationStore.selectedConversation?.messages.last()?.id ?? null)} {ready} />
+        <InputField on:send={(message) => sendMessage(message.detail)} {ready} />
     </div>
 </Structure>
 {/if}

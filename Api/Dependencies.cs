@@ -1,4 +1,5 @@
 ﻿using Api.Extensions;
+using Api.Security;
 using BusinessLogic.Client;
 using BusinessLogic.Factory;
 using BusinessLogic.Handler;
@@ -6,13 +7,13 @@ using BusinessLogic.Pipeline.SendMessage;
 using BusinessLogic.Provider;
 using BusinessLogic.Service;
 using Database;
+using Domain;
 using Domain.Configuration;
 using Interface.Client;
 using Interface.Factory;
 using Interface.Handler;
 using Interface.Provider;
 using Interface.Service;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api;
@@ -24,6 +25,7 @@ public static class Dependencies
         // Configuration
         builder.Configuration.AddJsonFile("secrets.json", optional: false, reloadOnChange: true);
         builder.Services
+            .AddCors()
             .Configure<GptOptions>(builder.Configuration.GetSection(GptOptions.SectionName))
             .Configure<ApplicationOptions>(options => options.IsDevelopment = builder.Environment.IsDevelopment());
 
@@ -44,9 +46,19 @@ public static class Dependencies
         builder.Services
             .AddTransient<IGptChatClient, GptChatClient>()
             .AddTransient<IConversationService, ConversationService>()
-            .AddTransient<IGptApiKeyProvider, GptApiKeyProvider>();
+            .AddTransient<IGptApiKeyProvider, GptApiKeyProvider>()
+            .AddTransient<ICacheService, CacheService>()
+            .AddTransient<ISessionService, SessionService>();
 
         builder.Services.AddSignalR();
+
+        // Cache
+        var redisConfiguration = builder.Configuration.GetSection(RedisOptions.SectionName);
+        builder.Services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = redisConfiguration[nameof(RedisOptions.ConnectionString)];
+            options.InstanceName = redisConfiguration[nameof(RedisOptions.InstanceName)];
+        });
 
         // Pipelines
         builder.Services
@@ -55,41 +67,33 @@ public static class Dependencies
 
         // Handlers
         builder.Services
+            .AddTransient<ISessionHandler, SessionHandler>()
             .AddTransient<IConversationHandler, ConversationHandler>();
 
         // Factories
         builder.Services
             .AddTransient<IConversationTemplateFactory, ConversationTemplateFactory>();
+        
+        // Access Control
+        builder.Services.AddAuthentication();
+        builder.Services.AddScoped<AccessControlMiddleware>();
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy(GptApiConstants.RequireSessionAuthorize, policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.RequireClaim(ClaimsConstants.UserProfileId);
+                policy.RequireClaim(ClaimsConstants.AuthenticationMethodUserId);
+                policy.RequireClaim(ClaimsConstants.Name);
+                policy.RequireClaim(ClaimsConstants.Email);
+                policy.RequireClaim(ClaimsConstants.AuthenticationMethod);
+                policy.RequireClaim(ClaimsConstants.AuthenticationMethodName);
+            });
+        });
 
         // Typed HttpClient Factories
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddHttpClient<GptChatClient>(client =>
             client.Timeout = TimeSpan.FromSeconds(30));
-
-        // Security
-        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddCookie(options =>
-            {
-                options.ExpireTimeSpan = TimeSpan.FromHours(2);
-                options.LoginPath = "/";
-                options.AccessDeniedPath = "/";
-                options.Events = new CookieAuthenticationEvents
-                {
-                    OnRedirectToLogin = context =>
-                    {
-                        // Check if the request is for an API endpoint
-                        if (context.Request.Path.StartsWithSegments("/api"))
-                        {
-                            // Prevent redirection and return 401 Unauthorized
-                            context.Response.StatusCode = 401;
-                            return Task.CompletedTask;
-                        }
-
-                        // For non-API requests, continue with the default redirection
-                        context.Response.Redirect(context.RedirectUri);
-                        return Task.CompletedTask;
-                    },
-                };
-            });
     }
 }

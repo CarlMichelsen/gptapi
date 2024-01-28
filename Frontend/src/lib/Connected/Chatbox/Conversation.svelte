@@ -34,7 +34,7 @@
     $: setTimeout(() => onMessageChanged(activeMessage.content), 0);
 </script>
 
-{#if $applicationStore.user}
+{#if $applicationStore.state === "logged-in"}
 <ConversationContainer className="overflow-y-auto mx-auto" id={messageContainer}>
     <div class="container">
         {#if $applicationStore.selectedConversation}

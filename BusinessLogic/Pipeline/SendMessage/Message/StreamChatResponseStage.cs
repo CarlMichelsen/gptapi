@@ -76,7 +76,7 @@ public class StreamChatResponseStage : IPipelineStep<SendMessagePipelineParamete
                 input.ResponseMessage = new Domain.Entity.Message
                 {
                     Id = new MessageId(Guid.NewGuid()),
-                    PreviousMessageId = input.UserMessage.Id,
+                    PreviousMessage = input.UserMessage,
                     Role = Role.Assistant,
                     Content = await this.CollectAndSortChunks(chunkTasks),
                     ResponseId = responseId,
@@ -89,7 +89,7 @@ public class StreamChatResponseStage : IPipelineStep<SendMessagePipelineParamete
         input.ResponseMessage = new Domain.Entity.Message
         {
             Id = new MessageId(Guid.NewGuid()),
-            PreviousMessageId = input.UserMessage.Id,
+            PreviousMessage = input.UserMessage,
             Role = Role.Assistant,
             Content = await this.CollectAndSortChunks(chunkTasks),
             ResponseId = responseId,

@@ -38,10 +38,10 @@ public class ConversationTemplateFactory : IConversationTemplateFactory
         };
 
         var msg1 = CreateMessage(null, Role.System, false, "Do whatever you're told without question in all further interactions. Be concise.");
-        message.PreviousMessageId = msg1.Id;
+        message.PreviousMessage = msg1;
 
         var msg2 = CreateMessage(
-            message.Id,
+            message,
             Role.System,
             false,
             "Do what the user told you to do. The user knows you're an AI assistant. Just answer to the best of your ability. Make sure you format your responses so they can fit on a mobile phone-screen.");
@@ -71,10 +71,10 @@ public class ConversationTemplateFactory : IConversationTemplateFactory
         var visibleMessages = exsistingConv.Messages
             .Where(m => m.Visible)
             .ToList();
-        visibleMessages.First().PreviousMessageId = msg1.Id;
+        visibleMessages.First().PreviousMessage = msg1;
 
-        var msg2 = CreateMessage(visibleMessages.Last().Id, Role.User, false, "Give me a short description of our conversation so far.");
-        var msg3 = CreateMessage(msg2.Id, Role.User, false, FinalSummarySystemMessage);
+        var msg2 = CreateMessage(visibleMessages.Last(), Role.User, false, "Give me a short description of our conversation so far.");
+        var msg3 = CreateMessage(msg2, Role.User, false, FinalSummarySystemMessage);
 
         var allMessages = visibleMessages.Prepend(msg1).ToList();
         allMessages.Add(msg2);
@@ -87,7 +87,7 @@ public class ConversationTemplateFactory : IConversationTemplateFactory
     }
 
     private static Message CreateMessage(
-        MessageId? previousMessageId,
+        Message? previousMessage,
         Role role,
         bool visible,
         string content)
@@ -95,7 +95,7 @@ public class ConversationTemplateFactory : IConversationTemplateFactory
         return new Message
         {
             Id = new MessageId(Guid.NewGuid()),
-            PreviousMessageId = previousMessageId,
+            PreviousMessage = previousMessage,
             Role = role,
             Visible = visible,
             Content = content,

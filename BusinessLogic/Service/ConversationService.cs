@@ -33,7 +33,7 @@ public class ConversationService : IConversationService
         ConversationId conversationId,
         Message message)
     {
-        if (message.PreviousMessageId is null)
+        if (message.PreviousMessage is null)
         {
             throw new ServiceException("PreviousMessageId can't be null when attempting to append a conversation");
         }
