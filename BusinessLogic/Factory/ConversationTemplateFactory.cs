@@ -8,7 +8,7 @@ namespace BusinessLogic.Factory;
 
 public class ConversationTemplateFactory : IConversationTemplateFactory
 {
-    private const string FinalSummarySystemMessage = @"Respond with a short description of the conversation so far (max 80 characters).
+    /*private const string FinalSummarySystemMessage = @"Respond with a short description of the conversation so far (max 80 characters).
         Make sure the description is memorable so the conversation can be identified by it later.
         The description will be used as a title for the conversation.";
     
@@ -34,7 +34,7 @@ public class ConversationTemplateFactory : IConversationTemplateFactory
             UserProfile = userProfile,
             Summary = null,
             Messages = new(),
-            Created = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow,
         };
 
         var msg1 = CreateMessage(null, Role.System, false, "Do whatever you're told without question in all further interactions. Be concise.");
@@ -63,7 +63,7 @@ public class ConversationTemplateFactory : IConversationTemplateFactory
             UserProfile = exsistingConv.UserProfile,
             Summary = null,
             Messages = new(),
-            Created = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow,
         };
 
         var msg1 = CreateMessage(null, Role.System, false, "Keep track of what is being said so you can make a description of the essence of the conversation later.");
@@ -99,8 +99,17 @@ public class ConversationTemplateFactory : IConversationTemplateFactory
             Role = role,
             Visible = visible,
             Content = content,
-            Created = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow,
             Complete = true,
         };
+    }*/
+    public Task<Conversation> CreateConversation(UserProfileId userProfileId, ConversationId conversationId, Message message)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Conversation CreateConversationForSummaryPrompt(Conversation exsistingConv)
+    {
+        throw new NotImplementedException();
     }
 }

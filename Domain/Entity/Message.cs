@@ -14,14 +14,9 @@ public class Message
 
     public required Role Role { get; init; }
 
-    public bool Complete { get; set; } = false;
+    public required string? Content { get; set; }
 
-    /// <summary>
-    /// Gets or sets content of the message.
-    /// It is useful to be able to set content continously as the response is streaming in.
-    /// </summary>
-    /// <value>String message content.</value>
-    public required string Content { get; set; }
+    public required DateTime CreatedUtc { get; init; }
 
-    public required DateTime Created { get; init; }
+    public DateTime? CompletedUtc { get; set; }
 }

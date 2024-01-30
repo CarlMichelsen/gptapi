@@ -27,7 +27,7 @@ public class AccessControlMiddleware : IMiddleware
         }
         else
         {
-            context.Response.StatusCode = 403;
+            await next(context);
         }
     }
 

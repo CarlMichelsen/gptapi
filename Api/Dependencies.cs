@@ -63,7 +63,7 @@ public static class Dependencies
         // Pipelines
         builder.Services
             .RegisterPipelineStages()
-            .AddSingleton<SendMessagePipelineSingleton>();
+            .AddTransient<SendMessagePipeline>();
 
         // Handlers
         builder.Services
@@ -72,6 +72,7 @@ public static class Dependencies
 
         // Factories
         builder.Services
+            .AddTransient<IScopedServiceFactory, ScopedServiceFactory>()
             .AddTransient<IConversationTemplateFactory, ConversationTemplateFactory>();
         
         // Access Control

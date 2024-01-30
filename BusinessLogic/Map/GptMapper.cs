@@ -26,7 +26,7 @@ public static class GptMapper
         return new GptChatMessage
         {
             Role = ConversationMapper.Map(message.Role),
-            Content = message.Content,
+            Content = message.Content ?? string.Empty,
         };
     }
 }

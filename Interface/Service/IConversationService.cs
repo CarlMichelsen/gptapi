@@ -7,23 +7,23 @@ namespace Interface.Service;
 
 public interface IConversationService
 {
-    Task<Result<List<ConversationMetaDataDto>, string>> GetConversations(
+    Task<DeprecatedResult<List<ConversationMetaDataDto>, string>> GetConversations(
         UserProfileId userProfileId);
     
-    Task<Result<Conversation, string>> GetConversation(
+    Task<DeprecatedResult<Conversation, string>> GetConversation(
         UserProfileId userProfileId,
         ConversationId conversationId);
 
-    Task<Result<bool, string>> DeleteConversation(
+    Task<DeprecatedResult<bool, string>> DeleteConversation(
         UserProfileId userProfileId,
         ConversationId conversationId);
 
-    Task<Result<Conversation, string>> AppendConversation(
+    Task<DeprecatedResult<Conversation, string>> AppendConversation(
         UserProfileId userProfileId,
         ConversationId conversationId,
         Message message);
     
-    Task<Result<Conversation, string>> StartConversation(
+    Task<DeprecatedResult<Conversation, string>> StartConversation(
         UserProfileId userProfileId,
         Message message);
 

@@ -14,7 +14,7 @@ namespace BusinessLogic.Service;
 
 public class ConversationService : IConversationService
 {
-    private readonly ILogger<ConversationService> logger;
+    /*private readonly ILogger<ConversationService> logger;
     private readonly ApplicationContext applicationContext;
     private readonly IConversationTemplateFactory conversationTemplateFactory;
 
@@ -28,7 +28,7 @@ public class ConversationService : IConversationService
         this.conversationTemplateFactory = conversationTemplateFactory;
     }
 
-    public async Task<Result<Conversation, string>> AppendConversation(
+    public async Task<DeprecatedResult<Conversation, string>> AppendConversation(
         UserProfileId userProfileId,
         ConversationId conversationId,
         Message message)
@@ -49,7 +49,7 @@ public class ConversationService : IConversationService
         }
 
         conv.Messages.Add(message);
-        conv.LastAppended = DateTime.UtcNow;
+        conv.LastAppendedUtc = DateTime.UtcNow;
         await this.applicationContext.SaveChangesAsync();
         this.logger.LogInformation(
                 "Appended an exsisting conversation <{conversationId}>",
@@ -58,7 +58,7 @@ public class ConversationService : IConversationService
         return conv;
     }
 
-    public async Task<Result<bool, string>> DeleteConversation(
+    public async Task<DeprecatedResult<bool, string>> DeleteConversation(
         UserProfileId userProfileId,
         ConversationId conversationId)
     {
@@ -77,7 +77,7 @@ public class ConversationService : IConversationService
         return true;
     }
 
-    public async Task<Result<Conversation, string>> GetConversation(
+    public async Task<DeprecatedResult<Conversation, string>> GetConversation(
         UserProfileId userProfileId,
         ConversationId conversationId)
     {
@@ -94,7 +94,7 @@ public class ConversationService : IConversationService
         return conv;
     }
 
-    public async Task<Result<List<ConversationMetaDataDto>, string>> GetConversations(
+    public async Task<DeprecatedResult<List<ConversationMetaDataDto>, string>> GetConversations(
         UserProfileId userProfileId)
     {
         var convs = await this.applicationContext.Conversation
@@ -133,7 +133,7 @@ public class ConversationService : IConversationService
         return true;
     }
 
-    public async Task<Result<Conversation, string>> StartConversation(
+    public async Task<DeprecatedResult<Conversation, string>> StartConversation(
         UserProfileId userProfileId,
         Message message)
     {
@@ -150,5 +150,34 @@ public class ConversationService : IConversationService
             conv.Id);
         
         return conv;
+    }*/
+    public Task<DeprecatedResult<Conversation, string>> AppendConversation(UserProfileId userProfileId, ConversationId conversationId, Message message)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<DeprecatedResult<bool, string>> DeleteConversation(UserProfileId userProfileId, ConversationId conversationId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<DeprecatedResult<Conversation, string>> GetConversation(UserProfileId userProfileId, ConversationId conversationId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<DeprecatedResult<List<ConversationMetaDataDto>, string>> GetConversations(UserProfileId userProfileId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> SetConversationSummary(UserProfileId userProfileId, ConversationId conversationId, string summary)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<DeprecatedResult<Conversation, string>> StartConversation(UserProfileId userProfileId, Message message)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -3,7 +3,8 @@ using Domain.Entity.Id;
 
 namespace Domain.Pipeline;
 
-public class SendMessagePipelineParameters
+[Obsolete("Not used anymore", true)]
+public class SendMessagePipelineParametersOLD
 {
     public required UserProfileId UserProfileId { get; init; }
 

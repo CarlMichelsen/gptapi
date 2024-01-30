@@ -1,6 +1,10 @@
-﻿namespace Interface.Pipeline;
+﻿using Domain.Abstractions;
+
+namespace Interface.Pipeline;
 
 public interface IPipeline<T>
 {
-    Task<T> Execute(T input, CancellationToken cancellationToken);
+    Task<Result<T>> Execute(
+        T input,
+        CancellationToken cancellationToken);
 }

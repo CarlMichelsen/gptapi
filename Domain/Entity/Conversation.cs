@@ -6,15 +6,15 @@ public class Conversation
 {
     public required ConversationId Id { get; init; }
 
-    public required UserProfile UserProfile { get; init; }
+    public required UserProfileId UserProfileId { get; init; }
 
-    public required string? Summary { get; set; }
+    public string? Summary { get; set; }
 
     public required List<Message> Messages { get; init; }
 
-    public required DateTime Created { get; init; }
+    public required DateTime CreatedUtc { get; init; }
 
-    public DateTime LastAppended { get; set; } = DateTime.UtcNow;
+    public DateTime LastAppendedUtc { get; set; } = DateTime.UtcNow;
 
-    public bool UserDeleted { get; set; } = false;
+    public bool UserArchived { get; set; } = false;
 }

@@ -1,5 +1,5 @@
 ﻿using BusinessLogic.Handler;
-using BusinessLogic.Pipeline.SendMessage;
+using Interface.Factory;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 
@@ -13,8 +13,8 @@ public class ChatHub : ChatHubHandler
     public ChatHub(
         ILogger<ChatHub> logger,
         ILogger<ChatHubHandler> handlerLogger,
-        SendMessagePipelineSingleton sendMessagePipeline)
-        : base(handlerLogger, sendMessagePipeline)
+        IScopedServiceFactory scopedServiceFactory)
+        : base(handlerLogger, scopedServiceFactory)
     {
         this.logger = logger;
     }

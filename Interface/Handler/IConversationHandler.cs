@@ -6,9 +6,9 @@ namespace Interface.Handler;
 
 public interface IConversationHandler
 {
-    Task<Result<List<ConversationMetaDataDto>, string>> GetConversations();
+    Task<DeprecatedResult<List<ConversationMetaDataDto>, string>> GetConversations();
 
-    Task<Result<ConversationDto, string>> GetConversation(ConversationId conversationId);
+    Task<DeprecatedResult<ConversationDto, string>> GetConversation(ConversationId conversationId);
 
-    Task<Result<bool, string>> DeleteConversation(ConversationId conversationId);
+    Task<DeprecatedResult<bool, string>> DeleteConversation(ConversationId conversationId);
 }
