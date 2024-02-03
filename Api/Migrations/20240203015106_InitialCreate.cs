@@ -15,18 +15,6 @@ namespace Api.Migrations
                 name: "GptApi");
 
             migrationBuilder.CreateTable(
-                name: "UserProfile",
-                schema: "GptApi",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserProfile", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Conversation",
                 schema: "GptApi",
                 columns: table => new
@@ -34,20 +22,13 @@ namespace Api.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserProfileId = table.Column<Guid>(type: "uuid", nullable: false),
                     Summary = table.Column<string>(type: "text", nullable: true),
-                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LastAppended = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UserDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastAppendedUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UserArchived = table.Column<bool>(type: "boolean", nullable: false),
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Conversation", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Conversation_UserProfile_UserProfileId",
-                        column: x => x.UserProfileId,
-                        principalSchema: "GptApi",
-                        principalTable: "UserProfile",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -60,9 +41,9 @@ namespace Api.Migrations
                     ResponseId = table.Column<string>(type: "text", nullable: true),
                     Visible = table.Column<bool>(type: "boolean", nullable: false),
                     Role = table.Column<int>(type: "integer", nullable: false),
-                    Complete = table.Column<bool>(type: "boolean", nullable: false),
-                    Content = table.Column<string>(type: "text", nullable: false),
-                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Content = table.Column<string>(type: "text", nullable: true),
+                    CreatedUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CompletedUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     ConversationId = table.Column<Guid>(type: "uuid", nullable: true),
                 },
                 constraints: table =>
@@ -81,12 +62,6 @@ namespace Api.Migrations
                         principalTable: "Message",
                         principalColumn: "Id");
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Conversation_UserProfileId",
-                schema: "GptApi",
-                table: "Conversation",
-                column: "UserProfileId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Message_ConversationId",
@@ -110,10 +85,6 @@ namespace Api.Migrations
 
             migrationBuilder.DropTable(
                 name: "Conversation",
-                schema: "GptApi");
-
-            migrationBuilder.DropTable(
-                name: "UserProfile",
                 schema: "GptApi");
         }
     }

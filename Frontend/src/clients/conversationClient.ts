@@ -1,7 +1,8 @@
 import { baseUrl } from "../baseurl";
 import type { ConversationMetadata, ConversationType } from "../types/dto/conversation"
+import type { ServiceResponse } from "../types/dto/serviceResponse";
 
-export const getConversationOptions = async () : Promise<ConversationMetadata[]|null> => {
+export const getConversationList = async () : Promise<ServiceResponse<ConversationMetadata[]>> => {
     const endpoint = `${baseUrl()}/api/v1/conversation`;
     try {
         const response = await fetch(endpoint, {
@@ -17,10 +18,14 @@ export const getConversationOptions = async () : Promise<ConversationMetadata[]|
             throw new Error(`Error: ${response.status}`);
         }
 
-        return await response.json() as ConversationMetadata[];
+        return await response.json() as ServiceResponse<ConversationMetadata[]>;
     } catch (error) {
         console.error(error);
-        return null;
+        return {
+            ok: false,
+            data: null,
+            errors: ["An error occured"]
+        };
     }
 }
 

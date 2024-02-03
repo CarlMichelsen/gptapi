@@ -15,7 +15,7 @@ public class SessionHandler : ISessionHandler
         this.sessionService = sessionService;
     }
 
-    public async Task<DeprecatedResult<UserDto, HttpStatusCode>> GetUserData()
+    public async Task<Result<UserDto, HttpStatusCode>> GetUserData()
     {
         var sessiondata = await this.sessionService.GetSessionData();
         if (sessiondata is null)

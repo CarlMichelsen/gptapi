@@ -11,44 +11,21 @@ public static class ConversationEndpoints
         var conversationGroup = group.MapGroup("/conversation");
 
         conversationGroup.MapGet("/", async ([FromServices] IConversationHandler conversationHandler) =>
-        {
-            var conversationResult = await conversationHandler.GetConversations();
-            return conversationResult.Match(
-                (conversations) => Results.Ok(conversations),
-                (error) =>
-                {
-                    if (error == "not found")
-                    {
-                        return Results.NotFound(error);
-                    }
-
-                    return Results.Ok(new List<Domain.Dto.Conversation.ConversationMetaDataDto>());
-                });
-        })
+            await conversationHandler.GetConversationList())
         .WithName("Conversations")
         .RequireAuthorization();
 
-        conversationGroup.MapGet("/{id}", async (
-            [FromRoute] Guid id,
+        conversationGroup.MapGet("/{conversationId}", async (
+            [FromRoute] Guid conversationId,
             [FromServices] IConversationHandler conversationHandler) =>
-        {
-            var conversationResult = await conversationHandler.GetConversation(new ConversationId(id));
-            return conversationResult.Match(
-                (conversation) => Results.Ok(conversation),
-                (error) => Results.NotFound(error));
-        })
+            await conversationHandler.GetConversation(conversationId))
         .WithName("Conversation")
         .RequireAuthorization();
 
-        conversationGroup.MapDelete("/{id}", async (
-            [FromRoute] Guid id,
+        conversationGroup.MapDelete("/{conversationId}", async (
+            [FromRoute] Guid conversationId,
             [FromServices] IConversationHandler conversationHandler) =>
-        {
-            var conversationDeletedResult = await conversationHandler.DeleteConversation(new ConversationId(id));
-            return conversationDeletedResult.Match(
-                (conversationDeleted) => Results.Ok(conversationDeleted),
-                (error) => Results.NotFound(error));
-        })
+            await conversationHandler.DeleteConversation(conversationId))
         .WithName("DeleteConversation")
         .RequireAuthorization();
 

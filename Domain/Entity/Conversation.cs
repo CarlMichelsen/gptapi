@@ -6,7 +6,7 @@ public class Conversation
 {
     public required ConversationId Id { get; init; }
 
-    public required UserProfileId UserProfileId { get; init; }
+    public required Guid UserProfileId { get; init; }
 
     public string? Summary { get; set; }
 

@@ -1,14 +1,12 @@
-﻿using Domain;
-using Domain.Dto.Conversation;
-using Domain.Entity.Id;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace Interface.Handler;
 
 public interface IConversationHandler
 {
-    Task<DeprecatedResult<List<ConversationMetaDataDto>, string>> GetConversations();
+    Task<IResult> GetConversationList();
 
-    Task<DeprecatedResult<ConversationDto, string>> GetConversation(ConversationId conversationId);
+    Task<IResult> GetConversation(Guid conversationId);
 
-    Task<DeprecatedResult<bool, string>> DeleteConversation(ConversationId conversationId);
+    Task<IResult> DeleteConversation(Guid conversationId);
 }

@@ -8,13 +8,13 @@ using Microsoft.Extensions.Options;
 
 namespace Api.Security;
 
-public class SessionAuthenticationHandler : AuthenticationHandler<SessionAuthenticationOptions>
+public class SessionAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
     private readonly ISessionService sessionService;
 
     public SessionAuthenticationHandler(
         ISessionService sessionService,
-        IOptionsMonitor<SessionAuthenticationOptions> options,
+        IOptionsMonitor<AuthenticationSchemeOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder)
         : base(options, logger, encoder)

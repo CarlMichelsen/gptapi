@@ -1,6 +1,7 @@
 ﻿using BusinessLogic.Map;
 using Database;
 using Domain;
+using Domain.Abstractions;
 using Domain.Dto.Conversation;
 using Domain.Entity;
 using Domain.Entity.Id;
@@ -151,32 +152,74 @@ public class ConversationService : IConversationService
         
         return conv;
     }*/
-    public Task<DeprecatedResult<Conversation, string>> AppendConversation(UserProfileId userProfileId, ConversationId conversationId, Message message)
+
+    private readonly ILogger<ConversationService> logger;
+    private readonly ApplicationContext applicationContext;
+
+    public ConversationService(
+        ILogger<ConversationService> logger,
+        ApplicationContext applicationContext)
+    {
+        this.logger = logger;
+        this.applicationContext = applicationContext;
+    }
+
+    public Task<Result<Conversation>> AppendConversation(
+        Guid userProfileId, 
+        ConversationId conversationId,
+        Message message)
     {
         throw new NotImplementedException();
     }
 
-    public Task<DeprecatedResult<bool, string>> DeleteConversation(UserProfileId userProfileId, ConversationId conversationId)
+    public Task<Result<bool>> DeleteConversation(
+        Guid userProfileId,
+        ConversationId conversationId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<DeprecatedResult<Conversation, string>> GetConversation(UserProfileId userProfileId, ConversationId conversationId)
+    public Task<Result<Conversation>> GetConversation(
+        Guid userProfileId,
+        ConversationId conversationId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<DeprecatedResult<List<ConversationMetaDataDto>, string>> GetConversations(UserProfileId userProfileId)
+    public async Task<Result<List<ConversationMetaDataDto>>> GetConversationList(
+        Guid userProfileId)
+    {
+        try
+        {
+            var convs = await this.applicationContext.Conversation
+                .Where(c => c.UserProfileId == userProfileId && !c.UserArchived)
+                .ToListAsync();
+
+            return convs.Select(ConversationMapper.Map).ToList();
+        }
+        catch (Exception e)
+        {
+            this.logger.LogError(
+                "ConversationService.GetConversationList threw an exception:\n{exception}",
+                e);
+            
+            return new Error(
+                "GetConversationList.Exception",
+                "Failed to map domain model to DTO model");
+        }
+    }
+
+    public Task<Result<bool>> SetConversationSummary(
+        Guid userProfileId,
+        ConversationId conversationId,
+        string summary)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> SetConversationSummary(UserProfileId userProfileId, ConversationId conversationId, string summary)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<DeprecatedResult<Conversation, string>> StartConversation(UserProfileId userProfileId, Message message)
+    public Task<Result<Conversation>> StartConversation(
+        Guid userProfileId,
+        Message message)
     {
         throw new NotImplementedException();
     }

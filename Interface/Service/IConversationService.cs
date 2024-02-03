@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Domain.Abstractions;
 using Domain.Dto.Conversation;
 using Domain.Entity;
 using Domain.Entity.Id;
@@ -7,28 +8,28 @@ namespace Interface.Service;
 
 public interface IConversationService
 {
-    Task<DeprecatedResult<List<ConversationMetaDataDto>, string>> GetConversations(
-        UserProfileId userProfileId);
+    Task<Result<List<ConversationMetaDataDto>>> GetConversationList(
+        Guid userProfileId);
     
-    Task<DeprecatedResult<Conversation, string>> GetConversation(
-        UserProfileId userProfileId,
+    Task<Result<Conversation>> GetConversation(
+        Guid userProfileId,
         ConversationId conversationId);
 
-    Task<DeprecatedResult<bool, string>> DeleteConversation(
-        UserProfileId userProfileId,
+    Task<Result<bool>> DeleteConversation(
+        Guid userProfileId,
         ConversationId conversationId);
 
-    Task<DeprecatedResult<Conversation, string>> AppendConversation(
-        UserProfileId userProfileId,
+    Task<Result<Conversation>> AppendConversation(
+        Guid userProfileId,
         ConversationId conversationId,
         Message message);
     
-    Task<DeprecatedResult<Conversation, string>> StartConversation(
-        UserProfileId userProfileId,
+    Task<Result<Conversation>> StartConversation(
+        Guid userProfileId,
         Message message);
 
-    Task<bool> SetConversationSummary(
-        UserProfileId userProfileId,
+    Task<Result<bool>> SetConversationSummary(
+        Guid userProfileId,
         ConversationId conversationId,
         string summary);
 }

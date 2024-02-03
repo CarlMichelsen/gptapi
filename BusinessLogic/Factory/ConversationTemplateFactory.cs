@@ -103,7 +103,7 @@ public class ConversationTemplateFactory : IConversationTemplateFactory
             Complete = true,
         };
     }*/
-    public Task<Conversation> CreateConversation(UserProfileId userProfileId, ConversationId conversationId, Message message)
+    public Task<Conversation> CreateConversation(Guid userProfileId, ConversationId conversationId, Message message)
     {
         throw new NotImplementedException();
     }

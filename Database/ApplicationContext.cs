@@ -21,21 +21,9 @@ public sealed class ApplicationContext : DbContext
 
     public DbSet<Conversation> Conversation { get; init; }
 
-    public DbSet<UserProfile> UserProfile { get; init; }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("GptApi");
-
-        modelBuilder.Entity<UserProfile>(entity =>
-        {
-            // Configure the primary key
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id)
-                .HasConversion(
-                    id => id.Value, // How to convert to Guid
-                    guid => new UserProfileId(guid)); // How to convert from Guid
-        });
         
         modelBuilder.Entity<Conversation>(entity =>
         {
