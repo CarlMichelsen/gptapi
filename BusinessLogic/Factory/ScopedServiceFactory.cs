@@ -21,11 +21,11 @@ public class ScopedServiceFactory : IScopedServiceFactory
 
     private Result<T> CreateServiceInNewScope<T>()
     {
-        using var scope = this.serviceProvider.CreateScope();
+        var scope = this.serviceProvider.CreateScope();
         var serviceObj = scope.ServiceProvider.GetService(typeof(T));
         if (serviceObj is null)
         {
-            return new Error("PipelineFactory.ServiceNotFound");
+            return new Error("ScopedServiceFactory.ServiceNotFound");
         }
 
         return (T)serviceObj;

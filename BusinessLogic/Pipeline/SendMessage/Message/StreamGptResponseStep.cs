@@ -55,6 +55,8 @@ public class StreamGptResponseStep : IPipelineStep<SendMessagePipelineContext>
 
                 await client.ReceiveMessageChunk(chunk);
             }
+
+            return context;
         }
         catch (OperationCanceledException)
         {
@@ -71,8 +73,6 @@ public class StreamGptResponseStep : IPipelineStep<SendMessagePipelineContext>
                 "StreamGptResponseStep.Exception",
                 "Message streaming failed");
         }
-
-        throw new NotImplementedException();
     }
 
     private MessageChunkDto HandleChunk(

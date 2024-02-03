@@ -1,5 +1,9 @@
 ﻿using BusinessLogic.Pipeline.SendMessage;
 using Domain.Dto.Conversation;
+using Domain.Dto.Session;
+using Domain.Entity.Id;
+using Domain.Exception;
+using Domain.Pipeline.SendMessage;
 using Interface.Factory;
 using Interface.Hub;
 using Microsoft.AspNetCore.SignalR;
@@ -9,6 +13,7 @@ namespace BusinessLogic.Handler;
 
 public class ChatHubHandler : Hub<IChatClient>, IChatServer
 {
+    protected const string SessionDataItemKey = "SessionDataItemKey";
     private readonly ILogger<ChatHubHandler> logger;
     private readonly IScopedServiceFactory scopedServiceFactory;
 
@@ -20,7 +25,33 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
         this.scopedServiceFactory = scopedServiceFactory;
     }
 
-    public Task SendMessage(SendMessageRequest sendMessageRequest)
+    public SessionData InitialSessionData => this.Context.Items[SessionDataItemKey] as SessionData
+        ?? throw new ServiceException("ChatHubHandler InitialSessionData unavailable");
+
+    public async Task SendMessage(SendMessageRequest sendMessageRequest)
+    {
+        var source = new CancellationTokenSource();
+        await this.RunSendMessagePipeline(sendMessageRequest, source.Token);
+    }
+
+    private static bool IsDefined(Guid? guid)
+    {
+        if (guid is null)
+        {
+            return false;
+        }
+
+        if (guid == Guid.Empty)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private async Task RunSendMessagePipeline(
+        SendMessageRequest sendMessageRequest,
+        CancellationToken cancellationToken)
     {
         var sendMessagePipelineResult = this.scopedServiceFactory
             .CreateScopedService<SendMessagePipeline>();
@@ -29,14 +60,27 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
             this.logger.LogError("Unable to create SendMessagePipeline");
         }
 
-        var sendMessagePipeline = sendMessagePipelineResult.Unwrap();
-        return Task.CompletedTask;
-        /*var initialContext = new SendMessagePipelineContext
+        var userMessageData = new UserMessageData(
+            sendMessageRequest.TemporaryUserMessageId,
+            sendMessageRequest.MessageContent);
+        
+        ConversationAppendData? conversationAppendData = default;
+        if (IsDefined(sendMessageRequest?.PreviousMessageId) && IsDefined(sendMessageRequest?.ConversationId))
+        {
+            conversationAppendData = new ConversationAppendData(
+                new MessageId((Guid)sendMessageRequest!.PreviousMessageId!),
+                new ConversationId((Guid)sendMessageRequest.ConversationId!));
+        }
+
+        var initialContext = new SendMessagePipelineContext
         {
             ConnectionId = this.Context.ConnectionId,
-            
+            UserProfileId = this.InitialSessionData.UserProfileId,
+            UserMessageData = userMessageData,
+            ConversationAppendData = conversationAppendData,
         };
 
-        await sendMessagePipeline.Execute(initialContext, new CancellationToken());*/
+        var sendMessagePipeline = sendMessagePipelineResult.Unwrap();
+        await sendMessagePipeline.Execute(initialContext, cancellationToken);
     }
 }

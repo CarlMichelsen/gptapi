@@ -17,6 +17,7 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
         if (oauthUser) {
             const conversationListResponse = await getConversationList();
             if (!conversationListResponse.ok) {
+                console.error("conversationListResponse not ok", ...conversationListResponse.errors);
                 return;
             }
 

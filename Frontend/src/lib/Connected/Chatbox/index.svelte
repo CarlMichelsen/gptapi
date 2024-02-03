@@ -9,6 +9,7 @@
     import InputField from "../InputField.svelte";
     import { applicationStore } from "../../../store/applicationStore";
     import type { Message } from "../../../types/dto/message";
+    import type { SendMessageRequest } from "../../../types/dto/sendMessageRequest";
 
     let ready: boolean = true;
     let activeMessage: Message;
@@ -16,12 +17,18 @@
 
     const sendMessage = (message: string, branchFromMessageId: string|null = null) => {
         if ($applicationStore.state !== "logged-in") return;
-        const responseToMessageId = branchFromMessageId ?? $applicationStore.selectedConversation?.messages.slice(-1)[0]?.id ?? null;
-
         chunks = [];
         activeMessage = { ...activeMessage, content: "" };
         ready = false;
-        ConnectionMethods.sendMessage(message, responseToMessageId, $applicationStore.selectedConversation?.id ?? null);
+
+        const sendMessageRequest: SendMessageRequest = {
+            temporaryUserMessageId: "Hello",
+            messageContent: message,
+            conversationId: $applicationStore.selectedConversation?.id ?? null,
+            previousMessageId: branchFromMessageId,
+        };
+
+        ConnectionMethods.sendMessage(sendMessageRequest);
     }
 
     onMount(() => {

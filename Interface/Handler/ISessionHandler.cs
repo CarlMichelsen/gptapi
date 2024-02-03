@@ -6,5 +6,5 @@ namespace Interface.Handler;
 
 public interface ISessionHandler
 {
-    Task<Result<UserDto, HttpStatusCode>> GetUserData();
+    Task<DeprecatedResult<UserDto, HttpStatusCode>> GetUserData();
 }

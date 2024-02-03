@@ -1,5 +1,6 @@
 export type SendMessageRequest = {
-    conversationId: string | null;
+    temporaryUserMessageId: string;
     messageContent: string;
+    conversationId: string | null;
     previousMessageId: string | null;
 }
