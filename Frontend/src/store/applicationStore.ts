@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 import type { ApplicationStore } from '../types/store/applicationStore';
 import { deleteCookie, getUserData } from '../clients/userDataClient';
-import { getConversation, getConversationOptions, deleteConversation as deleteConversationClientFunction } from '../clients/conversationClient';
+import { getConversation, getConversationList, deleteConversation as deleteConversationClientFunction } from '../clients/conversationClient';
 import type { ConversationMetadata, ConversationType } from '../types/dto/conversation';
 import { getQueryParams, setQueryParam } from '../util/queryParameters';
 import type { Message } from '../types/dto/message';
@@ -15,9 +15,12 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
     const login = async () => {
         const oauthUser = await getUserData();
         if (oauthUser) {
-            const conversations = await getConversationOptions();
-            store.update((value) => ({ ...value, user: oauthUser, conversations, state: "logged-in" } as ApplicationStore));
-            
+            const conversationListResponse = await getConversationList();
+            if (!conversationListResponse.ok) {
+                return;
+            }
+
+            store.update((value) => ({ ...value, user: oauthUser, conversations: conversationListResponse.data, state: "logged-in" } as ApplicationStore));
             const queryConversationId = getQueryParams()[conversationQueryParameterName] ?? null;
             if (queryConversationId) selectConversation(queryConversationId);
         }
@@ -47,8 +50,8 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
             const conv: ConversationMetadata = {
                 id: conversationId,
                 summary: null,
-                created: new Date(),
-                lastAppended: new Date(),
+                createdUtc: new Date(),
+                lastAppendedUtc: new Date(),
             }
 
             value.conversations = [ conv, ...(value.conversations ?? []) ];

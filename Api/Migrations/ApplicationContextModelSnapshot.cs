@@ -28,24 +28,22 @@ namespace Api.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("Created")
+                    b.Property<DateTime>("CreatedUtc")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("LastAppended")
+                    b.Property<DateTime>("LastAppendedUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Summary")
                         .HasColumnType("text");
 
-                    b.Property<bool>("UserDeleted")
+                    b.Property<bool>("UserArchived")
                         .HasColumnType("boolean");
 
                     b.Property<Guid>("UserProfileId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserProfileId");
 
                     b.ToTable("Conversation", "GptApi");
                 });
@@ -55,17 +53,16 @@ namespace Api.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("Complete")
-                        .HasColumnType("boolean");
+                    b.Property<DateTime?>("CompletedUtc")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Content")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<Guid?>("ConversationId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("Created")
+                    b.Property<DateTime>("CreatedUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("PreviousMessageId")
@@ -87,27 +84,6 @@ namespace Api.Migrations
                     b.HasIndex("PreviousMessageId");
 
                     b.ToTable("Message", "GptApi");
-                });
-
-            modelBuilder.Entity("Domain.Entity.UserProfile", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("UserProfile", "GptApi");
-                });
-
-            modelBuilder.Entity("Domain.Entity.Conversation", b =>
-                {
-                    b.HasOne("Domain.Entity.UserProfile", "UserProfile")
-                        .WithMany()
-                        .HasForeignKey("UserProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("UserProfile");
                 });
 
             modelBuilder.Entity("Domain.Entity.Message", b =>

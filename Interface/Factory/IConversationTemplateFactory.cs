@@ -6,7 +6,7 @@ namespace Interface.Factory;
 public interface IConversationTemplateFactory
 {
     Task<Conversation> CreateConversation(
-        UserProfileId userProfileId,
+        Guid userProfileId,
         ConversationId conversationId,
         Message message);
     

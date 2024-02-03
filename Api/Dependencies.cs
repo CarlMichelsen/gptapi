@@ -14,6 +14,7 @@ using Interface.Factory;
 using Interface.Handler;
 using Interface.Provider;
 using Interface.Service;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api;
@@ -63,7 +64,7 @@ public static class Dependencies
         // Pipelines
         builder.Services
             .RegisterPipelineStages()
-            .AddSingleton<SendMessagePipelineSingleton>();
+            .AddTransient<SendMessagePipeline>();
 
         // Handlers
         builder.Services
@@ -72,14 +73,20 @@ public static class Dependencies
 
         // Factories
         builder.Services
+            .AddTransient<IScopedServiceFactory, ScopedServiceFactory>()
             .AddTransient<IConversationTemplateFactory, ConversationTemplateFactory>();
         
         // Access Control
-        builder.Services.AddAuthentication();
-        builder.Services.AddScoped<AccessControlMiddleware>();
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = GptApiConstants.SessionAuthenticationScheme;
+            options.DefaultChallengeScheme = GptApiConstants.SessionAuthenticationScheme;
+        })
+        .AddScheme<AuthenticationSchemeOptions, SessionAuthenticationHandler>(GptApiConstants.SessionAuthenticationScheme, options => { });
+        
         builder.Services.AddAuthorization(options =>
         {
-            options.AddPolicy(GptApiConstants.RequireSessionAuthorize, policy =>
+            options.AddPolicy(GptApiConstants.SessionAuthenticationScheme, policy =>
             {
                 policy.RequireAuthenticatedUser();
                 policy.RequireClaim(ClaimsConstants.UserProfileId);

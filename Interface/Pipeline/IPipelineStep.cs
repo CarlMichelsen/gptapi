@@ -1,6 +1,10 @@
-﻿namespace Interface.Pipeline;
+﻿using Domain.Abstractions;
+
+namespace Interface.Pipeline;
 
 public interface IPipelineStep<T>
 {
-    Task<T> Process(T input, CancellationToken cancellationToken);
+    Task<Result<T>> Execute(
+        T context,
+        CancellationToken cancellationToken);
 }

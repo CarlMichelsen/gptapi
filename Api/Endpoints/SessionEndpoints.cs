@@ -13,7 +13,7 @@ public static class SessionEndpoints
 
         sessionGroup.MapPost(
             "/UserData",
-            [Authorize(Policy = GptApiConstants.RequireSessionAuthorize)]
+            [Authorize(Policy = GptApiConstants.SessionAuthenticationScheme)]
             async ([FromServices] ISessionHandler sessionHandler) =>
         {
             var userDataResult = await sessionHandler.GetUserData();

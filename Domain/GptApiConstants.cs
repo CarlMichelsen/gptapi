@@ -11,5 +11,5 @@ public static class GptApiConstants
 
     public const string GithubAPIHttpClient = "githubAPIHttpClient";
 
-    public const string RequireSessionAuthorize = "RequireSession";
+    public const string SessionAuthenticationScheme = "RequireSessionScheme";
 }

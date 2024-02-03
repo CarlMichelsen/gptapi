@@ -1,7 +1,6 @@
 using Api;
 using Api.Endpoints;
 using Api.Extensions;
-using Api.Security;
 using BusinessLogic.Hub;
 using Domain;
 using Microsoft.AspNetCore.SignalR;
@@ -39,8 +38,6 @@ else
 }
 
 app.UseRouting();
-
-app.UseMiddleware<AccessControlMiddleware>();
 
 app.UseAuthentication();
 

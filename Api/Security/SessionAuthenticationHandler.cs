@@ -1,34 +1,38 @@
 ﻿using System.Security.Claims;
+using System.Text.Encodings.Web;
 using Domain;
 using Domain.Dto.Session;
 using Interface.Service;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Options;
 
 namespace Api.Security;
 
-public class AccessControlMiddleware : IMiddleware
+public class SessionAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
     private readonly ISessionService sessionService;
 
-    public AccessControlMiddleware(
-        ISessionService sessionService)
+    public SessionAuthenticationHandler(
+        ISessionService sessionService,
+        IOptionsMonitor<AuthenticationSchemeOptions> options,
+        ILoggerFactory logger,
+        UrlEncoder encoder)
+        : base(options, logger, encoder)
     {
         this.sessionService = sessionService;
     }
 
-    public async Task InvokeAsync(
-        HttpContext context,
-        RequestDelegate next)
+    protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         var sessionData = await this.sessionService.GetSessionData();
         if (sessionData is not null)
         {
-            context.User = this.CreateClaimsPrincipal(sessionData);
-            await next(context);
+            var claimsPrincipal = this.CreateClaimsPrincipal(sessionData);
+            var ticket = new AuthenticationTicket(claimsPrincipal, GptApiConstants.SessionAuthenticationScheme);
+            return AuthenticateResult.Success(ticket);
         }
-        else
-        {
-            context.Response.StatusCode = 403;
-        }
+        
+        return AuthenticateResult.NoResult();
     }
 
     private ClaimsPrincipal CreateClaimsPrincipal(
