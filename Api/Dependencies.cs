@@ -14,6 +14,7 @@ using Interface.Factory;
 using Interface.Handler;
 using Interface.Provider;
 using Interface.Service;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api;
@@ -76,11 +77,15 @@ public static class Dependencies
             .AddTransient<IConversationTemplateFactory, ConversationTemplateFactory>();
         
         // Access Control
-        builder.Services.AddAuthentication();
-        builder.Services.AddScoped<AccessControlMiddleware>();
+        builder.Services.AddAuthentication(options => {
+            options.DefaultAuthenticateScheme = GptApiConstants.SessionAuthenticationScheme;
+            options.DefaultChallengeScheme = GptApiConstants.SessionAuthenticationScheme;
+        })
+        .AddScheme<SessionAuthenticationOptions, SessionAuthenticationHandler>(GptApiConstants.SessionAuthenticationScheme, options => { });
+        
         builder.Services.AddAuthorization(options =>
         {
-            options.AddPolicy(GptApiConstants.RequireSessionAuthorize, policy =>
+            options.AddPolicy(GptApiConstants.SessionAuthenticationScheme, policy =>
             {
                 policy.RequireAuthenticatedUser();
                 policy.RequireClaim(ClaimsConstants.UserProfileId);
