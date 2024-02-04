@@ -5,6 +5,7 @@ import { getConversation, getConversationList, deleteConversation as deleteConve
 import type { ConversationMetadata, ConversationType } from '../types/dto/conversation';
 import { getQueryParams, setQueryParam } from '../util/queryParameters';
 import type { Message } from '../types/dto/message';
+import type { UpdateMessageId } from '../types/dto/updateMessageId';
 
 // Function to create a custom store
 const createApplicationStore = (initialValue: ApplicationStore) => {
@@ -35,7 +36,10 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
     const selectConversation = async (conversationId: string | null) => {
         let conv: ConversationType | null = null;
         if (conversationId) {
-            conv = await getConversation(conversationId);
+            const response = await getConversation(conversationId);
+            if (response.ok) {
+                conv = response.data;
+            }
         }
         
         store.update((value)  => {
@@ -60,6 +64,20 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
         });
 
         await selectConversation(conversationId);
+    }
+
+    const updateMessageId = (updateMessageId: UpdateMessageId) => {
+        store.update((value) => {
+            if (value.state  !== "logged-in") return value;
+            if (updateMessageId.conversationId !== value.selectedConversation?.id) return value;
+            
+            const msg = value.selectedConversation.messages.find(m => m.id === updateMessageId.temporaryUserMessageId);
+            if (msg) {
+                msg.id = updateMessageId.replacementUserMessageId;
+            }
+
+            return value;
+        });
     }
 
     const deleteConversation = async (conversationId: string) => {
@@ -110,6 +128,7 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
         login,
         logout,
         selectConversation,
+        updateMessageId,
         addNewConversation,
         deleteConversation,
         updateConversationSummary,

@@ -6,23 +6,17 @@ namespace BusinessLogic.Factory;
 
 public class ScopedServiceFactory : IScopedServiceFactory
 {
-    private readonly IServiceProvider serviceProvider;
+    private readonly IServiceScope scope;
 
     public ScopedServiceFactory(
         IServiceProvider serviceProvider)
     {
-        this.serviceProvider = serviceProvider;
+        this.scope = serviceProvider.CreateScope();
     }
 
     public Result<T> CreateScopedService<T>()
     {
-        return this.CreateServiceInNewScope<T>();
-    }
-
-    private Result<T> CreateServiceInNewScope<T>()
-    {
-        var scope = this.serviceProvider.CreateScope();
-        var serviceObj = scope.ServiceProvider.GetService(typeof(T));
+        var serviceObj = this.scope.ServiceProvider.GetService(typeof(T));
         if (serviceObj is null)
         {
             return new Error("ScopedServiceFactory.ServiceNotFound");

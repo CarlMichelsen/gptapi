@@ -51,6 +51,7 @@ public class InitiateNewMessageStep : IPipelineStep<SendMessagePipelineContext>
             CompletedUtc = DateTime.UtcNow,
         };
         context.Conversation!.Messages.Add(userMessage);
+        context.UserMessage = userMessage;
         await this.applicationContext.SaveChangesAsync();
 
         var assistantMessage = new Domain.Entity.Message

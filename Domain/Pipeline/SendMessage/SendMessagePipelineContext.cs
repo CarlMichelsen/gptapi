@@ -15,6 +15,8 @@ public class SendMessagePipelineContext
 
     public Conversation? Conversation { get; set; }
 
+    public Message? UserMessage { get; set; }
+
     public Message? AssistantMessage { get; set; }
 
     public List<MessageChunkDto> MessageChunkDtos { get; set; } = new();

@@ -43,7 +43,7 @@ public class CompleteGptResponseMessageStep : IPipelineStep<SendMessagePipelineC
         context.Conversation!.Messages.Add(context.AssistantMessage!);
 
         await client.ReceiveMessage(
-            ConversationMapperDeprecated.Map(context.AssistantMessage!));
+            ConversationMapper.Map(context.AssistantMessage!));
 
         await this.applicationContext.SaveChangesAsync();
         return context;

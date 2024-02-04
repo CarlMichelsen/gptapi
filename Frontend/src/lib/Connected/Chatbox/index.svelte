@@ -46,6 +46,10 @@
 
         ConnectionMethods.receiveFirstMessage = async (firstMessage) =>
             applicationStore.addNewConversation(firstMessage.conversationId);
+        
+        ConnectionMethods.updateMessageId = async (updateMessageId: any) => {
+            console.log("updateMessageId", updateMessageId);
+        };
     });
 
     onDestroy(() => {

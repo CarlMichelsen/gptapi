@@ -3,6 +3,7 @@ import type { MessageChunk } from "./types/dto/messageChunk";
 import type { Message } from "./types/dto/message";
 import type { FirstMessage } from "./types/dto/firstMessage";
 import type { SendMessageRequest } from "./types/dto/sendMessageRequest";
+import type { UpdateMessageId } from "./types/dto/updateMessageId";
 
 type ConnectionMethod = (...args: any[]) => any;
 
@@ -11,6 +12,11 @@ export class ConnectionMethods {
 
     public static sendMessage(request: SendMessageRequest) {
         this.connection.invoke("SendMessage", request);
+    }
+    // UpdateMessageId(UpdateMessageIdDto updateMessageId);
+    public static updateMessageId(method: ((updateMessageId: UpdateMessageId) => void) | null)
+    {
+        this.registerMethod("updateMessageId", method);
     }
 
     public static set disconnect(method: (() => void) | null) {

@@ -29,7 +29,7 @@ export const getConversationList = async () : Promise<ServiceResponse<Conversati
     }
 }
 
-export const getConversation = async (conversationId: string) : Promise<ConversationType|null> => {
+export const getConversation = async (conversationId: string) : Promise<ServiceResponse<ConversationType>> => {
     const endpoint = `${baseUrl()}/api/v1/conversation/${conversationId}`;
     try {
         const response = await fetch(endpoint, {
@@ -45,14 +45,18 @@ export const getConversation = async (conversationId: string) : Promise<Conversa
             throw new Error(`Error: ${response.status}`);
         }
 
-        return await response.json() as ConversationType;
+        return await response.json() as ServiceResponse<ConversationType>;
     } catch (error) {
         console.error(error);
-        return null;
+        return {
+            ok: false,
+            data: null,
+            errors: ["An error occured"]
+        };
     }
 }
 
-export const deleteConversation = async (conversationId: string) : Promise<boolean> => {
+export const deleteConversation = async (conversationId: string) : Promise<ServiceResponse<boolean>> => {
     const endpoint = `${baseUrl()}/api/v1/conversation/${conversationId}`;
     try {
         const response = await fetch(endpoint, {
@@ -68,9 +72,13 @@ export const deleteConversation = async (conversationId: string) : Promise<boole
             throw new Error(`Error: ${response.status}`);
         }
 
-        return true;
+        return await response.json() as ServiceResponse<boolean>;
     } catch (error) {
         console.error(error);
-        return false;
+        return {
+            ok: false,
+            data: null,
+            errors: ["An error occured"]
+        };
     }
 }

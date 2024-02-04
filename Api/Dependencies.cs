@@ -3,6 +3,7 @@ using Api.Security;
 using BusinessLogic.Client;
 using BusinessLogic.Factory;
 using BusinessLogic.Handler;
+using BusinessLogic.Map;
 using BusinessLogic.Pipeline.SendMessage;
 using BusinessLogic.Provider;
 using BusinessLogic.Service;
@@ -12,6 +13,7 @@ using Domain.Configuration;
 using Interface.Client;
 using Interface.Factory;
 using Interface.Handler;
+using Interface.Map;
 using Interface.Provider;
 using Interface.Service;
 using Microsoft.AspNetCore.Authentication;
@@ -48,8 +50,8 @@ public static class Dependencies
             .AddTransient<IGptChatClient, GptChatClient>()
             .AddTransient<IConversationService, ConversationService>()
             .AddTransient<IGptApiKeyProvider, GptApiKeyProvider>()
-            .AddTransient<ICacheService, CacheService>()
-            .AddTransient<ISessionService, SessionService>();
+            .AddScoped<ICacheService, CacheService>()
+            .AddScoped<ISessionService, SessionService>();
 
         builder.Services.AddSignalR();
 
@@ -65,6 +67,10 @@ public static class Dependencies
         builder.Services
             .RegisterPipelineStages()
             .AddTransient<SendMessagePipeline>();
+        
+        // Advanced Mappers
+        builder.Services
+            .AddScoped<IConversationMapper, ConversationMapper>();
 
         // Handlers
         builder.Services
@@ -73,7 +79,7 @@ public static class Dependencies
 
         // Factories
         builder.Services
-            .AddTransient<IScopedServiceFactory, ScopedServiceFactory>()
+            .AddScoped<IScopedServiceFactory, ScopedServiceFactory>()
             .AddTransient<IConversationTemplateFactory, ConversationTemplateFactory>();
         
         // Access Control

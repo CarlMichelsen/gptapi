@@ -1,7 +1,6 @@
 ﻿namespace Domain.Dto;
 
 public class ServiceResponse<T>
-    where T : new()
 {
     public ServiceResponse(T data)
     {
