@@ -1,7 +1,9 @@
 ﻿using BusinessLogic.Hub;
+using BusinessLogic.Map;
 using Database;
 using Domain.Abstractions;
 using Domain.Dto.Conversation;
+using Domain.Entity.Id;
 using Domain.Pipeline.SendMessage;
 using Interface.Hub;
 using Interface.Pipeline;
@@ -43,33 +45,32 @@ public class InitiateNewMessageStep : IPipelineStep<SendMessagePipelineContext>
 
         var userMessage = new Domain.Entity.Message
         {
-            Id = new Domain.Entity.Id.MessageId(Guid.NewGuid()),
+            Id = new MessageId(Guid.NewGuid()),
             PreviousMessage = prevMsg,
             Role = Domain.Entity.Role.User,
-            Content = context.UserMessageData.MessageContent,
+            Content = context.MessageContent,
             CreatedUtc = DateTime.UtcNow,
             CompletedUtc = DateTime.UtcNow,
         };
         context.Conversation!.Messages.Add(userMessage);
-        context.UserMessage = userMessage;
         await this.applicationContext.SaveChangesAsync();
+
+        var rsvMsgDto = new ReceiveMessageDto
+        {
+            ConversationId = context.Conversation.Id.Value,
+            Message = ConversationMapper.Map(userMessage),
+        };
+        await client.ReceiveMessage(rsvMsgDto);
 
         var assistantMessage = new Domain.Entity.Message
         {
-            Id = new Domain.Entity.Id.MessageId(Guid.NewGuid()),
+            Id = new MessageId(Guid.NewGuid()),
             PreviousMessage = userMessage,
             Role = Domain.Entity.Role.Assistant,
             Content = default,
             CreatedUtc = DateTime.UtcNow,
         };
         context.AssistantMessage = assistantMessage;
-        
-        var updateMessageId = new UpdateMessageIdDto(
-            context.UserMessageData.TemporaryUserMessageId,
-            userMessage.Id.Value,
-            assistantMessage.Id.Value,
-            context.Conversation!.Id.Value);
-        await client.UpdateMessageId(updateMessageId);
         
         return context;
     }

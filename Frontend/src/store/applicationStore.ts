@@ -5,7 +5,7 @@ import { getConversation, getConversationList, deleteConversation as deleteConve
 import type { ConversationMetadata, ConversationType } from '../types/dto/conversation';
 import { getQueryParams, setQueryParam } from '../util/queryParameters';
 import type { Message } from '../types/dto/message';
-import type { UpdateMessageId } from '../types/dto/updateMessageId';
+import type { ReceiveMessage } from '../types/dto/ReceiveMessage';
 
 // Function to create a custom store
 const createApplicationStore = (initialValue: ApplicationStore) => {
@@ -24,7 +24,7 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
 
             store.update((value) => ({ ...value, user: oauthUser, conversations: conversationListResponse.data, state: "logged-in" } as ApplicationStore));
             const queryConversationId = getQueryParams()[conversationQueryParameterName] ?? null;
-            if (queryConversationId) selectConversation(queryConversationId);
+            selectConversation(queryConversationId);
         }
     }
 
@@ -47,37 +47,6 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
             return { ...value, selectedConversation: conv } as ApplicationStore;
         });
         setQueryParam(conversationQueryParameterName, conv?.id);
-    }
-
-    const addNewConversation = async (conversationId: string) => {
-        store.update((value) => {
-            if (value.state  !== "logged-in") return value;
-            const conv: ConversationMetadata = {
-                id: conversationId,
-                summary: null,
-                createdUtc: new Date(),
-                lastAppendedUtc: new Date(),
-            }
-
-            value.conversations = [ conv, ...(value.conversations ?? []) ];
-            return value;
-        });
-
-        await selectConversation(conversationId);
-    }
-
-    const updateMessageId = (updateMessageId: UpdateMessageId) => {
-        store.update((value) => {
-            if (value.state  !== "logged-in") return value;
-            if (updateMessageId.conversationId !== value.selectedConversation?.id) return value;
-            
-            const msg = value.selectedConversation.messages.find(m => m.id === updateMessageId.temporaryUserMessageId);
-            if (msg) {
-                msg.id = updateMessageId.replacementUserMessageId;
-            }
-
-            return value;
-        });
     }
 
     const deleteConversation = async (conversationId: string) => {
@@ -113,12 +82,61 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
         });
     }
 
-    const receieveMessage = (message: Message) => {
+    const receieveMessage = async (receiveMessageObj: ReceiveMessage) => {
         store.update((value) => {
             if (value.state == "logged-out") return value;
             if (!value.selectedConversation) return value;
+            if (receiveMessageObj.conversationId !== value.selectedConversation?.id)
+            {
+                const conv: ConversationMetadata = {
+                    id: receiveMessageObj.conversationId,
+                    summary: null,
+                    createdUtc: new Date(),
+                    lastAppendedUtc: new Date(),
+                }
+                value.conversations = [ conv, ...(value.conversations ?? []) ];
+                selectConversation(receiveMessageObj.conversationId);
+                return value;
+            }
+            
+            const prevMsgCon = receiveMessageObj.message.previousMessageId
+                ? value.selectedConversation.messages.find(msgCon => !!msgCon.messageOptions.get(receiveMessageObj.message.previousMessageId!)) ?? null
+                : null;
+            
+            if (prevMsgCon == null) {
+                const map = new Map<string, Message>();
+                map.set(receiveMessageObj.message.id, receiveMessageObj.message);
 
-            value.selectedConversation.messages.push(message);
+                const currentMsgCon = {
+                    index: 0,
+                    messageOptions: map,
+                    selectedMessage: receiveMessageObj.message.id,
+                };
+                value.selectedConversation.messages.push(currentMsgCon);
+            } else {
+                const exsisting = value.selectedConversation.messages.find(msgCon => msgCon.index === prevMsgCon.index+1)
+                if (exsisting)
+                {
+                    const currentMsgCon = exsisting;
+                    currentMsgCon.messageOptions.set(receiveMessageObj.message.id, receiveMessageObj.message);
+                    currentMsgCon.selectedMessage = receiveMessageObj.message.id;
+
+                    console.log("A message was edited, hurray!", receiveMessageObj.message.content);
+                } else {
+                    const map = new Map<string, Message>();
+                    map.set(receiveMessageObj.message.id, receiveMessageObj.message);
+
+                    const currentMsgCon = {
+                        index: prevMsgCon.index + 1,
+                        messageOptions: map,
+                        selectedMessage: receiveMessageObj.message.id,
+                    }
+                    value.selectedConversation.messages.push(currentMsgCon);
+                }
+            }
+
+
+
             return { ...value };
         });
     }
@@ -128,8 +146,6 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
         login,
         logout,
         selectConversation,
-        updateMessageId,
-        addNewConversation,
         deleteConversation,
         updateConversationSummary,
         receieveMessage

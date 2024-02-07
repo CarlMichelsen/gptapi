@@ -29,6 +29,7 @@ public class ConversationMapper : IConversationMapper
     {
         return new MessageDto(
             message.Id.Value,
+            message.PreviousMessage?.Id.Value,
             Map(message.Role),
             message.Content ?? throw new MapException("Message content null when mapping message"),
             message.CompletedUtc,
@@ -54,7 +55,7 @@ public class ConversationMapper : IConversationMapper
         List<MessageContainer> messageContainers)
     {
         var msgDto = Map(message);
-        var messageContainer = messageContainers[index];
+        var messageContainer = messageContainers.ElementAtOrDefault(index);
         if (messageContainer is null)
         {
             messageContainer = new MessageContainer
@@ -63,6 +64,7 @@ public class ConversationMapper : IConversationMapper
                 MessageOptions = new Dictionary<Guid, MessageDto>(),
                 SelectedMessage = msgDto.Id,
             };
+            messageContainers.Add(messageContainer);
         }
 
         if (!messageContainer!.MessageOptions.TryAdd(msgDto.Id, msgDto))
@@ -72,13 +74,19 @@ public class ConversationMapper : IConversationMapper
 
         var nextMessages = allMessages
             .Where(m => m.PreviousMessage is not null)
-            .Where(m => m.PreviousMessage!.Id == message.Id);
-        
+            .Where(m => m.PreviousMessage!.Id == message.Id)
+            .ToList();
+
+        if (nextMessages.Count == 0)
+        {
+            return;
+        }
+
         foreach (var nextMessage in nextMessages)
         {
             AssignMessageToContainerRecursive(
                 index + 1,
-                message,
+                nextMessage,
                 allMessages,
                 messageContainers);
         }

@@ -22,7 +22,6 @@
         ready = false;
 
         const sendMessageRequest: SendMessageRequest = {
-            temporaryUserMessageId: "Hello",
             messageContent: message,
             conversationId: $applicationStore.selectedConversation?.id ?? null,
             previousMessageId: branchFromMessageId,
@@ -37,25 +36,17 @@
             activeMessage = { ...activeMessage, content: chunks.map(c => c.content).join("") };
         };
 
-        ConnectionMethods.receiveMessage = (message) => {
+        ConnectionMethods.receiveMessage = (receieveMessageObj) => {
             chunks = [];
             activeMessage = { ...activeMessage, content: "" };
             ready = true;
-            applicationStore.receieveMessage(message);
-        };
-
-        ConnectionMethods.receiveFirstMessage = async (firstMessage) =>
-            applicationStore.addNewConversation(firstMessage.conversationId);
-        
-        ConnectionMethods.updateMessageId = async (updateMessageId: any) => {
-            console.log("updateMessageId", updateMessageId);
+            applicationStore.receieveMessage(receieveMessageObj);
         };
     });
 
     onDestroy(() => {
         ConnectionMethods.receiveMessageChunk = null;
         ConnectionMethods.receiveMessage = null;
-        ConnectionMethods.receiveFirstMessage = null;
     });
 </script>
 

@@ -2,10 +2,10 @@
     import { marked, Renderer, type MarkedOptions } from "marked";
     import type { Message } from "../../types/dto/message";
     import { loadLanguage } from "../../util/syntaxHighlight";
-    export let message: Message;
+    export let message: Message | undefined;
 
     let content: string = "";
-    $: content = processContent(message);
+    $: content = !!message ? processContent(message) : "---------";
 
     const removeUnsafeTags = (unsafe: string): string => {
         return unsafe.replace(/&/g, "&amp;")
@@ -40,9 +40,15 @@
     }
 </script>
 
+{#if message == null}
+<div>
+    <p>Null message</p>
+</div>
+{:else}
 <div class="rounded-sm px-2 pb-2 outline-1">
     <p class="text-sm text-gray-400">{message.role}</p>
     <div class="overflow-x-scroll">
         {@html content}
     </div>
 </div>
+{/if}

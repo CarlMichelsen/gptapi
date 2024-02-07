@@ -14,7 +14,7 @@ public class Message
 
     public required Role Role { get; init; }
 
-    public required string? Content { get; set; }
+    public required string Content { get; set; }
 
     public required DateTime CreatedUtc { get; init; }
 

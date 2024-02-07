@@ -60,10 +60,6 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
             this.logger.LogError("Unable to create SendMessagePipeline");
         }
 
-        var userMessageData = new UserMessageData(
-            sendMessageRequest.TemporaryUserMessageId,
-            sendMessageRequest.MessageContent);
-        
         ConversationAppendData? conversationAppendData = default;
         if (IsDefined(sendMessageRequest?.PreviousMessageId) && IsDefined(sendMessageRequest?.ConversationId))
         {
@@ -76,7 +72,7 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
         {
             ConnectionId = this.Context.ConnectionId,
             UserProfileId = this.InitialSessionData.UserProfileId,
-            UserMessageData = userMessageData,
+            MessageContent = sendMessageRequest!.MessageContent,
             ConversationAppendData = conversationAppendData,
         };
 

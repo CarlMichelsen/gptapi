@@ -1,6 +1,6 @@
 import type { Message } from "./message";
 
-export type FirstMessage = {
+export type ReceiveMessage = {
     conversationId: string;
     message: Message;
 };

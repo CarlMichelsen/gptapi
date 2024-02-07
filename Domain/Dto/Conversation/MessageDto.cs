@@ -2,6 +2,7 @@
 
 public record MessageDto(
     Guid Id,
+    Guid? PreviousMessageId,
     string Role,
     string Content,
     DateTime? CompletedUtc,

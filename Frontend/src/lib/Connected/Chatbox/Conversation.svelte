@@ -7,21 +7,22 @@
 
     export let activeMessage: Message = {
         id: "streaming-message",
+        previousMessageId: null,
         role: "assistant",
         content: "",
         complete: false,
         created: new Date(),
     };
 
-    const messageContainer = "message-container-id";
+    const messageContainerId = "message-container-id";
 
     const scrollToBottom = (input?: HTMLDivElement | null) => {
-        const container = (input ?? document.getElementById(messageContainer) ?? null) as HTMLDivElement | null;
+        const container = (input ?? document.getElementById(messageContainerId) ?? null) as HTMLDivElement | null;
         if (container) container.scrollTop = container.scrollHeight;
     }
 
     const onMessageChanged = (..._: any[]) => {
-        const containerCandidate = document.getElementById(messageContainer);
+        const containerCandidate = document.getElementById(messageContainerId);
         if (containerCandidate) {
             const container = containerCandidate as HTMLDivElement;
             const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
@@ -35,13 +36,13 @@
 </script>
 
 {#if $applicationStore.state === "logged-in"}
-<ConversationContainer className="overflow-y-auto mx-auto" id={messageContainer}>
+<ConversationContainer className="overflow-y-auto mx-auto" id={messageContainerId}>
     <div class="container">
         {#if $applicationStore.selectedConversation}
                 <ol class="space-y-2 p-1">
-                    {#each $applicationStore.selectedConversation.messages as message}
+                    {#each $applicationStore.selectedConversation.messages as messageContainer}
                     <li>
-                        <ChatMessage {message} />
+                        <ChatMessage message={messageContainer.messageOptions?.get(messageContainer.selectedMessage) ?? []} />
                     </li>
                     {/each}
 

@@ -1,9 +1,7 @@
 import type { HubConnection } from "@microsoft/signalr";
 import type { MessageChunk } from "./types/dto/messageChunk";
-import type { Message } from "./types/dto/message";
-import type { FirstMessage } from "./types/dto/firstMessage";
+import type { ReceiveMessage } from "./types/dto/ReceiveMessage";
 import type { SendMessageRequest } from "./types/dto/sendMessageRequest";
-import type { UpdateMessageId } from "./types/dto/updateMessageId";
 
 type ConnectionMethod = (...args: any[]) => any;
 
@@ -12,11 +10,6 @@ export class ConnectionMethods {
 
     public static sendMessage(request: SendMessageRequest) {
         this.connection.invoke("SendMessage", request);
-    }
-    // UpdateMessageId(UpdateMessageIdDto updateMessageId);
-    public static updateMessageId(method: ((updateMessageId: UpdateMessageId) => void) | null)
-    {
-        this.registerMethod("updateMessageId", method);
     }
 
     public static set disconnect(method: (() => void) | null) {
@@ -27,12 +20,8 @@ export class ConnectionMethods {
         this.registerMethod("receiveMessageChunk", method);
     }
     
-    public static set receiveMessage(method: ((message: Message) => any) | null) {
+    public static set receiveMessage(method: ((message: ReceiveMessage) => any) | null) {
         this.registerMethod("receiveMessage", method);
-    }
-
-    public static set receiveFirstMessage(method: ((firstMessage: FirstMessage) => any) | null) {
-        this.registerMethod("receiveFirstMessage", method);
     }
 
     public static set assignSummaryToConversation(method: ((conversationId: string, summary: string) => any) | null) {
