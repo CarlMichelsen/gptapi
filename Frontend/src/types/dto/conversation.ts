@@ -3,7 +3,13 @@ import type { Message } from "./message";
 export type ConversationType = {
     id: string | null;
     summary: string | null;
-    messages: Message[];
+    messages: MessageContainer[];
+};
+
+export type MessageContainer = {
+    index: number;
+    messageOptions: { [key: string]: Message };
+    selectedMessage: string;
 };
 
 export type ConversationMetadata = {

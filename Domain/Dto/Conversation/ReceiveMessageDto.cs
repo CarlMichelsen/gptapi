@@ -1,6 +1,6 @@
 ﻿namespace Domain.Dto.Conversation;
 
-public class FirstMessageDto
+public class ReceiveMessageDto
 {
     public required Guid ConversationId { get; init; }
     

@@ -2,9 +2,8 @@
     import { onMount, onDestroy } from "svelte";
     import { chatHubStore } from "../store/chatHubStore";
     import { baseUrl } from "../baseurl";
-    import Connected from "./Connected/index.svelte";
     import { applicationStore } from "../store/applicationStore";
-    import Spinner from "./Spinner.svelte";
+    import MainStructure from "./MainStructure.svelte";
 
     let ready = false;
 
@@ -18,11 +17,9 @@
 
 <div>
     {#if !ready}
-        <div>
-            <Spinner className="mt-32 mx-auto" />
-        </div>
+        <div></div>
     {:else if $chatHubStore.connection}
-        <Connected />
+        <MainStructure />
     {:else}
         <p>not connected</p>
     {/if}

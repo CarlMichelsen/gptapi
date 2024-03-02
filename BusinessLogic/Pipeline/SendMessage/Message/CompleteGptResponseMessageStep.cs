@@ -4,8 +4,6 @@ using BusinessLogic.Map;
 using Database;
 using Domain.Abstractions;
 using Domain.Dto.Conversation;
-using Domain.Entity;
-using Domain.Exception;
 using Domain.Pipeline.SendMessage;
 using Interface.Hub;
 using Interface.Pipeline;
@@ -42,8 +40,12 @@ public class CompleteGptResponseMessageStep : IPipelineStep<SendMessagePipelineC
         context.AssistantMessage!.CompletedUtc = DateTime.UtcNow;
         context.Conversation!.Messages.Add(context.AssistantMessage!);
 
-        await client.ReceiveMessage(
-            ConversationMapperDeprecated.Map(context.AssistantMessage!));
+        var rsvMsgDto = new ReceiveMessageDto
+        {
+            ConversationId = context.Conversation.Id.Value,
+            Message = ConversationMapper.Map(context.AssistantMessage!),
+        };
+        await client.ReceiveMessage(rsvMsgDto);
 
         await this.applicationContext.SaveChangesAsync();
         return context;

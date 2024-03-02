@@ -1,18 +1,19 @@
 ﻿namespace Domain;
 
-public class Result<TValue, TError>
+[Obsolete("This result type should not be used")]
+public class DeprecatedResult<TValue, TError>
 {
     private readonly TValue? value;
     private readonly TError? error;
 
-    private Result(TValue value)
+    private DeprecatedResult(TValue value)
     {
         this.IsError = false;
         this.value = value;
         this.error = default;
     }
 
-    private Result(TError error)
+    private DeprecatedResult(TError error)
     {
         this.IsError = true;
         this.value = default;
@@ -23,9 +24,9 @@ public class Result<TValue, TError>
     
     public bool IsSuccess => !this.IsError;
 
-    public static implicit operator Result<TValue, TError>(TValue value) => new(value);
+    public static implicit operator DeprecatedResult<TValue, TError>(TValue value) => new(value);
 
-    public static implicit operator Result<TValue, TError>(TError error) => new(error);
+    public static implicit operator DeprecatedResult<TValue, TError>(TError error) => new(error);
 
     public TResult Match<TResult>(
         Func<TValue, TResult> success,

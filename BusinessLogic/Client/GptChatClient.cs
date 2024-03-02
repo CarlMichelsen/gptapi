@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using BusinessLogic.Json;
+using Domain.Abstractions;
 using Domain.Gpt;
 using Interface.Client;
 using Interface.Provider;
@@ -27,14 +28,14 @@ public class GptChatClient : IGptChatClient
         this.gptApiKeyProvider = gptApiKeyProvider;
     }
 
-    public async Task<GptChatResponse?> Prompt(GptChatPrompt prompt, CancellationToken cancellationToken)
+    public async Task<Result<GptChatResponse>> Prompt(GptChatPrompt prompt, CancellationToken cancellationToken)
     {
         this.logger.LogInformation("{clientName} was prompted", nameof(GptChatClient));
         var key = await this.gptApiKeyProvider.ReserveAKey();
         if (key is null)
         {
             this.logger.LogWarning("No apikey was available");
-            return default;
+            return new Error("Prompt.ApiKey", "No apikey was available");
         }
 
         try
@@ -46,21 +47,22 @@ public class GptChatClient : IGptChatClient
             when (e.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
             this.logger.LogCritical("Request to OpenAi with apikey was not authorized {e}", e);
+            return new Error("Prompt.Unauthorized", e.Message);
         }
         catch (HttpRequestException e)
         {
             this.logger.LogWarning("Request to OpenAi with apikey failed {e}", e);
+            return new Error("Prompt.HttpRequestException", "Internal HTTP related error");
         }
         catch (Exception e)
         {
             this.logger.LogCritical("Request to OpenAi with apikey failed because of a critical error {e}", e);
+            return new Error("Prompt.Exception", "Internal Server Error");
         }
         finally
         {
             await this.gptApiKeyProvider.CancelKeyReservation(key);
         }
-
-        return default;
     }
 
     public async IAsyncEnumerable<GptChatStreamChunk> StreamPrompt(

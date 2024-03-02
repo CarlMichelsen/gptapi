@@ -1,6 +1,6 @@
 ﻿using Domain.Exception;
 
-namespace Domain;
+namespace Domain.Abstractions;
 
 public abstract class TypedGuid<T>
     where T : TypedGuid<T>

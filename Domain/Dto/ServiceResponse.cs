@@ -1,7 +1,6 @@
 ﻿namespace Domain.Dto;
 
 public class ServiceResponse<T>
-    where T : new()
 {
     public ServiceResponse(T data)
     {
@@ -17,5 +16,5 @@ public class ServiceResponse<T>
 
     public T? Data { get; init; }
 
-    public List<string>? Errors { get; init; }
+    public List<string> Errors { get; init; } = new();
 }

@@ -1,28 +1,31 @@
 import { writable } from 'svelte/store';
 import type { ApplicationStore } from '../types/store/applicationStore';
 import { deleteCookie, getUserData } from '../clients/userDataClient';
-import { getConversation, getConversationList, deleteConversation as deleteConversationClientFunction } from '../clients/conversationClient';
 import type { ConversationMetadata, ConversationType } from '../types/dto/conversation';
 import { getQueryParams, setQueryParam } from '../util/queryParameters';
 import type { Message } from '../types/dto/message';
+import type { ReceiveMessage } from '../types/dto/ReceiveMessage';
+import { ConversationClient } from '../clients/conversationClient';
 
 // Function to create a custom store
 const createApplicationStore = (initialValue: ApplicationStore) => {
     // Create writable
     const store = writable<ApplicationStore>(initialValue);
     const conversationQueryParameterName = "c";
+    const conversationClient = new ConversationClient();
 
     const login = async () => {
         const oauthUser = await getUserData();
         if (oauthUser) {
-            const conversationListResponse = await getConversationList();
+            const conversationListResponse = await conversationClient.getConversationList();
             if (!conversationListResponse.ok) {
+                console.error("conversationListResponse not ok", ...conversationListResponse.errors);
                 return;
             }
 
             store.update((value) => ({ ...value, user: oauthUser, conversations: conversationListResponse.data, state: "logged-in" } as ApplicationStore));
             const queryConversationId = getQueryParams()[conversationQueryParameterName] ?? null;
-            if (queryConversationId) selectConversation(queryConversationId);
+            selectConversation(queryConversationId);
         }
     }
 
@@ -34,7 +37,10 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
     const selectConversation = async (conversationId: string | null) => {
         let conv: ConversationType | null = null;
         if (conversationId) {
-            conv = await getConversation(conversationId);
+            const response = await conversationClient.getConversation(conversationId);
+            if (response.ok) {
+                conv = response.data;
+            }
         }
         
         store.update((value)  => {
@@ -44,25 +50,8 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
         setQueryParam(conversationQueryParameterName, conv?.id);
     }
 
-    const addNewConversation = async (conversationId: string) => {
-        store.update((value) => {
-            if (value.state  !== "logged-in") return value;
-            const conv: ConversationMetadata = {
-                id: conversationId,
-                summary: null,
-                createdUtc: new Date(),
-                lastAppendedUtc: new Date(),
-            }
-
-            value.conversations = [ conv, ...(value.conversations ?? []) ];
-            return value;
-        });
-
-        await selectConversation(conversationId);
-    }
-
     const deleteConversation = async (conversationId: string) => {
-        const deleted = await deleteConversationClientFunction(conversationId);
+        const deleted = await conversationClient.deleteConversation(conversationId);
         if (!deleted) return;
 
         store.update((value) => {
@@ -94,12 +83,59 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
         });
     }
 
-    const receieveMessage = (message: Message) => {
+    const receieveMessage = async (receiveMessageObj: ReceiveMessage) => {
         store.update((value) => {
             if (value.state == "logged-out") return value;
             if (!value.selectedConversation) return value;
+            if (receiveMessageObj.conversationId !== value.selectedConversation?.id && receiveMessageObj.conversationId != null)
+            {
+                const conv: ConversationMetadata = {
+                    id: receiveMessageObj.conversationId,
+                    summary: null,
+                    createdUtc: new Date(),
+                    lastAppendedUtc: new Date(),
+                }
+                value.conversations = [ conv, ...(value.conversations ?? []) ];
+                selectConversation(receiveMessageObj.conversationId);
+                return value;
+            }
+            
+            const prevMsgCon = receiveMessageObj.message.previousMessageId
+                ? value.selectedConversation.messages.find(msgCon => !!msgCon.messageOptions[receiveMessageObj.message.previousMessageId!]) ?? null
+                : null;
+            
+            if (prevMsgCon == null) {
+                const map: { [key: string]: Message } = {};
+                map[receiveMessageObj.message.id] = receiveMessageObj.message;
 
-            value.selectedConversation.messages.push(message);
+                const currentMsgCon = {
+                    index: 0,
+                    messageOptions: map,
+                    selectedMessage: receiveMessageObj.message.id,
+                };
+                value.selectedConversation.messages.push(currentMsgCon);
+            } else {
+                const exsisting = value.selectedConversation.messages.find(msgCon => msgCon.index === prevMsgCon.index+1)
+                if (exsisting)
+                {
+                    const currentMsgCon = exsisting;
+                    currentMsgCon.messageOptions[receiveMessageObj.message.id] = receiveMessageObj.message;
+                    currentMsgCon.selectedMessage = receiveMessageObj.message.id;
+
+                    console.log("A message was edited, hurray!", receiveMessageObj.message.content);
+                } else {
+                    const map: { [key: string]: Message } = {};
+                    map[receiveMessageObj.message.id] = receiveMessageObj.message;
+
+                    const currentMsgCon = {
+                        index: prevMsgCon.index + 1,
+                        messageOptions: map,
+                        selectedMessage: receiveMessageObj.message.id,
+                    }
+                    value.selectedConversation.messages.push(currentMsgCon);
+                }
+            }
+
             return { ...value };
         });
     }
@@ -109,7 +145,6 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
         login,
         logout,
         selectConversation,
-        addNewConversation,
         deleteConversation,
         updateConversationSummary,
         receieveMessage

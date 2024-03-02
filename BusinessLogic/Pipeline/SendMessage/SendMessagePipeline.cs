@@ -12,13 +12,11 @@ public sealed class SendMessagePipeline : Pipeline<SendMessagePipelineContext>
 
     public SendMessagePipeline(
         ILogger<SendMessagePipeline> logger,
-        ValidateContextStep validateContextStep,
         IdentifyConversationStep identifyConversationStep,
         InitiateNewMessageStep initiateNewMessage,
         StreamGptResponseStep streamGptResponseStep,
         CompleteGptResponseMessageStep completeGptResponseMessageStep)
         : base(
-            validateContextStep,
             identifyConversationStep,
             initiateNewMessage,
             streamGptResponseStep,
@@ -32,9 +30,7 @@ public sealed class SendMessagePipeline : Pipeline<SendMessagePipelineContext>
         CancellationToken cancellationToken)
     {
         this.dateTime = DateTime.UtcNow;
-        this.logger.LogInformation(
-            "Starting <SendMessagePipeline> execution for message with tempId: ({tempId})",
-            context.UserMessageData.TemporaryUserMessageId);
+        this.logger.LogInformation("Starting <SendMessagePipeline> execution for message");
     }
 
     protected override void PostPipelineExecution(
@@ -45,13 +41,11 @@ public sealed class SendMessagePipeline : Pipeline<SendMessagePipelineContext>
         {
             return;
         }
-
-        var context = result.Unwrap();
+        
         var timespan = DateTime.UtcNow - this.dateTime;
 
         this.logger.LogInformation(
-            "Completed <SendMessagePipeline> execution for message with tempId: ({tempId})\nExecution time: {ms} ms",
-            context.UserMessageData.TemporaryUserMessageId,
+            "Completed <SendMessagePipeline> execution for message\nExecution time: {ms} ms",
             timespan!.Value.Milliseconds);
     }
 }

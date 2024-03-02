@@ -1,5 +1,5 @@
 export type SendMessageRequest = {
-    conversationId: string | null;
     messageContent: string;
+    conversationId: string | null;
     previousMessageId: string | null;
 }

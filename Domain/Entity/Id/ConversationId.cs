@@ -1,4 +1,6 @@
-﻿namespace Domain.Entity.Id;
+﻿using Domain.Abstractions;
+
+namespace Domain.Entity.Id;
 
 public sealed class ConversationId : TypedGuid<ConversationId>
 {

@@ -4,11 +4,7 @@ namespace Interface.Hub;
 
 public interface IChatClient
 {
-    Task ReceiveMessage(MessageDto message);
-
-    Task UpdateMessageId(UpdateMessageIdDto updateMessageId);
-    
-    Task ReceiveFirstMessage(FirstMessageDto firstMessage);
+    Task ReceiveMessage(ReceiveMessageDto message);
     
     Task ReceiveMessageChunk(MessageChunkDto messageChunk);
 

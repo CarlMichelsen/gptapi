@@ -9,7 +9,7 @@ public class SendMessagePipelineContext
     
     public required Guid UserProfileId { get; set; }
 
-    public required UserMessageData UserMessageData { get; init; }
+    public required string MessageContent { get; init; }
 
     public required ConversationAppendData? ConversationAppendData { get; init; }
 

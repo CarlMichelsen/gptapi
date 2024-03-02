@@ -5,7 +5,7 @@ namespace Domain.Entity;
 public class Message
 {
     public required MessageId Id { get; set; }
-
+    
     public required Message? PreviousMessage { get; set; }
     
     public string? ResponseId { get; set; }
@@ -14,7 +14,7 @@ public class Message
 
     public required Role Role { get; init; }
 
-    public required string? Content { get; set; }
+    public required string Content { get; set; }
 
     public required DateTime CreatedUtc { get; init; }
 
