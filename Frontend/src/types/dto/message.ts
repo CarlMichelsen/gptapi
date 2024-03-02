@@ -6,5 +6,6 @@ export type Message = {
     role: Role;
     content: string;
     complete: boolean;
-    created: Date;
+    createdUtc: Date;
+    completedUtc: Date;
 }

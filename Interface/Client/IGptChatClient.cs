@@ -1,4 +1,5 @@
-﻿using Domain.Gpt;
+﻿using Domain.Abstractions;
+using Domain.Gpt;
 
 namespace Interface.Client;
 
@@ -8,7 +9,7 @@ public interface IGptChatClient
         GptChatPrompt prompt,
         CancellationToken cancellationToken);
     
-    Task<GptChatResponse?> Prompt(
+    Task<Result<GptChatResponse>> Prompt(
         GptChatPrompt prompt,
         CancellationToken cancellationToken);
 }

@@ -1,6 +1,6 @@
 import type { Message } from "./message";
 
 export type ReceiveMessage = {
-    conversationId: string;
+    conversationId: string | null;
     message: Message;
 };

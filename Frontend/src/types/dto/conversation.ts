@@ -8,7 +8,7 @@ export type ConversationType = {
 
 export type MessageContainer = {
     index: number;
-    messageOptions: Map<string, Message>;
+    messageOptions: { [key: string]: Message };
     selectedMessage: string;
 };
 
