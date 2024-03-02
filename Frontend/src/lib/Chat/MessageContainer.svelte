@@ -1,9 +1,11 @@
 <script lang="ts">
     import type { MessageContainer } from "../../types/dto/conversation";
     import type { Message } from "../../types/dto/message";
+    import { displayDate } from "../../util/dateParse";
     import MessageSelector from "./MessageSelector.svelte";
     import ChatContentHolder from "./ChatContentHolder.svelte";
     import AssistantResponseParser from "./AssistantResponseParser.svelte";
+    import MessageHeader from "./MessageHeader.svelte";
 
     export let messageContainer: MessageContainer;
     let msg: Message = messageContainer.messageOptions[messageContainer.selectedMessage] as Message;
@@ -12,12 +14,12 @@
 
 <ChatContentHolder>
     <div class="grid grid-cols-[1fr_80px]">
-        <p class="text-xs text-gray-300 my-auto">{messageContainer.index} - {msg.id}</p>
+        <MessageHeader index={messageContainer.index} messageId={msg.id} dateText={displayDate(msg.completedUtc)}/>
         <MessageSelector messageContainer={messageContainer} />
     </div>
     {#if msg.role === "assistant"}
         <AssistantResponseParser content={msg.content} />
     {:else}
-        <p>{msg.content}</p>
+        <pre class="font-sans">{msg.content}</pre>
     {/if}
 </ChatContentHolder>

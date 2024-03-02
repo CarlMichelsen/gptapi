@@ -23,13 +23,19 @@
 </script>
 
 <ChatContentHolder>
-    <div class="relative h-24 sm:h-36 w-full">
+    <div class="relative h-32 w-full">
         <textarea
-            class="resize-none h-full w-full -mb-1 focus:outline-none p-2 rounded-sm"
+            class="resize-none h-full w-full -mb-1 focus:outline-none p-2 rounded-sm bg-zinc-700"
+            on:keydown={(keyEvent) => {
+                if (!keyEvent.shiftKey && keyEvent.key === "Enter") {
+                    keyEvent.preventDefault();
+                    sendMessage();
+                }
+            }}
             bind:value={content} />
         
         <button 
-            class="absolute h-14 w-24 rounded-full rounded-br-none right-1 bottom-1 bg-red-400 hover:bg-green-400"
+            class="absolute h-10 w-20 rounded-md rounded-br-none right-1 bottom-1 hover:bg-red-800 bg-green-800"
             on:click={sendMessage}>Send</button>
     </div>
 </ChatContentHolder>

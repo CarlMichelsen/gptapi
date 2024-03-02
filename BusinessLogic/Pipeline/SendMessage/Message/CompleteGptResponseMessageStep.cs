@@ -36,7 +36,15 @@ public class CompleteGptResponseMessageStep : IPipelineStep<SendMessagePipelineC
                 "Unable to access signalR client");
         }
 
-        context.AssistantMessage!.Content = this.ResponseContent(context.MessageChunkDtos);
+        var content = this.ResponseContent(context.MessageChunkDtos);
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return new Error(
+                "CompleteGptResponseMessageStep.IncompleteMessage",
+                "Message content empty");
+        }
+
+        context.AssistantMessage!.Content = content;
         context.AssistantMessage!.CompletedUtc = DateTime.UtcNow;
         context.Conversation!.Messages.Add(context.AssistantMessage!);
 

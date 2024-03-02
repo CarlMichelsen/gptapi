@@ -1,5 +1,5 @@
 <script lang="ts"></script>
 
-<div class="border-r">
+<div class="bg-zinc-900">
     <slot />
 </div>

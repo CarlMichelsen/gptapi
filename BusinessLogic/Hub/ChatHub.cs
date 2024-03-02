@@ -36,11 +36,14 @@ public class ChatHub : ChatHubHandler
     {
         if (exception is null)
         {
+            this.logger.LogInformation(
+                "Client\t{id}\tdisconnected safely",
+                this.Context.ConnectionId);
         }
         else
         {
             this.logger.LogCritical(
-                "Client\t{id}\tdisconnected\t{exception}",
+                "Client\t{id}\tdisconnected unexpectedly\t{exception}",
                 this.Context.ConnectionId,
                 exception);
         }

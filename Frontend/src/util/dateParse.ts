@@ -8,7 +8,6 @@ export const forceDigitCount = (num: number, digitCount: number = 2): string => 
 }
 
 export const displayDate = (date: Date): string => {
-    console.log(date);
     const safeDate = new Date(date);
     return `${forceDigitCount(safeDate.getDay())}.${forceDigitCount(safeDate.getMonth())}.${safeDate.getFullYear()}`;
 }
