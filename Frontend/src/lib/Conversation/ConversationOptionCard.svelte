@@ -1,7 +1,6 @@
 <script lang="ts">
     import type { MouseEventHandler } from "svelte/elements";
     import type { ConversationMetadata } from "../../types/dto/conversation";
-    import { displayDate } from "../../util/dateParse";
 
     export let tabindex: number;
     export let conversationOption: ConversationMetadata;
@@ -11,14 +10,10 @@
 
 <div
     role="button"
-    class="grid grid-rows-[h-fit_1fr] bg-gray-500 hover:bg-gray-700 select-none"
+    class={`grid grid-rows-[h-fit_1fr] ${isSelected ? "bg-zinc-700" : ""} hover:bg-zinc-700 select-none p-1 mx-1 rounded-sm`}
     tabindex={tabindex}
     on:click={selected(conversationOption.id)}
     on:keypress={(keypress) => {if (keypress.key === " ") selected(conversationOption.id)}}>
 
     <h3>{conversationOption.summary}</h3>
-    <p class="text-sm">{displayDate(conversationOption.lastAppendedUtc)}</p>
-    {#if isSelected}
-        <p>SELECTED</p>
-    {/if}
 </div>

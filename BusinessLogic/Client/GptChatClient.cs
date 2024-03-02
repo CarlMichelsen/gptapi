@@ -51,7 +51,7 @@ public class GptChatClient : IGptChatClient
         }
         catch (HttpRequestException e)
         {
-            this.logger.LogWarning("Request to OpenAi with apikey failed {e}", e);
+            this.logger.LogCritical("Request to OpenAi with apikey failed {e}", e);
             return new Error("Prompt.HttpRequestException", "Internal HTTP related error");
         }
         catch (Exception e)

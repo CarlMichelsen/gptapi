@@ -5,6 +5,8 @@
     import InteractionOrchestrator from "../Interaction/InteractionOrchestrator.svelte";
     import ChatContentHolder from "./ChatContentHolder.svelte";
     import MessageContainer from "./MessageContainer.svelte";
+    import MessageHeader from "./MessageHeader.svelte";
+    import NoConversationSelected from "./NoConversationSelected.svelte";
 
     let streamedMessageContent: string | null = null;
 
@@ -24,16 +26,18 @@
         };
 
         ConnectionMethods.sendMessage(sendMessageRequest);
+        scrollToBottom();
     };
 
     ConnectionMethods.receiveMessage = (receieveMessage) => {
         streamedMessageContent = null;
         applicationStore.receieveMessage(receieveMessage);
-        scrollToBottom();
+        setTimeout(scrollToBottom, 0);
     }
 
     ConnectionMethods.receiveMessageChunk = (messageChunk) => {
         if (streamedMessageContent === null) {
+            applicationStore.selectConversation(messageChunk.conversationId);
             streamedMessageContent = messageChunk.content;
         } else {
             streamedMessageContent += messageChunk.content;
@@ -45,9 +49,10 @@
     setTimeout(scrollToBottom, 0);
 </script>
 
-{#if $applicationStore.state === "logged-in" && $applicationStore.selectedConversation !== null}
-<div class="grid grid-rows-[1fr_150px] h-screen">
+{#if $applicationStore.state === "logged-in"}
+<div class="grid grid-rows-[1fr_150px] sm:h-screen h-full">
     <div class="overflow-y-scroll pb-10" id="scrollable-chat-area-id">
+        {#if $applicationStore.selectedConversation !== null}
         <div>
             {#if $applicationStore.selectedConversation.summary !== null}
             <h1>{$applicationStore.selectedConversation.summary}</h1>
@@ -65,12 +70,16 @@
             {#if streamedMessageContent}
                 <li>
                     <ChatContentHolder>
+                        <MessageHeader index={Infinity} messageId="current message" dateText="now"/>
                         <p>{streamedMessageContent}</p>
                     </ChatContentHolder>
                 </li>
             {/if}
             </ol>
         </div>
+        {:else}
+        <NoConversationSelected />
+        {/if}
     </div>
 
     <InteractionOrchestrator reply={reply} />
