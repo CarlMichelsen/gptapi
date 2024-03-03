@@ -3,7 +3,7 @@
 
     const renderer = new marked.Renderer();
     renderer.code = (code: string, infostring: string | undefined, escaped: boolean): string => {
-        return `<pre class="my-2"><code${infostring ? ` class="language-${infostring}"` : ""}>${code}</code></pre>`;
+        return `<pre class="my-1 overflow-auto bg-black p-0.5"><code class="${infostring ? `language-${infostring}` : ''}">${code}</code></pre>`;
     }
 
     marked.use({

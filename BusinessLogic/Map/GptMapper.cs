@@ -16,7 +16,7 @@ public static class GptMapper
 
         return new GptChatPrompt
         {
-            Model = "gpt-4-1106-preview",
+            Model = "gpt-4",
             Messages = conversation.Messages.Select(Map).ToList(),
         };
     }

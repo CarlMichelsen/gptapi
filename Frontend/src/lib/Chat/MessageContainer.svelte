@@ -17,9 +17,11 @@
         <MessageHeader index={messageContainer.index} messageId={msg.id} dateText={displayDate(msg.completedUtc)}/>
         <MessageSelector messageContainer={messageContainer} />
     </div>
-    {#if msg.role === "assistant"}
-        <AssistantResponseParser content={msg.content} />
-    {:else}
-        <pre class="font-sans">{msg.content}</pre>
-    {/if}
+    <div class="p-1">
+        {#if msg.role === "assistant"}
+            <AssistantResponseParser content={msg.content} />
+        {:else}
+            <pre class="font-sans w-full overflow-auto">{msg.content}</pre>
+        {/if}
+    </div>
 </ChatContentHolder>

@@ -117,6 +117,9 @@ public class GptChatClient : IGptChatClient
     {
         prompt.Stream = isStream;
         var body = JsonSerializer.Serialize(prompt);
+
+        this.logger.LogCritical(body);
+
         var content = new StringContent(body, Encoding.UTF8, "application/json");
         using var request = new HttpRequestMessage(HttpMethod.Post, Uri)
         {

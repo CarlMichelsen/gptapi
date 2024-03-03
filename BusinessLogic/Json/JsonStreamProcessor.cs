@@ -16,6 +16,8 @@ public static class JsonStreamProcessor
         {
             var chunk = Encoding.UTF8.GetString(buffer, 0, bytesRead);
 
+            Console.WriteLine(chunk);
+
             var previousEscape = false;
             foreach (var ch in chunk)
             {
