@@ -1,3 +1,3 @@
-<div class="mx-auto p-1 w-[420px] sm:w-[380px] md:w-[520px] lg:w-[770px]">
+<div class="mx-auto w-[420px] sm:w-[380px] md:w-[500px] lg:w-[750px]">
     <slot />
 </div>

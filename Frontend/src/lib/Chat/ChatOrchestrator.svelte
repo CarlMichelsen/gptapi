@@ -3,6 +3,7 @@
     import { applicationStore } from "../../store/applicationStore";
     import type { SendMessageRequest } from "../../types/dto/sendMessageRequest";
     import InteractionOrchestrator from "../Interaction/InteractionOrchestrator.svelte";
+    import AssistantResponseParser from "./AssistantResponseParser.svelte";
     import ChatContentHolder from "./ChatContentHolder.svelte";
     import MessageContainer from "./MessageContainer.svelte";
     import MessageHeader from "./MessageHeader.svelte";
@@ -46,12 +47,12 @@
         scrollToBottom();
     }
 
-    setTimeout(scrollToBottom, 0);
+    $: $applicationStore.state === "logged-in" && $applicationStore.selectedConversation && setTimeout(scrollToBottom, 0);
 </script>
 
 {#if $applicationStore.state === "logged-in"}
 <div class="grid grid-rows-[1fr_150px] sm:h-screen h-full">
-    <div class="overflow-y-scroll pb-10" id="scrollable-chat-area-id">
+    <div class="overflow-y-scroll no-scrollbar pb-10" id="scrollable-chat-area-id">
         {#if $applicationStore.selectedConversation !== null}
         <div>
             {#if $applicationStore.selectedConversation.summary !== null}
@@ -71,7 +72,7 @@
                 <li>
                     <ChatContentHolder>
                         <MessageHeader index={Infinity} messageId="current message" dateText="now"/>
-                        <p>{streamedMessageContent}</p>
+                        <AssistantResponseParser content={streamedMessageContent} />
                     </ChatContentHolder>
                 </li>
             {/if}

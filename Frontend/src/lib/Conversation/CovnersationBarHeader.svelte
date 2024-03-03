@@ -10,8 +10,9 @@
 <div class="grid grid-cols-[100px_1fr] px-1 gap-1">
     <div>
         <picture>
-            <source srcset={$applicationStore.user.avatarUrl} media="(orientation: portrait)" class="rounded-md" />
-            <img src="https://placehold.co/100x100/000000/white.jpg" alt="noprofile" class="rounded-md" />
+            <source src={$applicationStore.user.avatarUrl} />
+            <source src="https://placehold.co/100x100/000000/white.jpg">
+            <img src="https://placehold.co/100x100/000000/white.jpg" alt="profile" class="rounded-md w-[100px] h-[100px]" />
         </picture>
     </div>
     
