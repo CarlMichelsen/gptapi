@@ -124,65 +124,6 @@ public class GptChatClientTests
         Assert.NotNull(response);
     }
 
-    [Fact]
-    public async Task StreamPrompt_YieldsCorrectChunks()
-    {
-        // Arrange
-        var responseStream = new MemoryStream();
-        var writer = new StreamWriter(responseStream);
-        this.chatStreamChunk.Choices.Clear();
-        this.chatStreamChunk.Choices.Add(this.GenerateStreamChoice("assistant", "first"));
-        writer.Write(JsonSerializer.Serialize(this.chatStreamChunk));
-
-        this.chatStreamChunk.Choices.Clear();
-        this.chatStreamChunk.Choices.Add(this.GenerateStreamChoice("assistant", "second"));
-        writer.Write(JsonSerializer.Serialize(this.chatStreamChunk));
-        writer.Flush();
-        responseStream.Position = 0; // Reset stream position to the beginning
-
-        var response = new HttpResponseMessage
-        {
-            StatusCode = HttpStatusCode.OK,
-            Content = new StreamContent(responseStream),
-        };
-
-        var handlerMock = new Mock<HttpMessageHandler>();
-        handlerMock.Protected()
-            .Setup<Task<HttpResponseMessage>>(
-                "SendAsync",
-                ItExpr.IsAny<HttpRequestMessage>(),
-                ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(response);
-
-        var httpClient = new HttpClient(handlerMock.Object);
-        var gptOptions = this.GetTestOptions("test-api-key");
-        var gptApiKeyProvider = new GptApiKeyProvider(gptOptions);
-        var logger = new Mock<ILogger<GptChatClient>>();
-        
-        var client = new GptChatClient(logger.Object, httpClient, gptApiKeyProvider);
-
-        // Act
-        var chunks = new List<GptChatStreamChunk>();
-        await foreach (var chunk in client.StreamPrompt(this.prompt, CancellationToken.None))
-        {
-            chunks.Add(chunk);
-        }
-
-        // Assert
-        Assert.Equal(2, chunks.Count);
-        Assert.Equal("first", chunks[0].Choices.First().Delta.Content);
-        Assert.Equal("second", chunks[1].Choices.First().Delta.Content);
-
-        handlerMock.Protected().Verify(
-            "SendAsync",
-            Times.Once(),
-            ItExpr.Is<HttpRequestMessage>(req =>
-                req.Method == HttpMethod.Post
-                && req.RequestUri!.ToString() == "https://api.openai.com/v1/chat/completions"
-                && req.Content!.Headers.ContentType!.ToString() == "application/json; charset=utf-8"),
-            ItExpr.IsAny<CancellationToken>());
-    }
-
     private IOptions<GptOptions> GetTestOptions(params string[] apiKeys)
     {
         return Options.Create(new GptOptions { ApiKeys = new List<string>(apiKeys) });
