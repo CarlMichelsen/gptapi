@@ -1,82 +1,37 @@
 ﻿using System.Text;
+using System.Text.Json;
 
 namespace BusinessLogic.Json;
 
 public static class JsonStreamProcessor
 {
-    public static async IAsyncEnumerable<string> ReadJsonObjectsAsync(Stream stream, int bufferSize = 256)
+    public const string LineStartDelimeter = "data: ";
+    public const string DoneText = "[DONE]";
+
+    public static async IAsyncEnumerable<string> ReadJsonObjectsAsync(Stream stream)
     {
-        var buffer = new byte[bufferSize];
-        var jsonBuilder = new StringBuilder();
-        int openBraces = 0;
-        int quoteCounter = 0;
-        int bytesRead;
-
-        while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+        using StreamReader sr = new StreamReader(stream, Encoding.UTF8);
+        
+        while (!sr.EndOfStream)
         {
-            var chunk = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-
-            Console.WriteLine(chunk);
-
-            var previousEscape = false;
-            foreach (var ch in chunk)
+            var line = await sr.ReadLineAsync();
+            if (line?.StartsWith(LineStartDelimeter) != true)
             {
-                if (openBraces > 0 && IsQuote(ch, previousEscape))
-                {
-                    quoteCounter++;
-                }
-
-                var inQuotes = quoteCounter % 2 == 1;
-                var braceDiff = CountCurlyBrackets(ch, inQuotes);
-                if (braceDiff == -1 && openBraces == 0)
-                {
-                    continue;
-                }
-
-                openBraces += braceDiff;
-
-                if (braceDiff == 1 && openBraces == 1)
-                {
-                    jsonBuilder.Clear();
-                    jsonBuilder.Append(ch);
-                }
-                else if (braceDiff == -1 && openBraces == 0)
-                {
-                    jsonBuilder.Append(ch);
-                    yield return jsonBuilder.ToString();
-                }
-                else if (openBraces > 0)
-                {
-                    jsonBuilder.Append(ch);
-                    previousEscape = ch == '\\';
-                }
+                continue;
             }
+
+            var str = line?.Split("data: ").Skip(1).FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(str))
+            {
+                continue;
+            }
+
+            if (str == DoneText)
+            {
+                break;
+            }
+
+            yield return str;
         }
-    }
-
-    private static bool IsQuote(char character, bool previousEscape)
-    {
-        // This is naive because i dont want to count escaped quotes and the escape character may not be part of this chunk...
-        return character == '"' && !previousEscape;
-    }
-
-    private static int CountCurlyBrackets(char character, bool inQuotes)
-    {
-        if (inQuotes)
-        {
-            return 0;
-        }
-
-        if (character == '}')
-        {
-            return -1;
-        }
-
-        if (character == '{')
-        {
-            return 1;
-        }
-
-        return 0;
     }
 }

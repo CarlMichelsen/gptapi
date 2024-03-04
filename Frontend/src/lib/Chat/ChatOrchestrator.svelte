@@ -61,7 +61,7 @@
         </div>
 
         <div>
-            <ol class="space-y-1">
+            <ol class="space-y-10">
             {#each $applicationStore.selectedConversation.messages as messageContainer}
                 <li>
                     <MessageContainer messageContainer={messageContainer} />
@@ -71,7 +71,7 @@
             {#if streamedMessageContent}
                 <li>
                     <ChatContentHolder>
-                        <MessageHeader index={Infinity} messageId="current message" dateText="now"/>
+                        <MessageHeader index={-1} messageId="ongoing..." role={"assistant"}/>
                         <AssistantResponseParser content={streamedMessageContent} />
                     </ChatContentHolder>
                 </li>
