@@ -6,6 +6,10 @@
         return `<pre class="my-1 overflow-auto bg-black p-0.5"><code class="${infostring ? `language-${infostring}` : ''}">${code}</code></pre>`;
     }
 
+    renderer.paragraph = (text: string): string => {
+        return `<p class="my-2">${text}</p>`;
+    }
+
     marked.use({
         renderer: renderer
     });

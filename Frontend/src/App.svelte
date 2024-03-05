@@ -7,9 +7,13 @@
 </script>
 
 <main>
-	{#if $applicationStore.state === "logged-in"}
-  		<Authenticated />
+	{#if $applicationStore.ready}
+		{#if $applicationStore.state === "logged-in"}
+			<Authenticated />
+		{:else}
+			<LandingZone />
+		{/if}
 	{:else}
-		<LandingZone />
+		<div></div>
 	{/if}
 </main>

@@ -47,6 +47,8 @@
         scrollToBottom();
     }
 
+    ConnectionMethods.assignSummaryToConversation = (convId: string, summary: string) => applicationStore.updateConversationSummary(convId, summary);
+
     $: $applicationStore.state === "logged-in" && $applicationStore.selectedConversation && setTimeout(scrollToBottom, 0);
 </script>
 
@@ -56,21 +58,21 @@
         {#if $applicationStore.selectedConversation !== null}
         <div>
             {#if $applicationStore.selectedConversation.summary !== null}
-            <h1>{$applicationStore.selectedConversation.summary}</h1>
+                <ChatContentHolder isMessage={false}>
+                    <h1 class="text-center mb-6 text-xl font-thin text-zinc-400">{$applicationStore.selectedConversation.summary}</h1>
+                </ChatContentHolder>
             {/if}
         </div>
 
         <div>
-            <ol class="space-y-10">
+            <ol class="space-y-4">
             {#each $applicationStore.selectedConversation.messages as messageContainer}
-                <li>
-                    <MessageContainer messageContainer={messageContainer} />
-                </li>
+                <MessageContainer messageContainer={messageContainer} />
             {/each}
 
             {#if streamedMessageContent}
                 <li>
-                    <ChatContentHolder>
+                    <ChatContentHolder isMessage={true}>
                         <MessageHeader index={-1} messageId="ongoing..." role={"assistant"}/>
                         <AssistantResponseParser content={streamedMessageContent} />
                     </ChatContentHolder>

@@ -1,27 +1,16 @@
 <script lang="ts">
-    import type { MouseEventHandler } from "svelte/elements";
-    import type { ConversationMetadata } from "../../types/dto/conversation";
-    import ConversationOptionCard from "../Conversation/ConversationOptionCard.svelte";
-    import { applicationStore } from "../../store/applicationStore";
+    import ConversationOptionChunkHolder from "./ConversationOptionChunkHolder.svelte";
+    import type { ConversationOptionDateChunk } from "../../types/dto/conversationOption";
 
-    export let conversationOptionList: ConversationMetadata[]
-
-    const selected = (id: string): MouseEventHandler<HTMLDivElement> | null | undefined => {
-        applicationStore.selectConversation(id);
-        return null;
-    }
+    export let conversationOptionList: ConversationOptionDateChunk[]
 </script>
 
-{#if $applicationStore.state === "logged-in"}
-<ol class="space-y-1">
-{#each conversationOptionList as conversationOption, index}
-    <li>
-        <ConversationOptionCard
-            conversationOption={conversationOption}
-            selected={selected}
-            isSelected={$applicationStore.selectedConversation?.id === conversationOption.id}
-            tabindex={index} />
-    </li>
-{/each}
-</ol>
-{/if}
+<div>
+    <ol class="space-y-4 overflow-y-scroll no-scrollbar h-full">
+    {#each conversationOptionList as conversationOptionDateChunk}
+        <li>
+            <ConversationOptionChunkHolder conversationOptionDateChunk={conversationOptionDateChunk} />
+        </li>
+    {/each}
+    </ol>
+</div>

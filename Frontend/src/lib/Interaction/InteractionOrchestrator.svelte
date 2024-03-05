@@ -22,8 +22,8 @@
     }
 </script>
 
-<ChatContentHolder>
-    <div class="relative h-32 w-full">
+<ChatContentHolder isMessage={false}>
+    <div class="relative h-36 w-full">
         <textarea
             class="resize-none h-full w-full -mb-1 focus:outline-none p-2 rounded-sm bg-zinc-700"
             on:keydown={(keyEvent) => {

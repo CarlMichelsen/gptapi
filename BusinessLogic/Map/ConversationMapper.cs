@@ -8,10 +8,10 @@ namespace BusinessLogic.Map;
 
 public class ConversationMapper : IConversationMapper
 {
-    public static ConversationMetaDataDto MapToMetaDataDto(
+    public static ConversationOptionDto MapToMetaDataDto(
         Conversation conversation)
     {
-        return new ConversationMetaDataDto(
+        return new ConversationOptionDto(
             conversation.Id.Value,
             conversation.Summary ?? "New conversation",
             conversation.LastAppendedUtc,
@@ -33,7 +33,44 @@ public class ConversationMapper : IConversationMapper
             Map(message.Role),
             message.Content ?? throw new MapException("Message content null when mapping message"),
             message.CompletedUtc,
-            message.CreatedUtc);
+            message.CreatedUtc,
+            message.Visible);
+    }
+
+    public static List<ConversationDateChunkDto> Map(List<ConversationOptionDto> options)
+    {
+        return options.GroupBy(o =>
+            {
+                var totalDays = (DateTime.UtcNow - o.LastAppendedUtc).TotalDays;
+                if (totalDays < 1)
+                {
+                    return "Today";
+                }
+                else if (totalDays < 2)
+                {
+                    return "Yesterday";
+                }
+                else if (totalDays < 7)
+                {
+                    return "This week";
+                }
+                else if(totalDays < 30)
+                {
+                    return "This month";
+                }
+                else if(totalDays < 365)
+                {
+                    return "This year";
+                }
+
+                return "Older than a year";
+            })
+            .Select(g =>
+            {
+                return new ConversationDateChunkDto(g.Key, g.OrderByDescending(ord => ord.LastAppendedUtc).ToList());
+            })
+            .OrderByDescending(dc => dc.Options.First().LastAppendedUtc)
+            .ToList();
     }
 
     public Task<Result<ConversationDto>> MapConversation(

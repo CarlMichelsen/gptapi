@@ -1,15 +1,18 @@
-import type { ConversationMetadata, ConversationType } from "../dto/conversation"
+import type { ConversationDto } from "../dto/conversation"
+import type { ConversationOptionDateChunk } from "../dto/conversationOption"
 import type { OAuthUser } from "../dto/oAuthUser"
 
 export type LoggedOutApplicationStore = {
-    state: "logged-out"
+    ready: boolean;
+    state: "logged-out";
 }
 
 export type LoggedInApplicationStore = {
-    state: "logged-in"
-    user: OAuthUser
-    selectedConversation: ConversationType | null;
-    conversations: ConversationMetadata[] | null;
+    ready: true;
+    state: "logged-in";
+    user: OAuthUser;
+    selectedConversation: ConversationDto | null;
+    conversationChunks: ConversationOptionDateChunk[] | null;
 }
 
 export type ApplicationStore = LoggedOutApplicationStore | LoggedInApplicationStore;

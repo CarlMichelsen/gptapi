@@ -32,6 +32,7 @@ public class GptChatClient : IGptChatClient
     {
         this.logger.LogInformation("{clientName} was prompted", nameof(GptChatClient));
         var key = await this.gptApiKeyProvider.ReserveAKey();
+        
         if (key is null)
         {
             this.logger.LogWarning("No apikey was available");
@@ -98,6 +99,7 @@ public class GptChatClient : IGptChatClient
 
         if (httpRes is null)
         {
+            await this.gptApiKeyProvider.CancelKeyReservation(key);
             yield break;
         }
 

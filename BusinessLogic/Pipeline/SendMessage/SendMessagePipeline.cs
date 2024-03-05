@@ -15,12 +15,14 @@ public sealed class SendMessagePipeline : Pipeline<SendMessagePipelineContext>
         IdentifyConversationStep identifyConversationStep,
         InitiateNewMessageStep initiateNewMessage,
         StreamGptResponseStep streamGptResponseStep,
-        CompleteGptResponseMessageStep completeGptResponseMessageStep)
+        CompleteGptResponseMessageStep completeGptResponseMessageStep,
+        EnsureConversationSummaryStep ensureConversationSummaryStep)
         : base(
             identifyConversationStep,
             initiateNewMessage,
             streamGptResponseStep,
-            completeGptResponseMessageStep)
+            completeGptResponseMessageStep,
+            ensureConversationSummaryStep)
     {
         this.logger = logger;
     }

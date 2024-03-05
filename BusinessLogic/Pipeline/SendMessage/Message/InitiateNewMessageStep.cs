@@ -46,13 +46,15 @@ public class InitiateNewMessageStep : IPipelineStep<SendMessagePipelineContext>
         var userMessage = new Domain.Entity.Message
         {
             Id = new MessageId(Guid.NewGuid()),
-            PreviousMessage = prevMsg,
+            PreviousMessage = prevMsg ?? context.Conversation!.Messages.FirstOrDefault(),
             Role = Domain.Entity.Role.User,
             Content = context.MessageContent,
             CreatedUtc = DateTime.UtcNow,
             CompletedUtc = DateTime.UtcNow,
+            Visible = true,
         };
         context.Conversation!.Messages.Add(userMessage);
+        context.Conversation.LastAppendedUtc = DateTime.UtcNow;
         await this.applicationContext.SaveChangesAsync();
 
         var rsvMsgDto = new ReceiveMessageDto
@@ -67,8 +69,9 @@ public class InitiateNewMessageStep : IPipelineStep<SendMessagePipelineContext>
             Id = new MessageId(Guid.NewGuid()),
             PreviousMessage = userMessage,
             Role = Domain.Entity.Role.Assistant,
-            Content = default,
+            Content = string.Empty,
             CreatedUtc = DateTime.UtcNow,
+            Visible = true,
         };
         context.AssistantMessage = assistantMessage;
         

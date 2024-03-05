@@ -96,7 +96,7 @@ public class ConversationService : IConversationService
         }
     }
 
-    public async Task<Result<List<ConversationMetaDataDto>>> GetConversationList(
+    public async Task<Result<List<ConversationDateChunkDto>>> GetConversationList(
         Guid userProfileId)
     {
         try
@@ -104,10 +104,12 @@ public class ConversationService : IConversationService
             var convs = await this.applicationContext.Conversation
                 .Where(c => c.UserProfileId == userProfileId && !c.UserArchived)
                 .ToListAsync();
-
-            return convs
+            
+            var conversationOptions = convs
                 .Select(ConversationMapper.MapToMetaDataDto)
                 .ToList();
+
+            return ConversationMapper.Map(conversationOptions);
         }
         catch (Exception e)
         {
