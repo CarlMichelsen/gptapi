@@ -55,6 +55,8 @@ public class CompleteGptResponseMessageStep : IPipelineStep<SendMessagePipelineC
         };
         await client.ReceiveMessage(rsvMsgDto);
 
+        context.Conversation.LastAppendedUtc = DateTime.UtcNow;
+
         await this.applicationContext.SaveChangesAsync();
         return context;
     }

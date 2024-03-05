@@ -8,4 +8,5 @@ export type Message = {
     complete: boolean;
     createdUtc: Date;
     completedUtc: Date;
+    visible: boolean;
 }

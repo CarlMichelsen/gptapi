@@ -6,4 +6,5 @@ public record MessageDto(
     string Role,
     string Content,
     DateTime? CompletedUtc,
-    DateTime CreatedUtc);
+    DateTime CreatedUtc,
+    bool Visible);

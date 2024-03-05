@@ -1,6 +1,6 @@
 ﻿namespace Domain.Dto.Conversation;
 
-public record ConversationMetaDataDto(
+public record ConversationOptionDto(
     Guid Id,
     string? Summary,
     DateTime LastAppendedUtc,

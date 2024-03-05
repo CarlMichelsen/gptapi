@@ -7,7 +7,7 @@ namespace Interface.Service;
 
 public interface IConversationService
 {
-    Task<Result<List<ConversationMetaDataDto>>> GetConversationList(
+    Task<Result<List<ConversationDateChunkDto>>> GetConversationList(
         Guid userProfileId);
     
     Task<Result<Conversation>> GetConversation(

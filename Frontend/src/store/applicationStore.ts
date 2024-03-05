@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 import type { ApplicationStore } from '../types/store/applicationStore';
 import { deleteCookie, getUserData } from '../clients/userDataClient';
-import type { ConversationMetadata, ConversationType } from '../types/dto/conversation';
+import type { ConversationDto } from '../types/dto/conversation';
 import { getQueryParams, setQueryParam } from '../util/queryParameters';
 import type { Message } from '../types/dto/message';
 import type { ReceiveMessage } from '../types/dto/ReceiveMessage';
@@ -23,19 +23,21 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
                 return;
             }
 
-            store.update((value) => ({ ...value, user: oauthUser, conversations: conversationListResponse.data, state: "logged-in" } as ApplicationStore));
+            store.update((value) => ({ ...value, user: oauthUser, conversationChunks: conversationListResponse.data, state: "logged-in", ready: true } as ApplicationStore));
             const queryConversationId = getQueryParams()[conversationQueryParameterName] ?? null;
             selectConversation(queryConversationId);
+        } else {
+            store.update((value) => ({ ...value, ready: true } as ApplicationStore));
         }
     }
 
     const logout = async () => {
         await deleteCookie();
-        store.set({ state: "logged-out" });
+        store.set({ state: "logged-out", ready: true });
     }
 
     const selectConversation = async (conversationId: string | null) => {
-        let conv: ConversationType | null = null;
+        let conv: ConversationDto | null = null;
         if (conversationId) {
             const response = await conversationClient.getConversation(conversationId);
             if (response.ok) {
@@ -56,10 +58,13 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
 
         store.update((value) => {
             if (value.state !== "logged-in") return value;
-            const conversationListId = value.conversations?.findIndex(c => c.id === conversationId) ?? -1;
-
-            if (conversationListId === -1) return value;
-            value.conversations!.splice(conversationListId, 1);
+            
+            const dateChunk = value.conversationChunks?.find(dc => !!dc.options.find(c => c.id === conversationId)) ?? null;
+            if (!dateChunk) return value;
+            
+            const idx = dateChunk.options.findIndex(c => c.id === conversationId);
+            if (idx === -1) return value;
+            dateChunk.options.splice(idx, 1);
 
             let res = { ...value };
             if (conversationId === value.selectedConversation?.id) {
@@ -74,7 +79,7 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
     const updateConversationSummary = (conversationId: string, summary: string) => {
         store.update((value) => {
             if (value.state !== "logged-in") return value;
-            const convMetadata = value.conversations?.find(o => o.id === conversationId) ?? null;
+            const convMetadata = value.conversationChunks?.map(o => o.options).flat().find(o => o.id === conversationId) ?? null;
             if (convMetadata !== null) {
                 convMetadata.summary = summary;
                 return { ...value };
@@ -87,18 +92,6 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
         store.update((value) => {
             if (value.state == "logged-out") return value;
             if (!value.selectedConversation) return value;
-            if (receiveMessageObj.conversationId !== value.selectedConversation?.id && receiveMessageObj.conversationId != null)
-            {
-                const conv: ConversationMetadata = {
-                    id: receiveMessageObj.conversationId,
-                    summary: null,
-                    createdUtc: new Date(),
-                    lastAppendedUtc: new Date(),
-                }
-                value.conversations = [ conv, ...(value.conversations ?? []) ];
-                selectConversation(receiveMessageObj.conversationId);
-                return value;
-            }
             
             const prevMsgCon = receiveMessageObj.message.previousMessageId
                 ? value.selectedConversation.messages.find(msgCon => !!msgCon.messageOptions[receiveMessageObj.message.previousMessageId!]) ?? null
@@ -153,6 +146,7 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
 
 // Initial state
 const initialState: ApplicationStore = {
+    ready: false,
     state: "logged-out",
 };
 

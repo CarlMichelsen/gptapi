@@ -10,14 +10,18 @@
     $: msg = messageContainer.messageOptions[messageContainer.selectedMessage] as Message;
 </script>
 
-<ChatContentHolder>
-    <MessageHeader index={messageContainer.index} messageId={msg.id} role={msg.role}/>
+{#if msg.visible}
+<li>
+    <ChatContentHolder isMessage={true}>
+        <MessageHeader index={messageContainer.index} messageId={msg.id} role={msg.role}/>
 
-    <div>
-        {#if msg.role === "assistant"}
-            <AssistantResponseParser content={msg.content} />
-        {:else}
-            <pre class="font-sans w-full overflow-auto whitespace-break-spaces">{msg.content}</pre>
-        {/if}
-    </div>
-</ChatContentHolder>
+        <div>
+            {#if msg.role === "assistant"}
+                <AssistantResponseParser content={msg.content} />
+            {:else}
+                <pre class="font-sans w-full overflow-auto whitespace-break-spaces">{msg.content}</pre>
+            {/if}
+        </div>
+    </ChatContentHolder>
+</li>
+{/if}
