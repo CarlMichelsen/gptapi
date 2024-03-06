@@ -1,9 +1,21 @@
 <script lang="ts">
     import { marked } from "marked";
 
+    const escapeHtml = (unsafe: string): string => {
+        const htmlEscapes: { [key: string]: string } = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+
+        return unsafe.replace(/[&<>"']/g, (match) => htmlEscapes[match] || match);
+    };
+
     const renderer = new marked.Renderer();
     renderer.code = (code: string, infostring: string | undefined, escaped: boolean): string => {
-        return `<pre class="my-1 overflow-auto bg-black p-0.5"><code class="${infostring ? `language-${infostring}` : ''}">${code}</code></pre>`;
+        return `<pre class="my-1 overflow-auto bg-black p-0.5"><code class="hljs ${infostring ? `language-${infostring}` : ''}"></code>${escapeHtml(code)}</pre>`;
     }
 
     renderer.paragraph = (text: string): string => {
