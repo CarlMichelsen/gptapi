@@ -1,6 +1,7 @@
 ﻿using BusinessLogic.Hub;
 using BusinessLogic.Map;
 using Domain.Abstractions;
+using Domain.Dto;
 using Domain.Dto.Conversation;
 using Domain.Gpt;
 using Domain.Pipeline.SendMessage;
@@ -46,8 +47,17 @@ public class StreamGptResponseStep : IPipelineStep<SendMessagePipelineContext>
             var gptChunkAsyncEnumerable = this.gptChatClient.StreamPrompt(prompt, cancellationToken);
 
             var orderCounter = 0;
-            await foreach (var gptChunk in gptChunkAsyncEnumerable)
+            await foreach (var gptChunkResult in gptChunkAsyncEnumerable)
             {
+                if (gptChunkResult.IsError)
+                {
+                    var err = new ErrorDto(gptChunkResult.Error!);
+                    await client.Error(err);
+                    break;
+                }
+
+                var gptChunk = gptChunkResult.Unwrap();
+
                 cancellationToken.ThrowIfCancellationRequested();
                 var chunk = this.HandleChunk(orderCounter, gptChunk, context);
                 context.MessageChunkDtos.Add(chunk);

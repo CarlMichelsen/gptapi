@@ -1,10 +1,9 @@
-﻿namespace Interface.Provider;
+﻿using Domain.Abstractions;
+using Domain.Gpt;
+
+namespace Interface.Provider;
 
 public interface IGptApiKeyProvider
 {
-    public Task UnlockAll();
-
-    public Task<string?> ReserveAKey();
-
-    public Task CancelKeyReservation(string key);
+    public Task<Result<GptApiKey>> GetReservedApiKey();
 }

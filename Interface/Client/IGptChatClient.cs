@@ -5,7 +5,7 @@ namespace Interface.Client;
 
 public interface IGptChatClient
 {
-    IAsyncEnumerable<GptChatStreamChunk> StreamPrompt(
+    IAsyncEnumerable<Result<GptChatStreamChunk>> StreamPrompt(
         GptChatPrompt prompt,
         CancellationToken cancellationToken);
     
