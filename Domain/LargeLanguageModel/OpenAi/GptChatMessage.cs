@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Domain.Gpt;
+namespace Domain.LargeLanguageModel.OpenAi;
 
 public class GptChatMessage
 {

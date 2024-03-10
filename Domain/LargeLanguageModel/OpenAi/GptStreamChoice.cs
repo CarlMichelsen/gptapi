@@ -1,9 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Domain.Gpt;
+namespace Domain.LargeLanguageModel.OpenAi;
 
 public class GptStreamChoice : GptChoiceBase
 {
     [JsonPropertyName("delta")]
-    public required GptReceivedMessage Delta { get; init; }
+    public required GptDelta Delta { get; init; }
 }

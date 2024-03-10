@@ -1,5 +1,6 @@
 ﻿using Domain.Abstractions;
-using Domain.Gpt;
+using Domain.LargeLanguageModel.OpenAi;
+using Domain.LargeLanguageModel.Shared;
 
 namespace Interface.Provider;
 

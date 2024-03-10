@@ -49,6 +49,12 @@
 
     ConnectionMethods.assignSummaryToConversation = (convId: string, summary: string) => applicationStore.updateConversationSummary(convId, summary);
 
+    ConnectionMethods.error = (err) => {
+        console.error("ERROR", err);
+        const desc = err.description ? `\n${err.description}` : "";
+        alert(`${err.code}${desc}\n\n${err.timeStampUtc}`);
+    };
+
     $: $applicationStore.state === "logged-in" && $applicationStore.selectedConversation && setTimeout(scrollToBottom, 0);
 </script>
 

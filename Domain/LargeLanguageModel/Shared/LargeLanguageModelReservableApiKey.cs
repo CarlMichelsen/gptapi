@@ -1,11 +1,13 @@
-﻿namespace Domain.Gpt;
+﻿namespace Domain.LargeLanguageModel.Shared;
 
-public class GptApiKey : IAsyncDisposable
+public class LargeLanguageModelReservableApiKey
 {
-    private readonly Func<GptApiKey, Task> unlockAction;
+    private readonly Func<LargeLanguageModelReservableApiKey, Task> unlockAction;
     private bool disposed = false;
 
-    public GptApiKey(string apiKey, Func<GptApiKey, Task> unlockAction)
+    public LargeLanguageModelReservableApiKey(
+        string apiKey,
+        Func<LargeLanguageModelReservableApiKey, Task> unlockAction)
     {
         this.ApiKey = apiKey;
         this.unlockAction = unlockAction;

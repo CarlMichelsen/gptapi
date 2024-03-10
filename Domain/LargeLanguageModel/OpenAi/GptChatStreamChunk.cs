@@ -1,9 +1,13 @@
 ﻿using System.Text.Json.Serialization;
 using Domain.Converter;
+using Domain.Exception;
+using Domain.LargeLanguageModel.OpenAi.Map;
+using Domain.LargeLanguageModel.Shared;
+using Domain.LargeLanguageModel.Shared.Interface;
 
-namespace Domain.Gpt;
+namespace Domain.LargeLanguageModel.OpenAi;
 
-public class GptChatStreamChunk
+public class GptChatStreamChunk : ILargeLanguageModelChunkConvertible
 {
     [JsonPropertyName("id")]
     public required string Id { get; init; }
@@ -23,4 +27,16 @@ public class GptChatStreamChunk
 
     [JsonPropertyName("choices")]
     public required List<GptStreamChoice> Choices { get; init; }
+
+    public LargeLanguageModelChunk Convert()
+    {
+        try
+        {
+            return GptMapper.Map(this);
+        }
+        catch (System.Exception e)
+        {
+            throw new LargeLanguageModelException("Failed converting GptChatStreamChunk to LargeLanguageModelChunk", e);
+        }
+    }
 }

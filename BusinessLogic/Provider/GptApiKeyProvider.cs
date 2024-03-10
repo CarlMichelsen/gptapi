@@ -1,6 +1,7 @@
 ﻿using Domain.Abstractions;
 using Domain.Configuration;
-using Domain.Gpt;
+using Domain.LargeLanguageModel.OpenAi;
+using Domain.LargeLanguageModel.Shared;
 using Interface.Provider;
 using Microsoft.Extensions.Options;
 
@@ -43,7 +44,7 @@ public class GptApiKeyProvider : IGptApiKeyProvider
             KeysInUse.Add(apiKeyString);
         }
         
-        return await Task.Run(() => new GptApiKey(apiKeyString, (apiKey) => this.CancelKeyReservation(apiKey)));
+        return await Task.Run(() => new GptApiKey(apiKeyString, this.CancelKeyReservation));
     }
 
     private List<string> GetAvailableKeys()
@@ -61,7 +62,7 @@ public class GptApiKeyProvider : IGptApiKeyProvider
         return list[index];
     }
 
-    private Task CancelKeyReservation(GptApiKey apiKey)
+    private Task CancelKeyReservation(LargeLanguageModelReservableApiKey apiKey)
     {
         if (apiKey?.ApiKey is not null)
         {
@@ -71,51 +72,3 @@ public class GptApiKeyProvider : IGptApiKeyProvider
         return Task.CompletedTask;
     }
 }
-
-
-/*
-public class GptApiKeyProvider : IGptApiKeyProvider
-{
-    private static readonly List<string> KeysInUse = new();
-
-    private readonly IOptions<GptOptions> gptOptions;
-
-    public GptApiKeyProvider(
-        IOptions<GptOptions> gptOptions)
-    {
-        this.gptOptions = gptOptions;
-    }
-
-    public Task<string?> ReserveAKey()
-    {
-        var availableKeys = this.gptOptions.Value.ApiKeys
-            .Where(a => !KeysInUse.Contains(a))
-            .ToList();
-        
-        if (availableKeys.Count == 0)
-        {
-            return Task.FromResult<string?>(default);
-        }
-
-        var key = availableKeys.FirstOrDefault();
-        if (key is not null)
-        {
-            KeysInUse.Add(key);
-        }
-
-        return Task.FromResult<string?>(key);
-    }
-
-    public Task CancelKeyReservation(string key)
-    {
-        KeysInUse.Remove(key);
-        return Task.CompletedTask;
-    }
-
-    public Task UnlockAll()
-    {
-        KeysInUse.Clear();
-        return Task.CompletedTask;
-    }
-}
-*/

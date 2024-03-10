@@ -47,11 +47,15 @@ public static class Dependencies
 
         // Services
         builder.Services
-            .AddTransient<IGptChatClient, GptChatClient>()
             .AddTransient<IConversationService, ConversationService>()
             .AddTransient<IGptApiKeyProvider, GptApiKeyProvider>()
             .AddScoped<ICacheService, CacheService>()
             .AddScoped<ISessionService, SessionService>();
+        
+        // LLM Clients
+        builder.Services
+            .AddTransient<IGptChatClient, GptChatClient>()
+            .AddTransient<ILargeLanguageModelClient, LargeLanguageModelClient>();
 
         builder.Services.AddSignalR();
 

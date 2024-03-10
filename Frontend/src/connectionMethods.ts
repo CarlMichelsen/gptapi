@@ -2,6 +2,7 @@ import type { HubConnection } from "@microsoft/signalr";
 import type { MessageChunk } from "./types/dto/messageChunk";
 import type { ReceiveMessage } from "./types/dto/ReceiveMessage";
 import type { SendMessageRequest } from "./types/dto/sendMessageRequest";
+import type { CarlGptError } from "./types/dto/error";
 
 type ConnectionMethod = (...args: any[]) => any;
 
@@ -22,6 +23,10 @@ export class ConnectionMethods {
     
     public static set receiveMessage(method: ((message: ReceiveMessage) => any) | null) {
         this.registerMethod("receiveMessage", method);
+    }
+
+    public static set error(method: ((error: CarlGptError) => any) | null) {
+        this.registerMethod("error", method);
     }
 
     public static set assignSummaryToConversation(method: ((conversationId: string, summary: string) => any) | null) {

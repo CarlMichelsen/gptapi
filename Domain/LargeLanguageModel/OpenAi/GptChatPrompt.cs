@@ -1,8 +1,9 @@
 ﻿using System.Text.Json.Serialization;
+using Domain.LargeLanguageModel.Shared.Interface;
 
-namespace Domain.Gpt;
+namespace Domain.LargeLanguageModel.OpenAi;
 
-public class GptChatPrompt
+public class GptChatPrompt : ILargeLanguageModelRequest
 {
     [JsonPropertyName("model")]
     public required string Model { get; init; }

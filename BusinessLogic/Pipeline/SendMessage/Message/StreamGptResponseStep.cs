@@ -1,9 +1,12 @@
-﻿using BusinessLogic.Hub;
+﻿using System.Text.Json;
+using BusinessLogic.Hub;
 using BusinessLogic.Map;
 using Domain.Abstractions;
 using Domain.Dto;
 using Domain.Dto.Conversation;
-using Domain.Gpt;
+using Domain.LargeLanguageModel.OpenAi;
+using Domain.LargeLanguageModel.Shared;
+using Domain.LargeLanguageModel.Shared.Interface;
 using Domain.Pipeline.SendMessage;
 using Interface.Client;
 using Interface.Hub;
@@ -16,16 +19,16 @@ namespace BusinessLogic.Pipeline.SendMessage.Message;
 public class StreamGptResponseStep : IPipelineStep<SendMessagePipelineContext>
 {
     private readonly ILogger<StreamGptResponseStep> logger;
-    private readonly IGptChatClient gptChatClient;
+    private readonly ILargeLanguageModelClient largeLanguageModelClient;
     private readonly IHubContext<ChatHub, IChatClient> chatHub;
 
     public StreamGptResponseStep(
         ILogger<StreamGptResponseStep> logger,
-        IGptChatClient gptChatClient,
+        ILargeLanguageModelClient largeLanguageModelClient,
         IHubContext<ChatHub, IChatClient> chatHub)
     {
         this.logger = logger;
-        this.gptChatClient = gptChatClient;
+        this.largeLanguageModelClient = largeLanguageModelClient;
         this.chatHub = chatHub;
     }
 
@@ -43,8 +46,8 @@ public class StreamGptResponseStep : IPipelineStep<SendMessagePipelineContext>
 
         try
         {
-            var prompt = GptMapper.Map(context.Conversation!);
-            var gptChunkAsyncEnumerable = this.gptChatClient.StreamPrompt(prompt, cancellationToken);
+            var prompt = LargeLanguageModelMapper.Map(context.Conversation!);
+            var gptChunkAsyncEnumerable = this.largeLanguageModelClient.StreamPrompt(prompt, LargeLanguageModelProvider.OpenAi, cancellationToken);
 
             var orderCounter = 0;
             await foreach (var gptChunkResult in gptChunkAsyncEnumerable)
@@ -87,10 +90,12 @@ public class StreamGptResponseStep : IPipelineStep<SendMessagePipelineContext>
 
     private MessageChunkDto HandleChunk(
         int chunkOrderIndex,
-        GptChatStreamChunk gptChunk,
+        ILargeLanguageModelChunkConvertible chunk,
         SendMessagePipelineContext context)
     {
-        var choice = gptChunk.Choices.First();
+        var llmChunk = chunk.Convert();
+        var choice = llmChunk.Options.First();
+        var msg = choice.Message;
         return new MessageChunkDto(
             chunkOrderIndex,
             choice.Index,
@@ -98,7 +103,7 @@ public class StreamGptResponseStep : IPipelineStep<SendMessagePipelineContext>
             context.AssistantMessage!.Id.Value,
             context.AssistantMessage.PreviousMessage!.Id.Value,
             Enum.GetName(context.AssistantMessage.Role)!.ToLower(),
-            choice.Delta.Content,
+            msg.Content,
             DateTime.UtcNow);
     }
 }
