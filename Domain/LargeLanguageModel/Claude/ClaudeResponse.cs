@@ -2,10 +2,11 @@
 using Domain.LargeLanguageModel.Claude.Map;
 using Domain.LargeLanguageModel.Shared;
 using Domain.LargeLanguageModel.Shared.Interface;
+using Domain.LargeLanguageModel.Shared.Response;
 
 namespace Domain.LargeLanguageModel.Claude;
 
-public class ClaudeResponse : ILargeLanguageModelResponseConvertible
+public class ClaudeResponse : ILlmResponseConvertible
 {
     [JsonPropertyName("content")]
     public required List<ClaudeResponseContent> Content { get; init; }
@@ -28,7 +29,7 @@ public class ClaudeResponse : ILargeLanguageModelResponseConvertible
     [JsonPropertyName("usage")]
     public required ClaudeUsage Usage { get; init; }
 
-    public LargeLanguageModelResponse Convert()
+    public LlmResponse Convert()
     {
         return ClaudeResponseMapper.Map(this);
     }

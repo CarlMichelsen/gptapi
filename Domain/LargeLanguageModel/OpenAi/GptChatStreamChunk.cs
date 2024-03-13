@@ -2,12 +2,12 @@
 using Domain.Converter;
 using Domain.Exception;
 using Domain.LargeLanguageModel.OpenAi.Map;
-using Domain.LargeLanguageModel.Shared;
 using Domain.LargeLanguageModel.Shared.Interface;
+using Domain.LargeLanguageModel.Shared.Stream;
 
 namespace Domain.LargeLanguageModel.OpenAi;
 
-public class GptChatStreamChunk : ILargeLanguageModelChunkConvertible
+public class GptChatStreamChunk : ILlmChunkConvertible
 {
     [JsonPropertyName("id")]
     public required string Id { get; init; }
@@ -28,7 +28,7 @@ public class GptChatStreamChunk : ILargeLanguageModelChunkConvertible
     [JsonPropertyName("choices")]
     public required List<GptStreamChoice> Choices { get; init; }
 
-    public LargeLanguageModelChunk Convert()
+    public LlmChunk Convert()
     {
         try
         {

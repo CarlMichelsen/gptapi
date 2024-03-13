@@ -1,96 +1,84 @@
 ﻿using Domain.Exception;
-using Domain.LargeLanguageModel.Shared;
+using Domain.LargeLanguageModel.Shared.Request;
+using Domain.LargeLanguageModel.Shared.Response;
+using Domain.LargeLanguageModel.Shared.Stream;
 
 namespace Domain.LargeLanguageModel.OpenAi.Map;
 
 public static class GptMapper
 {
-    public static LargeLanguageModelResponse Map(GptChatResponse response)
+    public static LlmResponse Map(GptChatResponse response)
     {
-        return new LargeLanguageModelResponse
+        return new LlmResponse
         {
             Id = response.Id,
-            Object = response.Object,
-            Created = response.Created,
-            ModelName = response.Model,
-            ResponseFingerprint = response.SystemFingerprint,
-            Options = response.Choices.Select(Map).ToList(),
+            Model = MapModel(response.Model),
+            Choices = response.Choices.Select(Map).ToList(),
+            Usage = Map(response.Usage),
         };
     }
 
-    public static LargeLanguageModelChunk Map(GptChatStreamChunk chunk)
+    public static LlmChunk Map(GptChatStreamChunk gptChatStreamChunk)
     {
-        return new LargeLanguageModelChunk
+        return new LlmChunk
         {
-            Id = chunk.Id,
-            Object = chunk.Object,
-            Created = chunk.Created,
-            ModelName = chunk.Model,
-            ResponseFingerprint = chunk.SystemFingerprint,
-            Options = chunk.Choices.Select(Map).ToList(),
+            Choices = gptChatStreamChunk.Choices.Select(Map).ToList(),
         };
     }
 
-    public static LargeLanguageModelOption Map(GptChoice choice)
+    /// <summary>
+    /// Maps GptStreamChoice to LlmContent assuming role is assistant.
+    /// </summary>
+    /// <param name="gptStreamChoice">GptStreamChoice assumed to be assistant role.</param>
+    /// <returns>LlmContent.</returns>
+    public static LlmContent Map(GptStreamChoice gptStreamChoice)
     {
-        return new LargeLanguageModelOption
+        return new LlmContent
         {
-            Index = choice.Index,
-            FinishReason = choice.FinishReason,
-            Message = Map(choice.Message),
+            Role = LlmRole.Assistant,
+            Content = gptStreamChoice.Delta.Content,
+            StopReason = gptStreamChoice.FinishReason,
         };
     }
 
-    public static LargeLanguageModelStreamOption Map(GptStreamChoice choice)
+    public static LlmContent Map(GptChoice choice)
     {
-        return new LargeLanguageModelStreamOption
+        return new LlmContent
         {
-            Index = choice.Index,
-            FinishReason = choice.FinishReason,
-            Message = Map(choice.Delta),
+            Role = MapRole(choice.Message.Role),
+            Content = choice.Message.Content,
+            StopReason = choice.FinishReason,
         };
     }
 
-    public static LargeLanguageModelDelta Map(GptDelta delta)
+    public static LlmUsage Map(GptUsage usage)
     {
-        return new LargeLanguageModelDelta
+        return new LlmUsage
         {
-            Content = delta.Content,
+            InputTokens = usage.PromptTokens,
+            OutputTokens = usage.CompletionTokens,
         };
     }
 
-    public static LargeLanguageModelMessage Map(GptChatMessage chatMessage)
+    public static LlmModelVersion MapModel(string model)
     {
-        return new LargeLanguageModelMessage
+        return new LlmModelVersion
         {
-            Role = Map(chatMessage.Role),
-            Content = chatMessage.Content,
+            Model = model,
         };
     }
 
-    public static LargeLanguageModelMessage Map(GptReceivedMessage message)
-    {
-        return new LargeLanguageModelMessage
-        {
-            Role = Map(message.Role),
-            Content = message.Content,
-        };
-    }
-
-    public static LargeLanguageModelMessageRole Map(string role)
+    public static LlmRole MapRole(string role)
     {
         var safeRole = role.ToLower().Trim();
 
         switch (safeRole)
         {
             case "user":
-                return LargeLanguageModelMessageRole.User;
+                return LlmRole.User;
             
             case "assistant":
-                return LargeLanguageModelMessageRole.Assistant;
-            
-            case "system":
-                return LargeLanguageModelMessageRole.System;
+                return LlmRole.Assistant;
             
             default:
                 throw new LargeLanguageModelException("Failed to map message role");

@@ -1,13 +1,13 @@
 ﻿namespace Domain.LargeLanguageModel.Shared;
 
-public class LargeLanguageModelReservableApiKey
+public class LlmReservableApiKey
 {
-    private readonly Func<LargeLanguageModelReservableApiKey, Task> unlockAction;
+    private readonly Func<LlmReservableApiKey, Task> unlockAction;
     private bool disposed = false;
 
-    public LargeLanguageModelReservableApiKey(
+    public LlmReservableApiKey(
         string apiKey,
-        Func<LargeLanguageModelReservableApiKey, Task> unlockAction)
+        Func<LlmReservableApiKey, Task> unlockAction)
     {
         this.ApiKey = apiKey;
         this.unlockAction = unlockAction;
@@ -18,9 +18,7 @@ public class LargeLanguageModelReservableApiKey
     public async ValueTask DisposeAsync()
     {
         await this.DisposeAsyncCore();
-
         this.RegisterDispose(false);
-        GC.SuppressFinalize(this);
     }
 
     protected virtual async ValueTask DisposeAsyncCore()

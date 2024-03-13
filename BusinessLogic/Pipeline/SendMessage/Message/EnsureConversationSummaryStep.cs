@@ -4,6 +4,7 @@ using Database;
 using Domain.Abstractions;
 using Domain.Entity;
 using Domain.LargeLanguageModel.Shared;
+using Domain.LargeLanguageModel.Shared.Request;
 using Domain.Pipeline.SendMessage;
 using Interface.Client;
 using Interface.Hub;
@@ -15,12 +16,12 @@ namespace BusinessLogic.Pipeline.SendMessage.Message;
 public class EnsureConversationSummaryStep : IPipelineStep<SendMessagePipelineContext>
 {
     private readonly ApplicationContext applicationContext;
-    private readonly ILargeLanguageModelClient largeLanguageModelClient;
+    private readonly ILlmClient largeLanguageModelClient;
     private readonly IHubContext<ChatHub, IChatClient> chatHub;
 
     public EnsureConversationSummaryStep(
         ApplicationContext applicationContext,
-        ILargeLanguageModelClient largeLanguageModelClient,
+        ILlmClient largeLanguageModelClient,
         IHubContext<ChatHub, IChatClient> chatHub)
     {
         this.applicationContext = applicationContext;
@@ -37,8 +38,8 @@ public class EnsureConversationSummaryStep : IPipelineStep<SendMessagePipelineCo
             return context;
         }
 
-        var prompt = this.GeneratePrompt(context.Conversation!);
-        var res = await this.largeLanguageModelClient.Prompt(prompt, LargeLanguageModelProvider.Claude, cancellationToken);
+        var prompt = this.GeneratePrompt(context.Conversation!, context.LlmModel, context.MaxTokens);
+        var res = await this.largeLanguageModelClient.Prompt(prompt, context.LlmProvider, cancellationToken);
         if (cancellationToken.IsCancellationRequested)
         {
             return new Error("EnsureConversationSummaryStep.Cancelled");
@@ -49,7 +50,7 @@ public class EnsureConversationSummaryStep : IPipelineStep<SendMessagePipelineCo
             return res.Error!;
         }
 
-        var result = res.Unwrap().Convert().Options.FirstOrDefault()?.Message.Content;
+        var result = res.Unwrap().Convert().Choices.FirstOrDefault()?.Content;
         if (result is null)
         {
             return new Error("EnsureConversationSummaryStep.NoSummary");
@@ -71,11 +72,12 @@ public class EnsureConversationSummaryStep : IPipelineStep<SendMessagePipelineCo
         return context;
     }
 
-    private LargeLanguageModelRequest GeneratePrompt(Conversation conversation)
+    private LlmRequest GeneratePrompt(Conversation conversation, string model, int maxTokens)
     {
-        var initialPrompt = LargeLanguageModelMapper.Map(conversation, "claude-3-opus-20240229"); // gpt-4
+        var systemMsg = "You need to keep track of what is being said in this conversation. At the end you will be asked to do a summary. Do your absolute best.";
+        var initialPrompt = LargeLanguageModelMapper.Map(conversation, model, systemMsg, maxTokens);
 
-        initialPrompt.Messages.Add(new LargeLanguageModelMessage
+        initialPrompt.Messages.Add(new LlmMessage
         {
             Role = LargeLanguageModelMapper.Map(Role.User),
             Content = "Respond with a 4 to 6 word summary of the full conversation preceding this message. Write the summary in first person as if you're the assistant. Ignore system messages.",

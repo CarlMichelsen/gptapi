@@ -1,35 +1,41 @@
 ﻿using Domain.Entity;
 using Domain.Exception;
-using Domain.LargeLanguageModel.Shared;
+using Domain.LargeLanguageModel.Shared.Request;
 
 namespace BusinessLogic.Map;
 
 public static class LargeLanguageModelMapper
 {
-    public static LargeLanguageModelRequest Map(Conversation conversation, string modelString)
+    public static LlmRequest Map(
+        Conversation conversation,
+        string modelString,
+        string systemMessage,
+        int maxTokens)
     {
-        return new LargeLanguageModelRequest
+        return new LlmRequest
         {
-            ModelVersion = new LargeLanguageModelVersion { Model = modelString },
+            SystemMessage = systemMessage,
+            ModelVersion = new LlmModelVersion { Model = modelString },
             Messages = conversation.Messages.Select(Map).ToList(),
+            MaxTokens = maxTokens,
         };
     }
 
-    public static LargeLanguageModelMessage Map(Message message)
+    public static LlmMessage Map(Message message)
     {
-        return new LargeLanguageModelMessage
+        return new LlmMessage
         {
             Role = Map(message.Role),
             Content = message.Content ?? string.Empty,
         };
     }
 
-    public static LargeLanguageModelMessageRole Map(Role role)
+    public static LlmRole Map(Role role)
     {
         return role switch {
-            Role.User => LargeLanguageModelMessageRole.User,
-            Role.Assistant => LargeLanguageModelMessageRole.Assistant,
-            Role.System => LargeLanguageModelMessageRole.System,
+            Role.User => LlmRole.User,
+            Role.Assistant => LlmRole.Assistant,
+            Role.System => throw new LargeLanguageModelException("Cannot convert Role.System to LlmRole"),
             _ => throw new LargeLanguageModelException("Failed to convert conversation role to LargeLanguageModelMessageRole"),
         };
     }

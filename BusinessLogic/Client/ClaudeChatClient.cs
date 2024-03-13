@@ -4,8 +4,8 @@ using System.Text.Json;
 using BusinessLogic.Map.LargeLanguageModel;
 using Domain.Abstractions;
 using Domain.LargeLanguageModel.Claude;
-using Domain.LargeLanguageModel.Shared;
 using Domain.LargeLanguageModel.Shared.Interface;
+using Domain.LargeLanguageModel.Shared.Request;
 using Interface.Client;
 using Interface.Provider;
 using Microsoft.Extensions.Logging;
@@ -31,8 +31,8 @@ public class ClaudeChatClient : IClaudeChatClient
         this.claudeApiKeyProvider = claudeApiKeyProvider;
     }
 
-    public async Task<Result<ILargeLanguageModelResponseConvertible>> Prompt(
-        LargeLanguageModelRequest request,
+    public async Task<Result<ILlmResponseConvertible>> Prompt(
+        LlmRequest request,
         CancellationToken cancellationToken)
     {
         var apiKeyResult = await this.claudeApiKeyProvider.GetReservedApiKey();
@@ -58,8 +58,8 @@ public class ClaudeChatClient : IClaudeChatClient
         }
     }
 
-    public async IAsyncEnumerable<Result<ILargeLanguageModelChunkConvertible>> StreamPrompt(
-        LargeLanguageModelRequest request,
+    public async IAsyncEnumerable<Result<ILlmChunkConvertible>> StreamPrompt(
+        LlmRequest request,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         yield break;
@@ -92,9 +92,7 @@ public class ClaudeChatClient : IClaudeChatClient
                 isStream ? HttpCompletionOption.ResponseHeadersRead : HttpCompletionOption.ResponseContentRead,
                 cancellationToken);
 
-            var val = response.Content.ReadAsStringAsync();
             response.EnsureSuccessStatusCode();
-
             return response;
         }
         catch (HttpRequestException e)
@@ -107,7 +105,7 @@ public class ClaudeChatClient : IClaudeChatClient
         }
     }
 
-    private async Task<Result<ILargeLanguageModelResponseConvertible>> MapResponse(HttpResponseMessage response, CancellationToken cancellationToken)
+    private async Task<Result<ILlmResponseConvertible>> MapResponse(HttpResponseMessage response, CancellationToken cancellationToken)
     {
         var resStr = await response.Content.ReadAsStringAsync(cancellationToken);
 

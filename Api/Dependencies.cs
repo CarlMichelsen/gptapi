@@ -58,7 +58,7 @@ public static class Dependencies
         builder.Services
             .AddTransient<IGptChatClient, GptChatClient>()
             .AddTransient<IClaudeChatClient, ClaudeChatClient>()
-            .AddTransient<ILargeLanguageModelClient, LargeLanguageModelClient>();
+            .AddTransient<ILlmClient, LargeLanguageModelClient>();
 
         builder.Services.AddSignalR();
 

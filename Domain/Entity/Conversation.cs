@@ -2,7 +2,7 @@
 
 namespace Domain.Entity;
 
-public class Conversation
+public sealed class Conversation
 {
     public required ConversationId Id { get; init; }
 

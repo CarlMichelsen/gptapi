@@ -1,58 +1,63 @@
 ﻿using Domain.Exception;
-using Domain.LargeLanguageModel.Shared;
+using Domain.LargeLanguageModel.Shared.Request;
+using Domain.LargeLanguageModel.Shared.Response;
 
 namespace Domain.LargeLanguageModel.Claude.Map;
 
 public static class ClaudeResponseMapper
 {
-    public static LargeLanguageModelResponse Map(ClaudeResponse claudeResponse)
+    public static LlmResponse Map(ClaudeResponse claudeResponse)
     {
-        return new LargeLanguageModelResponse
+        return new LlmResponse
         {
             Id = claudeResponse.Id,
-            Object = string.Empty,
-            Created = DateTime.UtcNow,
-            ModelName = claudeResponse.Model,
-            Options = new List<LargeLanguageModelOption>
-            {
-                MapOption(claudeResponse),
-            },
+            Model = MapModel(claudeResponse.Model),
+            Choices = claudeResponse.Content.Select((c) => Map(c, claudeResponse.Role, claudeResponse.StopReason)).ToList(),
+            Usage = Map(claudeResponse.Usage),
         };
     }
 
-    public static LargeLanguageModelOption MapOption(ClaudeResponse claudeResponse)
+    public static LlmModelVersion MapModel(string model)
     {
-        return new LargeLanguageModelOption
+        return new LlmModelVersion
         {
-            Index = 0,
-            FinishReason = claudeResponse.StopReason,
-            Message = MapMessage(claudeResponse),
+            Model = model,
         };
     }
 
-    public static LargeLanguageModelMessage MapMessage(ClaudeResponse claudeResponse)
+    public static LlmUsage Map(ClaudeUsage claudeUsage)
     {
-        return new LargeLanguageModelMessage
+        return new LlmUsage
         {
-            Role = Map(claudeResponse.Role),
-            Content = claudeResponse.Content.First().Text,
+            InputTokens = claudeUsage.InputTokens,
+            OutputTokens = claudeUsage.OutputTokens,
         };
     }
 
-    public static LargeLanguageModelMessageRole Map(string role)
+    public static LlmContent Map(
+        ClaudeResponseContent claudeResponseContent,
+        string claudeRole,
+        string? stopReason)
+    {
+        return new LlmContent
+        {
+            Role = MapRole(claudeRole),
+            Content = claudeResponseContent.Text,
+            StopReason = stopReason,
+        };
+    }
+
+    public static LlmRole MapRole(string role)
     {
         var safeRole = role.ToLower().Trim();
 
         switch (safeRole)
         {
             case "user":
-                return LargeLanguageModelMessageRole.User;
+                return LlmRole.User;
             
             case "assistant":
-                return LargeLanguageModelMessageRole.Assistant;
-            
-            case "system":
-                return LargeLanguageModelMessageRole.System;
+                return LlmRole.Assistant;
             
             default:
                 throw new LargeLanguageModelException("Failed to map message role");

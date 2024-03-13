@@ -1,13 +1,14 @@
 ﻿using System.Runtime.CompilerServices;
 using Domain.Abstractions;
-using Domain.LargeLanguageModel.Shared;
+using Domain.Entity;
 using Domain.LargeLanguageModel.Shared.Interface;
+using Domain.LargeLanguageModel.Shared.Request;
 using Interface.Client;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BusinessLogic.Client;
 
-public class LargeLanguageModelClient : ILargeLanguageModelClient
+public class LargeLanguageModelClient : ILlmClient
 {
     private readonly IServiceProvider serviceProvider;
 
@@ -17,9 +18,9 @@ public class LargeLanguageModelClient : ILargeLanguageModelClient
         this.serviceProvider = serviceProvider;
     }
 
-    public async Task<Result<ILargeLanguageModelResponseConvertible>> Prompt(
-        LargeLanguageModelRequest request,
-        LargeLanguageModelProvider provider,
+    public async Task<Result<ILlmResponseConvertible>> Prompt(
+        LlmRequest request,
+        LlmProvider provider,
         CancellationToken cancellationToken)
     {
         var clientResult = this.CreateLargeLanguageModelClient(provider);
@@ -32,9 +33,9 @@ public class LargeLanguageModelClient : ILargeLanguageModelClient
         return await client.Prompt(request, cancellationToken);
     }
 
-    public async IAsyncEnumerable<Result<ILargeLanguageModelChunkConvertible>> StreamPrompt(
-        LargeLanguageModelRequest request,
-        LargeLanguageModelProvider provider,
+    public async IAsyncEnumerable<Result<ILlmChunkConvertible>> StreamPrompt(
+        LlmRequest request,
+        LlmProvider provider,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var clientResult = this.CreateLargeLanguageModelClient(provider);
@@ -52,24 +53,24 @@ public class LargeLanguageModelClient : ILargeLanguageModelClient
         }
     }
 
-    private Result<ILargeLanguageModelIntegrationClient> CreateLargeLanguageModelClient(LargeLanguageModelProvider provider)
+    private Result<ILlmIntegrationClient> CreateLargeLanguageModelClient(LlmProvider provider)
     {
         return provider switch {
-            LargeLanguageModelProvider.OpenAi => this.CreateClient<IGptChatClient>(),
-            LargeLanguageModelProvider.Claude => this.CreateClient<IClaudeChatClient>(),
+            LlmProvider.OpenAi => this.CreateClient<IGptChatClient>(),
+            LlmProvider.Anthropic => this.CreateClient<IClaudeChatClient>(),
             _ => new Error("CreateLargeLanguageModelClient.DidNotFindImplementedClient", $"Attempted to instantiate {nameof(provider)}"),
         };
     }
 
-    private Result<ILargeLanguageModelIntegrationClient> CreateClient<T>()
+    private Result<ILlmIntegrationClient> CreateClient<T>()
         where T : notnull
     {
-        var service = this.serviceProvider.GetRequiredService<T>() as ILargeLanguageModelIntegrationClient;
+        var service = this.serviceProvider.GetRequiredService<T>() as ILlmIntegrationClient;
         if (service is null)
         {
             return new Error("CreateClient.FailedToCreateClient");
         }
 
-        return new Result<ILargeLanguageModelIntegrationClient>(service);
+        return new Result<ILlmIntegrationClient>(service);
     }
 }

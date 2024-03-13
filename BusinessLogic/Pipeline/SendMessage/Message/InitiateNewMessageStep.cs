@@ -51,6 +51,7 @@ public class InitiateNewMessageStep : IPipelineStep<SendMessagePipelineContext>
             Content = context.MessageContent,
             CreatedUtc = DateTime.UtcNow,
             CompletedUtc = DateTime.UtcNow,
+            Usage = null, // No usage on user messages.
             Visible = true,
         };
         context.Conversation!.Messages.Add(userMessage);
@@ -71,6 +72,7 @@ public class InitiateNewMessageStep : IPipelineStep<SendMessagePipelineContext>
             Role = Domain.Entity.Role.Assistant,
             Content = string.Empty,
             CreatedUtc = DateTime.UtcNow,
+            Usage = null, // This will be set later
             Visible = true,
         };
         context.AssistantMessage = assistantMessage;

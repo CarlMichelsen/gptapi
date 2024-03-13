@@ -1,12 +1,12 @@
 ﻿using Domain.Exception;
 using Domain.LargeLanguageModel.Claude;
-using Domain.LargeLanguageModel.Shared;
+using Domain.LargeLanguageModel.Shared.Request;
 
 namespace BusinessLogic.Map.LargeLanguageModel;
 
 public static class ClaudeMapper
 {
-    public static ClaudePrompt Map(LargeLanguageModelRequest request, int maxTokens)
+    public static ClaudePrompt Map(LlmRequest request, int maxTokens)
     {
         return new ClaudePrompt
         {
@@ -17,7 +17,7 @@ public static class ClaudeMapper
         };
     }
 
-    public static ClaudeMessage Map(LargeLanguageModelMessage message)
+    public static ClaudeMessage Map(LlmMessage message)
     {
         return new ClaudeMessage
         {
@@ -26,18 +26,15 @@ public static class ClaudeMapper
         };
     }
 
-    public static string Map(LargeLanguageModelMessageRole role)
+    public static string Map(LlmRole role)
     {
         switch (role)
         {
-            case LargeLanguageModelMessageRole.Assistant:
+            case LlmRole.Assistant:
                 return "assistant";
             
-            case LargeLanguageModelMessageRole.User:
+            case LlmRole.User:
                 return "user";
-
-            case LargeLanguageModelMessageRole.System:
-                return "assistant";
 
             default:
                 throw new LargeLanguageModelException("Failed to map role for GptChatPrompt");

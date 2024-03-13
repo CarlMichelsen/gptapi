@@ -1,12 +1,12 @@
 ﻿using Domain.Exception;
 using Domain.LargeLanguageModel.OpenAi;
-using Domain.LargeLanguageModel.Shared;
+using Domain.LargeLanguageModel.Shared.Request;
 
 namespace BusinessLogic.Map.LargeLanguageModel;
 
 public static class OpenAiMapper
 {
-    public static GptChatPrompt Map(LargeLanguageModelRequest request)
+    public static GptChatPrompt Map(LlmRequest request)
     {
         return new GptChatPrompt
         {
@@ -16,7 +16,7 @@ public static class OpenAiMapper
         };
     }
 
-    public static GptChatMessage Map(LargeLanguageModelMessage message)
+    public static GptChatMessage Map(LlmMessage message)
     {
         return new GptChatMessage
         {
@@ -25,18 +25,15 @@ public static class OpenAiMapper
         };
     }
 
-    public static string Map(LargeLanguageModelMessageRole role)
+    public static string Map(LlmRole role)
     {
         switch (role)
         {
-            case LargeLanguageModelMessageRole.Assistant:
+            case LlmRole.Assistant:
                 return "assistant";
             
-            case LargeLanguageModelMessageRole.User:
+            case LlmRole.User:
                 return "user";
-
-            case LargeLanguageModelMessageRole.System:
-                return "system";
 
             default:
                 throw new LargeLanguageModelException("Failed to map role for GptChatPrompt");

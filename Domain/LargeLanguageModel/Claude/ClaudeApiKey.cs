@@ -2,9 +2,9 @@
 
 namespace Domain.LargeLanguageModel.Claude;
 
-public class ClaudeApiKey : LargeLanguageModelReservableApiKey
+public class ClaudeApiKey : LlmReservableApiKey
 {
-    public ClaudeApiKey(string apiKey, Func<LargeLanguageModelReservableApiKey, Task> unlockAction)
+    public ClaudeApiKey(string apiKey, Func<LlmReservableApiKey, Task> unlockAction)
         : base(apiKey, unlockAction)
     {
     }

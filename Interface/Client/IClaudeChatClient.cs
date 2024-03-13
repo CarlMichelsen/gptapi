@@ -1,5 +1,5 @@
 ﻿namespace Interface.Client;
 
-public interface IClaudeChatClient : ILargeLanguageModelIntegrationClient
+public interface IClaudeChatClient : ILlmIntegrationClient
 {
 }

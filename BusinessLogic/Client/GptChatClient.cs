@@ -5,8 +5,8 @@ using BusinessLogic.Json;
 using BusinessLogic.Map.LargeLanguageModel;
 using Domain.Abstractions;
 using Domain.LargeLanguageModel.OpenAi;
-using Domain.LargeLanguageModel.Shared;
 using Domain.LargeLanguageModel.Shared.Interface;
+using Domain.LargeLanguageModel.Shared.Request;
 using Interface.Client;
 using Interface.Provider;
 using Microsoft.Extensions.Logging;
@@ -31,8 +31,8 @@ public class GptChatClient : IGptChatClient
         this.gptApiKeyProvider = gptApiKeyProvider;
     }
 
-    public async IAsyncEnumerable<Result<ILargeLanguageModelChunkConvertible>> StreamPrompt(
-        LargeLanguageModelRequest request,
+    public async IAsyncEnumerable<Result<ILlmChunkConvertible>> StreamPrompt(
+        LlmRequest request,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         this.logger.LogInformation("{clientName} was prompted for a stream response", nameof(GptChatClient));
@@ -65,8 +65,8 @@ public class GptChatClient : IGptChatClient
         }
     }
 
-    public async Task<Result<ILargeLanguageModelResponseConvertible>> Prompt(
-        LargeLanguageModelRequest request,
+    public async Task<Result<ILlmResponseConvertible>> Prompt(
+        LlmRequest request,
         CancellationToken cancellationToken)
     {
         this.logger.LogInformation("{clientName} was prompted", nameof(GptChatClient));
@@ -172,7 +172,7 @@ public class GptChatClient : IGptChatClient
         }
     }
 
-    private async Task<Result<ILargeLanguageModelResponseConvertible>> RawPrompt(
+    private async Task<Result<ILlmResponseConvertible>> RawPrompt(
         HttpResponseMessage response,
         CancellationToken cancellationToken)
     {

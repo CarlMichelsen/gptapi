@@ -62,7 +62,7 @@ public class GptApiKeyProvider : IGptApiKeyProvider
         return list[index];
     }
 
-    private Task CancelKeyReservation(LargeLanguageModelReservableApiKey apiKey)
+    private Task CancelKeyReservation(LlmReservableApiKey apiKey)
     {
         if (apiKey?.ApiKey is not null)
         {

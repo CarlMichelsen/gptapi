@@ -1,5 +1,5 @@
 ﻿namespace Interface.Client;
 
-public interface IGptChatClient : ILargeLanguageModelIntegrationClient
+public interface IGptChatClient : ILlmIntegrationClient
 {
 }

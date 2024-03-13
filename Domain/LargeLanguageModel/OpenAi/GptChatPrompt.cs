@@ -3,7 +3,7 @@ using Domain.LargeLanguageModel.Shared.Interface;
 
 namespace Domain.LargeLanguageModel.OpenAi;
 
-public class GptChatPrompt : ILargeLanguageModelRequest
+public class GptChatPrompt : ILlmRequest
 {
     [JsonPropertyName("model")]
     public required string Model { get; init; }

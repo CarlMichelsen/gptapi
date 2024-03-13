@@ -3,7 +3,7 @@ using Domain.LargeLanguageModel.Shared.Interface;
 
 namespace Domain.LargeLanguageModel.Claude;
 
-public class ClaudePrompt : ILargeLanguageModelRequest
+public class ClaudePrompt : ILlmRequest
 {
     [JsonPropertyName("model")]
     public required string Model { get; init; }

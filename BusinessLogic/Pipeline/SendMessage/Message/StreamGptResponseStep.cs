@@ -19,12 +19,12 @@ namespace BusinessLogic.Pipeline.SendMessage.Message;
 public class StreamGptResponseStep : IPipelineStep<SendMessagePipelineContext>
 {
     private readonly ILogger<StreamGptResponseStep> logger;
-    private readonly ILargeLanguageModelClient largeLanguageModelClient;
+    private readonly ILlmClient largeLanguageModelClient;
     private readonly IHubContext<ChatHub, IChatClient> chatHub;
 
     public StreamGptResponseStep(
         ILogger<StreamGptResponseStep> logger,
-        ILargeLanguageModelClient largeLanguageModelClient,
+        ILlmClient largeLanguageModelClient,
         IHubContext<ChatHub, IChatClient> chatHub)
     {
         this.logger = logger;
@@ -46,10 +46,11 @@ public class StreamGptResponseStep : IPipelineStep<SendMessagePipelineContext>
 
         try
         {
-            var prompt = LargeLanguageModelMapper.Map(context.Conversation!, "gpt-4");
-            var gptChunkAsyncEnumerable = this.largeLanguageModelClient.StreamPrompt(prompt, LargeLanguageModelProvider.OpenAi, cancellationToken);
+            var systemMsg = "Your persona is a legendary software developer that is very careful when writing code. You always make sure to use the latest version of packages and always double check your code.";
+            var prompt = LargeLanguageModelMapper.Map(context.Conversation!, context.LlmModel, systemMsg, context.MaxTokens);
+            var gptChunkAsyncEnumerable = this.largeLanguageModelClient.StreamPrompt(prompt, context.LlmProvider, cancellationToken);
 
-            var orderCounter = 0;
+            var tokenCounter = 0;
             await foreach (var gptChunkResult in gptChunkAsyncEnumerable)
             {
                 if (gptChunkResult.IsError)
@@ -62,13 +63,14 @@ public class StreamGptResponseStep : IPipelineStep<SendMessagePipelineContext>
                 var gptChunk = gptChunkResult.Unwrap();
 
                 cancellationToken.ThrowIfCancellationRequested();
-                var chunk = this.HandleChunk(orderCounter, gptChunk, context);
+                var chunk = this.HandleChunk(tokenCounter, gptChunk, context);
                 context.MessageChunkDtos.Add(chunk);
-                orderCounter++;
+                tokenCounter++;
 
                 await client.ReceiveMessageChunk(chunk);
             }
 
+            context.TokenUsage = tokenCounter;
             return context;
         }
         catch (OperationCanceledException)
@@ -90,20 +92,18 @@ public class StreamGptResponseStep : IPipelineStep<SendMessagePipelineContext>
 
     private MessageChunkDto HandleChunk(
         int chunkOrderIndex,
-        ILargeLanguageModelChunkConvertible chunk,
+        ILlmChunkConvertible chunk,
         SendMessagePipelineContext context)
     {
         var llmChunk = chunk.Convert();
-        var choice = llmChunk.Options.First();
-        var msg = choice.Message;
+        var choice = llmChunk.Choices.First();
         return new MessageChunkDto(
             chunkOrderIndex,
-            choice.Index,
             context.Conversation!.Id.Value,
             context.AssistantMessage!.Id.Value,
             context.AssistantMessage.PreviousMessage!.Id.Value,
             Enum.GetName(context.AssistantMessage.Role)!.ToLower(),
-            msg.Content,
+            choice.Content,
             DateTime.UtcNow);
     }
 }
