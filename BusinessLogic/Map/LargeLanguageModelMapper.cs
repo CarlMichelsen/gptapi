@@ -6,11 +6,11 @@ namespace BusinessLogic.Map;
 
 public static class LargeLanguageModelMapper
 {
-    public static LargeLanguageModelRequest Map(Conversation conversation)
+    public static LargeLanguageModelRequest Map(Conversation conversation, string modelString)
     {
         return new LargeLanguageModelRequest
         {
-            ModelVersion = new LargeLanguageModelVersion { Model = "gpt-4" },
+            ModelVersion = new LargeLanguageModelVersion { Model = modelString },
             Messages = conversation.Messages.Select(Map).ToList(),
         };
     }

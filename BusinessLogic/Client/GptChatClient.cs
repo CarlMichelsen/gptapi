@@ -154,7 +154,7 @@ public class GptChatClient : IGptChatClient
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         using var stream = response.Content.ReadAsStream(cancellationToken);
-        await foreach (var chunk in JsonStreamProcessor.ReadJsonObjectsAsync(stream))
+        await foreach (var chunk in GptResponseStreamProcessor.ReadGptStream(stream))
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (string.IsNullOrWhiteSpace(chunk))

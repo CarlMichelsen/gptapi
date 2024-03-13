@@ -46,7 +46,7 @@ public class StreamGptResponseStep : IPipelineStep<SendMessagePipelineContext>
 
         try
         {
-            var prompt = LargeLanguageModelMapper.Map(context.Conversation!);
+            var prompt = LargeLanguageModelMapper.Map(context.Conversation!, "gpt-4");
             var gptChunkAsyncEnumerable = this.largeLanguageModelClient.StreamPrompt(prompt, LargeLanguageModelProvider.OpenAi, cancellationToken);
 
             var orderCounter = 0;

@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="LargeLanguageModel\Claude\Stream\Event\" />
+  </ItemGroup>
+
 </Project>

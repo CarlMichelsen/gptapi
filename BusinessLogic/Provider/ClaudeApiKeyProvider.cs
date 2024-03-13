@@ -1,55 +1,55 @@
 ﻿using Domain.Abstractions;
 using Domain.Configuration;
-using Domain.LargeLanguageModel.OpenAi;
+using Domain.LargeLanguageModel.Claude;
 using Domain.LargeLanguageModel.Shared;
 using Interface.Provider;
 using Microsoft.Extensions.Options;
 
 namespace BusinessLogic.Provider;
 
-public class GptApiKeyProvider : IGptApiKeyProvider
+public class ClaudeApiKeyProvider : IClaudeApiKeyProvider
 {
     private static readonly Random RandomObject = new();
     private static readonly List<string> KeysInUse = new();
 
-    private readonly IOptions<GptOptions> gptOptions;
+    private readonly IOptions<ClaudeOptions> claudeOptions;
 
-    public GptApiKeyProvider(
-        IOptions<GptOptions> gptOptions)
+    public ClaudeApiKeyProvider(
+        IOptions<ClaudeOptions> claudeOptions)
     {
-        this.gptOptions = gptOptions;
+        this.claudeOptions = claudeOptions;
     }
 
-    public async Task<Result<GptApiKey>> GetReservedApiKey()
+    public async Task<Result<ClaudeApiKey>> GetReservedApiKey()
     {
         var availableKeys = this.GetAvailableKeys();
 
         if (availableKeys.Count == 0)
         {
-            return new Error("GptApiKeyProvider.NoAvailableKeys");
+            return new Error("ClaudeApiKeyProvider.NoAvailableKeys");
         }
 
         var apiKeyString = this.GetRandomElement(availableKeys, RandomObject);
         if (string.IsNullOrWhiteSpace(apiKeyString))
         {
-            return new Error("GptApiKeyProvider.ReservedApiKeyStringIsNullOrWhitespace");
+            return new Error("ClaudeApiKeyProvider.ReservedApiKeyStringIsNullOrWhitespace");
         }
 
         if (KeysInUse.Contains(apiKeyString))
         {
-            return new Error("GptApiKeyProvider.ApiKeyAlreadyReserved");
+            return new Error("ClaudeApiKeyProvider.ApiKeyAlreadyReserved");
         }
         else
         {
             KeysInUse.Add(apiKeyString);
         }
         
-        return await Task.Run(() => new GptApiKey(apiKeyString, this.CancelKeyReservation));
+        return await Task.Run(() => new ClaudeApiKey(apiKeyString, this.CancelKeyReservation));
     }
 
     private List<string> GetAvailableKeys()
     {
-        return this.gptOptions.Value.ApiKeys
+        return this.claudeOptions.Value.ApiKeys
             .Where(a => !KeysInUse.Contains(a))
             .ToList();
     }

@@ -1,14 +1,13 @@
 ﻿using System.Text;
-using System.Text.Json;
 
 namespace BusinessLogic.Json;
 
-public static class JsonStreamProcessor
+public static class GptResponseStreamProcessor
 {
     public const string LineStartDelimeter = "data: ";
     public const string DoneText = "[DONE]";
 
-    public static async IAsyncEnumerable<string> ReadJsonObjectsAsync(Stream stream)
+    public static async IAsyncEnumerable<string> ReadGptStream(Stream stream)
     {
         using StreamReader sr = new StreamReader(stream, Encoding.UTF8);
         

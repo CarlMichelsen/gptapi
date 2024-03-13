@@ -6,4 +6,9 @@ public enum LargeLanguageModelProvider
     /// OpenAi ChatGPT.
     /// </summary>
     OpenAi,
+
+    /// <summary>
+    /// Claude api.
+    /// </summary>
+    Claude,
 }

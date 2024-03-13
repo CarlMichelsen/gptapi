@@ -55,8 +55,9 @@ public class LargeLanguageModelClient : ILargeLanguageModelClient
     private Result<ILargeLanguageModelIntegrationClient> CreateLargeLanguageModelClient(LargeLanguageModelProvider provider)
     {
         return provider switch {
-            LargeLanguageModelProvider.OpenAi => this.CreateClient<GptChatClient>(),
-            _ => new Error("CreateLargeLanguageModelClient.DidNotFindImplementedClient"),
+            LargeLanguageModelProvider.OpenAi => this.CreateClient<IGptChatClient>(),
+            LargeLanguageModelProvider.Claude => this.CreateClient<IClaudeChatClient>(),
+            _ => new Error("CreateLargeLanguageModelClient.DidNotFindImplementedClient", $"Attempted to instantiate {nameof(provider)}"),
         };
     }
 

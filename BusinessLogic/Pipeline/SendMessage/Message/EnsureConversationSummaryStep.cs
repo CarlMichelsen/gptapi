@@ -38,7 +38,7 @@ public class EnsureConversationSummaryStep : IPipelineStep<SendMessagePipelineCo
         }
 
         var prompt = this.GeneratePrompt(context.Conversation!);
-        var res = await this.largeLanguageModelClient.Prompt(prompt, LargeLanguageModelProvider.OpenAi, cancellationToken);
+        var res = await this.largeLanguageModelClient.Prompt(prompt, LargeLanguageModelProvider.Claude, cancellationToken);
         if (cancellationToken.IsCancellationRequested)
         {
             return new Error("EnsureConversationSummaryStep.Cancelled");
@@ -73,13 +73,7 @@ public class EnsureConversationSummaryStep : IPipelineStep<SendMessagePipelineCo
 
     private LargeLanguageModelRequest GeneratePrompt(Conversation conversation)
     {
-        var initialPrompt = LargeLanguageModelMapper.Map(conversation);
-
-        initialPrompt.Messages.Insert(0, new LargeLanguageModelMessage
-        {
-            Role = LargeLanguageModelMapper.Map(Role.System),
-            Content = "Following this message you will be a conversation between a person and you. Make sue to keep track of the contents og this conversation as it will be relevant later. Keep track of what the conversation has been about so far. whatever you do DO NOT ANSWER WITH MORE THAN 44 CHARACTERS!",
-        });
+        var initialPrompt = LargeLanguageModelMapper.Map(conversation, "claude-3-opus-20240229"); // gpt-4
 
         initialPrompt.Messages.Add(new LargeLanguageModelMessage
         {

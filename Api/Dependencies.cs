@@ -30,6 +30,7 @@ public static class Dependencies
         builder.Services
             .AddCors()
             .Configure<GptOptions>(builder.Configuration.GetSection(GptOptions.SectionName))
+            .Configure<ClaudeOptions>(builder.Configuration.GetSection(ClaudeOptions.SectionName))
             .Configure<ApplicationOptions>(options => options.IsDevelopment = builder.Environment.IsDevelopment());
 
         // Database
@@ -49,12 +50,14 @@ public static class Dependencies
         builder.Services
             .AddTransient<IConversationService, ConversationService>()
             .AddTransient<IGptApiKeyProvider, GptApiKeyProvider>()
+            .AddTransient<IClaudeApiKeyProvider, ClaudeApiKeyProvider>()
             .AddScoped<ICacheService, CacheService>()
             .AddScoped<ISessionService, SessionService>();
         
         // LLM Clients
         builder.Services
             .AddTransient<IGptChatClient, GptChatClient>()
+            .AddTransient<IClaudeChatClient, ClaudeChatClient>()
             .AddTransient<ILargeLanguageModelClient, LargeLanguageModelClient>();
 
         builder.Services.AddSignalR();
@@ -111,6 +114,8 @@ public static class Dependencies
         // Typed HttpClient Factories
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddHttpClient<GptChatClient>(client =>
+            client.Timeout = TimeSpan.FromSeconds(120));
+        builder.Services.AddHttpClient<ClaudeChatClient>(client =>
             client.Timeout = TimeSpan.FromSeconds(30));
     }
 }

@@ -2,7 +2,7 @@
 
 namespace BusinessLogic.Json;
 
-public static class JsonParser
+public static class CamelCaseJsonParser
 {
     public static JsonSerializerOptions Default { get; } = new JsonSerializerOptions(JsonSerializerOptions.Default)
     {
