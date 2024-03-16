@@ -82,6 +82,7 @@ public static class Dependencies
         // Handlers
         builder.Services
             .AddTransient<ISessionHandler, SessionHandler>()
+            .AddTransient<IAvailableModelHandler, AvailableModelHandler>()
             .AddTransient<IConversationHandler, ConversationHandler>();
 
         // Factories

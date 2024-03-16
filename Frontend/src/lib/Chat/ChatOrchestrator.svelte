@@ -1,6 +1,7 @@
 <script lang="ts">
     import { ConnectionMethods } from "../../connectionMethods";
     import { applicationStore } from "../../store/applicationStore";
+    import type { AvailableModel } from "../../types/dto/availableModel/availableModel";
     import type { SendMessageRequest } from "../../types/dto/sendMessageRequest";
     import InteractionOrchestrator from "../Interaction/InteractionOrchestrator.svelte";
     import AssistantResponseParser from "./AssistantResponseParser.svelte";
@@ -17,7 +18,7 @@
         scrollableArea.scrollTop = scrollableArea.scrollHeight;
     }
 
-    const reply = (content: string, prevMsgId: string | null = null) => {
+    const reply = (content: string, selectedModel: AvailableModel, prevMsgId: string | null = null) => {
         if ($applicationStore.state === "logged-out") return;
 
         const sendMessageRequest: SendMessageRequest = {
@@ -25,8 +26,8 @@
             conversationId: $applicationStore.selectedConversation?.id ?? null,
             messageContent: content,
             promptSetting: {
-                provider: "anthropic",
-                model: "claude-3-opus-20240229",
+                provider: selectedModel.providerIdentifier,
+                model: selectedModel.modelIdentifier,
             },
         };
 

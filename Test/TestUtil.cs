@@ -1,7 +1,4 @@
-﻿using Database;
-using Domain.Configuration;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Domain.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace Test;
