@@ -2,8 +2,8 @@
 
 namespace Domain.LargeLanguageModel.Claude.Stream;
 
-public abstract class ClaudeEventBase
+public abstract class ClaudeUnknownEventBase
 {
     [JsonPropertyName("type")]
-    public required string Type { get; init; }
+    public required string TypeString { get; init; }
 }

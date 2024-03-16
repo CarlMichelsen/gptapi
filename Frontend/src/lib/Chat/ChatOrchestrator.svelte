@@ -24,6 +24,10 @@
             previousMessageId: prevMsgId,
             conversationId: $applicationStore.selectedConversation?.id ?? null,
             messageContent: content,
+            promptSetting: {
+                provider: "anthropic",
+                model: "claude-3-opus-20240229",
+            },
         };
 
         ConnectionMethods.sendMessage(sendMessageRequest);

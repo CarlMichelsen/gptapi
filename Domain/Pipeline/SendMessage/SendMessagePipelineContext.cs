@@ -5,11 +5,11 @@ namespace Domain.Pipeline.SendMessage;
 
 public class SendMessagePipelineContext
 {
-    public string LlmModel => "gpt-4";
+    public int MaxTokens => 4096;
 
-    public int MaxTokens => 6000;
+    public required string LlmModel { get; init; }
 
-    public LlmProvider LlmProvider => LlmProvider.OpenAi;
+    public required LlmProvider LlmProvider { get; init; }
 
     public required string ConnectionId { get; init; }
     

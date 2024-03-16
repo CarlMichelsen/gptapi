@@ -1,9 +1,13 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using BusinessLogic.Handler;
+using BusinessLogic.Json;
 using BusinessLogic.Map.LargeLanguageModel;
 using Domain.Abstractions;
 using Domain.LargeLanguageModel.Claude;
+using Domain.LargeLanguageModel.Claude.Stream;
+using Domain.LargeLanguageModel.Claude.Stream.Event;
 using Domain.LargeLanguageModel.Shared.Interface;
 using Domain.LargeLanguageModel.Shared.Request;
 using Interface.Client;
@@ -45,7 +49,7 @@ public class ClaudeChatClient : IClaudeChatClient
         {
             var responseResult = await this.PromptClaude(
                 key,
-                ClaudeMapper.Map(request, 2000),
+                ClaudeMapper.Map(request, request.MaxTokens),
                 false,
                 cancellationToken);
             
@@ -62,7 +66,102 @@ public class ClaudeChatClient : IClaudeChatClient
         LlmRequest request,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        yield break;
+        var apiKeyResult = await this.claudeApiKeyProvider.GetReservedApiKey();
+        if (apiKeyResult.IsError)
+        {
+            yield return apiKeyResult.Error!;
+            yield break;
+        }
+
+        await using (var key = apiKeyResult.Unwrap())
+        {
+            var responseResult = await this.PromptClaude(
+                key,
+                ClaudeMapper.Map(request, request.MaxTokens),
+                true,
+                cancellationToken);
+            
+            if (responseResult.IsError)
+            {
+                yield return responseResult.Error!;
+                yield break;
+            }
+
+            var httpResponseStream = responseResult
+                .Unwrap().Content
+                .ReadAsStream(cancellationToken);
+
+            var handler = new ClaudeStreamProcessor(this.logger);
+            await foreach (var chunkResult in ClaudeResponseStreamProcessor.ReadClaudeStream(httpResponseStream))
+            {
+                if (chunkResult.IsError)
+                {
+                    yield return chunkResult.Error!;
+                    yield break;
+                }
+
+                var chunk = chunkResult.Unwrap();
+                Result<ILlmChunkConvertible>? res = null;
+
+                switch (chunk.Type)
+                {
+                    case ClaudeStreamEventType.MessageStart:
+                        res = this.HandleEvent<EventMessageStart>(chunk.JsonContent, handler.HandleMessageStart);
+                        break;
+                    
+                    case ClaudeStreamEventType.ContentBlockStart:
+                        res = this.HandleEvent<EventContentBlockStart>(chunk.JsonContent, handler.HandleContentBlockStart);
+                        break;
+                    
+                    case ClaudeStreamEventType.Ping:
+                        res = this.HandleEvent<EventPing>(chunk.JsonContent, handler.HandlePing);
+                        break;
+
+                    case ClaudeStreamEventType.ContentBlockDelta:
+                        res = this.HandleEvent<EventContentBlockDelta>(chunk.JsonContent, handler.HandleContentBlockDelta);
+                        break;
+                    
+                    case ClaudeStreamEventType.ContentBlockStop:
+                        res = this.HandleEvent<EventContentBlockStop>(chunk.JsonContent, handler.HandleContentBlockStop);
+                        break;
+                    
+                    case ClaudeStreamEventType.MessageDelta:
+                        res = this.HandleEvent<EventMessageDelta>(chunk.JsonContent, handler.HandleMessageDelta);
+                        break;
+                    
+                    case ClaudeStreamEventType.MessageStop:
+                        res = this.HandleEvent<EventMessageStop>(chunk.JsonContent, handler.HandleMessageStop);
+                        break;
+
+                    default:
+                        yield return new Error("Unhandled ClaudeStreamEvent Type");
+                        yield break;
+                }
+
+                if (res is not null)
+                {
+                    yield return res;
+                    if (res.IsError)
+                    {
+                        yield break;
+                    }
+                }
+            }
+        }
+    }
+
+    private Result<ILlmChunkConvertible>? HandleEvent<T>(
+        string jsonContent,
+        Func<T, Result<ILlmChunkConvertible>?> action)
+        where T : IClaudeEvent
+    {
+        var deserialized = JsonSerializer.Deserialize<T>(jsonContent);
+        if (deserialized is null)
+        {
+            return new Error("Unable to deserialize ClaudeStreamEventType.ContentBlockDelta");
+        }
+
+        return action(deserialized);
     }
 
     private async Task<Result<HttpResponseMessage>> PromptClaude(

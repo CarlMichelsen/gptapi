@@ -55,9 +55,7 @@ public class StreamGptResponseStep : IPipelineStep<SendMessagePipelineContext>
             {
                 if (gptChunkResult.IsError)
                 {
-                    var err = new ErrorDto(gptChunkResult.Error!);
-                    await client.Error(err);
-                    break;
+                    return gptChunkResult.Error!;
                 }
 
                 var gptChunk = gptChunkResult.Unwrap();

@@ -1,6 +1,6 @@
 ﻿namespace Domain.LargeLanguageModel.Claude.Stream;
 
-public class ClaudeStreamEvent
+public class ClaudeGenericStreamEvent
 {
     public required ClaudeStreamEventType Type { get; init; }
     

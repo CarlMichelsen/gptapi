@@ -23,6 +23,11 @@ public enum ClaudeStreamEventType
     ContentBlockDelta,
 
     /// <summary>
+    /// content_block_stop.
+    /// </summary>
+    ContentBlockStop,
+
+    /// <summary>
     /// message_delta.
     /// </summary>
     MessageDelta,

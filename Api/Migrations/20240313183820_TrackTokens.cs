@@ -22,7 +22,7 @@ namespace Api.Migrations
                 table: "Message",
                 type: "text",
                 nullable: false,
-                defaultValue: "",
+                defaultValue: string.Empty,
                 oldClrType: typeof(string),
                 oldType: "text",
                 oldNullable: true);
@@ -43,7 +43,7 @@ namespace Api.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Provider = table.Column<int>(type: "integer", nullable: false),
                     Model = table.Column<string>(type: "text", nullable: false),
-                    Tokens = table.Column<int>(type: "integer", nullable: false)
+                    Tokens = table.Column<int>(type: "integer", nullable: false),
                 },
                 constraints: table =>
                 {

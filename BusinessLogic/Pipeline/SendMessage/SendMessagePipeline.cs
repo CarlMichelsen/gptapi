@@ -48,6 +48,6 @@ public sealed class SendMessagePipeline : Pipeline<SendMessagePipelineContext>
 
         this.logger.LogInformation(
             "Completed <SendMessagePipeline> execution for message\nExecution time: {ms} ms",
-            timespan!.Value.Milliseconds);
+            timespan!.Value.TotalMilliseconds);
     }
 }

@@ -2,8 +2,10 @@
 
 namespace Domain.LargeLanguageModel.Claude.Stream.Event;
 
-public class EventContentBlockStart : ClaudeEventBase
+public class EventContentBlockStart : ClaudeUnknownEventBase, IClaudeEvent
 {
+    public ClaudeStreamEventType Type => ClaudeStreamEventType.ContentBlockStart;
+
     [JsonPropertyName("index")]
     public required int Index { get; init; }
 

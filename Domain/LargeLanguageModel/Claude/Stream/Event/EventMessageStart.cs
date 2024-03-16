@@ -2,8 +2,10 @@
 
 namespace Domain.LargeLanguageModel.Claude.Stream.Event;
 
-public class EventMessageStart : ClaudeEventBase
+public class EventMessageStart : ClaudeUnknownEventBase, IClaudeEvent
 {
+    public ClaudeStreamEventType Type => ClaudeStreamEventType.MessageStart;
+    
     [JsonPropertyName("message")]
     public required ClaudeResponse Message { get; init; }
 }

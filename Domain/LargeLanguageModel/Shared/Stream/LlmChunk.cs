@@ -1,5 +1,4 @@
-﻿using Domain.LargeLanguageModel.Shared.Request;
-using Domain.LargeLanguageModel.Shared.Response;
+﻿using Domain.LargeLanguageModel.Shared.Response;
 
 namespace Domain.LargeLanguageModel.Shared.Stream;
 

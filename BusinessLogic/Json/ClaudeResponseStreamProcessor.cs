@@ -14,6 +14,7 @@ public static class ClaudeResponseStreamProcessor
             KeyValuePair.Create("content_block_start",  ClaudeStreamEventType.ContentBlockStart),
             KeyValuePair.Create("ping",                 ClaudeStreamEventType.Ping),
             KeyValuePair.Create("content_block_delta",  ClaudeStreamEventType.ContentBlockDelta),
+            KeyValuePair.Create("content_block_stop",   ClaudeStreamEventType.ContentBlockStop),
             KeyValuePair.Create("message_delta",        ClaudeStreamEventType.MessageDelta),
             KeyValuePair.Create("message_stop",         ClaudeStreamEventType.MessageStop),
         });
@@ -21,7 +22,7 @@ public static class ClaudeResponseStreamProcessor
     private const string EventLineStart = "event: ";
     private const string DataLineStart = "data: ";
 
-    public static async IAsyncEnumerable<Result<ClaudeStreamEvent>> ReadClaudeStream(Stream stream)
+    public static async IAsyncEnumerable<Result<ClaudeGenericStreamEvent>> ReadClaudeStream(Stream stream)
     {
         using StreamReader sr = new StreamReader(stream, Encoding.UTF8);
         
@@ -55,7 +56,7 @@ public static class ClaudeResponseStreamProcessor
         }
     }
 
-    private static Result<ClaudeStreamEvent> HandleData(Stream stream, string? eventString, string line)
+    private static Result<ClaudeGenericStreamEvent> HandleData(Stream stream, string? eventString, string line)
     {
         if (string.IsNullOrWhiteSpace(eventString))
         {
@@ -72,7 +73,7 @@ public static class ClaudeResponseStreamProcessor
                 return new Error("ClaudeResponseStreamProcessor.ReceievedEmptyData");
             }
 
-            return new ClaudeStreamEvent
+            return new ClaudeGenericStreamEvent
             {
                 Type = streamEvent,
                 JsonContent = jsonString,

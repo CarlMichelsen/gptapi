@@ -1,5 +1,6 @@
 ﻿namespace Domain.LargeLanguageModel.Claude.Stream.Event;
 
-public class EventPing : ClaudeEventBase
+public class EventPing : ClaudeUnknownEventBase, IClaudeEvent
 {
+    public ClaudeStreamEventType Type => ClaudeStreamEventType.Ping;
 }
