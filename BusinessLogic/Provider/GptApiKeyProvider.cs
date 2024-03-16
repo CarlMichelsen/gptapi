@@ -47,6 +47,11 @@ public class GptApiKeyProvider : IGptApiKeyProvider
         return await Task.Run(() => new GptApiKey(apiKeyString, this.CancelKeyReservation));
     }
 
+    public Task UnsafeUnreserveAll()
+    {
+        return Task.Run(() => KeysInUse.Clear());
+    }
+
     private List<string> GetAvailableKeys()
     {
         return this.gptOptions.Value.ApiKeys

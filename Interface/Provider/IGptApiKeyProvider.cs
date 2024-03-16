@@ -7,4 +7,6 @@ namespace Interface.Provider;
 public interface IGptApiKeyProvider
 {
     public Task<Result<GptApiKey>> GetReservedApiKey();
+
+    public Task UnsafeUnreserveAll();
 }
