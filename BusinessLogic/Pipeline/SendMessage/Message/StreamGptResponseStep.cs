@@ -2,10 +2,7 @@
 using BusinessLogic.Hub;
 using BusinessLogic.Map;
 using Domain.Abstractions;
-using Domain.Dto;
 using Domain.Dto.Conversation;
-using Domain.LargeLanguageModel.OpenAi;
-using Domain.LargeLanguageModel.Shared;
 using Domain.LargeLanguageModel.Shared.Interface;
 using Domain.Pipeline.SendMessage;
 using Interface.Client;

@@ -1,5 +1,4 @@
-﻿using BusinessLogic.Hub;
-using BusinessLogic.Pipeline.SendMessage;
+﻿using BusinessLogic.Pipeline.SendMessage;
 using Domain.Dto;
 using Domain.Dto.Conversation;
 using Domain.Dto.Session;
@@ -20,7 +19,7 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
     private readonly ILogger<ChatHubHandler> logger;
     private readonly IScopedServiceFactory scopedServiceFactory;
 
-    public ChatHubHandler(
+    protected ChatHubHandler(
         ILogger<ChatHubHandler> logger,
         IScopedServiceFactory scopedServiceFactory)
     {
@@ -37,16 +36,7 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
         var result = await this.RunSendMessagePipeline(sendMessageRequest, source.Token);
         await this.HandleResult(result);
     }
-
-    private async Task HandleResult(Domain.Abstractions.Result<SendMessagePipelineContext> result)
-    {
-        if (result.IsError)
-        {
-            var err = new ErrorDto(result.Error!);
-            await this.Clients.Caller.Error(err);
-        }
-    }
-
+    
     private static bool IsDefined(Guid? guid)
     {
         if (guid is null)
@@ -60,6 +50,15 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
         }
 
         return true;
+    }
+    
+    private async Task HandleResult(Domain.Abstractions.Result<SendMessagePipelineContext> result)
+    {
+        if (result.IsError)
+        {
+            var err = new ErrorDto(result.Error!);
+            await this.Clients.Caller.Error(err);
+        }
     }
 
     private async Task<Domain.Abstractions.Result<SendMessagePipelineContext>> RunSendMessagePipeline(
