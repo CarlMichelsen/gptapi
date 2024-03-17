@@ -1,4 +1,7 @@
-﻿using Domain.Configuration;
+﻿using Domain.Abstractions;
+using Domain.Configuration;
+using Domain.LargeLanguageModel.OpenAi;
+using Domain.LargeLanguageModel.Shared;
 using Interface.Provider;
 using Microsoft.Extensions.Options;
 
@@ -6,6 +9,7 @@ namespace BusinessLogic.Provider;
 
 public class GptApiKeyProvider : IGptApiKeyProvider
 {
+    private static readonly Random RandomObject = new();
     private static readonly List<string> KeysInUse = new();
 
     private readonly IOptions<GptOptions> gptOptions;
@@ -16,35 +20,60 @@ public class GptApiKeyProvider : IGptApiKeyProvider
         this.gptOptions = gptOptions;
     }
 
-    public Task<string?> ReserveAKey()
+    public async Task<Result<GptApiKey>> GetReservedApiKey()
     {
-        var availableKeys = this.gptOptions.Value.ApiKeys
-            .Where(a => !KeysInUse.Contains(a))
-            .ToList();
-        
+        var availableKeys = this.GetAvailableKeys();
+
         if (availableKeys.Count == 0)
         {
-            return Task.FromResult<string?>(default);
+            return new Error("GptApiKeyProvider.NoAvailableKeys");
         }
 
-        var key = availableKeys.FirstOrDefault();
-        if (key is not null)
+        var apiKeyString = this.GetRandomElement(availableKeys, RandomObject);
+        if (string.IsNullOrWhiteSpace(apiKeyString))
         {
-            KeysInUse.Add(key);
+            return new Error("GptApiKeyProvider.ReservedApiKeyStringIsNullOrWhitespace");
         }
 
-        return Task.FromResult<string?>(key);
+        if (KeysInUse.Contains(apiKeyString))
+        {
+            return new Error("GptApiKeyProvider.ApiKeyAlreadyReserved");
+        }
+        else
+        {
+            KeysInUse.Add(apiKeyString);
+        }
+        
+        return await Task.Run(() => new GptApiKey(apiKeyString, this.CancelKeyReservation));
     }
 
-    public Task CancelKeyReservation(string key)
+    public Task UnsafeUnreserveAll()
     {
-        KeysInUse.Remove(key);
-        return Task.CompletedTask;
+        return Task.Run(() => KeysInUse.Clear());
     }
 
-    public Task UnlockAll()
+    private List<string> GetAvailableKeys()
     {
-        KeysInUse.Clear();
+        return this.gptOptions.Value.ApiKeys
+            .Where(a => !KeysInUse.Contains(a))
+            .ToList();
+    }
+
+    private T GetRandomElement<T>(List<T> list, Random? rand = default)
+    {
+        var random = rand ?? new Random();
+        var index = random.Next(list.Count);
+
+        return list[index];
+    }
+
+    private Task CancelKeyReservation(LlmReservableApiKey apiKey)
+    {
+        if (apiKey?.ApiKey is not null)
+        {
+            KeysInUse.Remove(apiKey.ApiKey);
+        }
+        
         return Task.CompletedTask;
     }
 }

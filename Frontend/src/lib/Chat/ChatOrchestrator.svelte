@@ -1,6 +1,7 @@
 <script lang="ts">
     import { ConnectionMethods } from "../../connectionMethods";
     import { applicationStore } from "../../store/applicationStore";
+    import type { AvailableModel } from "../../types/dto/availableModel/availableModel";
     import type { SendMessageRequest } from "../../types/dto/sendMessageRequest";
     import InteractionOrchestrator from "../Interaction/InteractionOrchestrator.svelte";
     import AssistantResponseParser from "./AssistantResponseParser.svelte";
@@ -17,13 +18,17 @@
         scrollableArea.scrollTop = scrollableArea.scrollHeight;
     }
 
-    const reply = (content: string, prevMsgId: string | null = null) => {
+    const reply = (content: string, selectedModel: AvailableModel, prevMsgId: string | null = null) => {
         if ($applicationStore.state === "logged-out") return;
 
         const sendMessageRequest: SendMessageRequest = {
             previousMessageId: prevMsgId,
             conversationId: $applicationStore.selectedConversation?.id ?? null,
             messageContent: content,
+            promptSetting: {
+                provider: selectedModel.providerIdentifier,
+                model: selectedModel.modelIdentifier,
+            },
         };
 
         ConnectionMethods.sendMessage(sendMessageRequest);
@@ -48,6 +53,12 @@
     }
 
     ConnectionMethods.assignSummaryToConversation = (convId: string, summary: string) => applicationStore.updateConversationSummary(convId, summary);
+
+    ConnectionMethods.error = (err) => {
+        console.error("ERROR", err);
+        const desc = err.description ? `\n${err.description}` : "";
+        alert(`${err.code}${desc}\n\n${err.timeStampUtc}`);
+    };
 
     $: $applicationStore.state === "logged-in" && $applicationStore.selectedConversation && setTimeout(scrollToBottom, 0);
 </script>

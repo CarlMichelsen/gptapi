@@ -57,6 +57,7 @@ namespace Api.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Content")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<Guid?>("ConversationId")
@@ -68,10 +69,10 @@ namespace Api.Migrations
                     b.Property<Guid?>("PreviousMessageId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ResponseId")
-                        .HasColumnType("text");
-
                     b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("UsageId")
                         .HasColumnType("integer");
 
                     b.Property<bool>("Visible")
@@ -83,7 +84,32 @@ namespace Api.Migrations
 
                     b.HasIndex("PreviousMessageId");
 
+                    b.HasIndex("UsageId");
+
                     b.ToTable("Message", "GptApi");
+                });
+
+            modelBuilder.Entity("Domain.Entity.Usage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Provider")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Tokens")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Usage", "GptApi");
                 });
 
             modelBuilder.Entity("Domain.Entity.Message", b =>
@@ -96,7 +122,13 @@ namespace Api.Migrations
                         .WithMany()
                         .HasForeignKey("PreviousMessageId");
 
+                    b.HasOne("Domain.Entity.Usage", "Usage")
+                        .WithMany()
+                        .HasForeignKey("UsageId");
+
                     b.Navigation("PreviousMessage");
+
+                    b.Navigation("Usage");
                 });
 
             modelBuilder.Entity("Domain.Entity.Conversation", b =>

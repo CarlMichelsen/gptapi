@@ -1,6 +1,8 @@
 ﻿using BusinessLogic.Pipeline.SendMessage;
+using Domain.Dto;
 using Domain.Dto.Conversation;
 using Domain.Dto.Session;
+using Domain.Entity;
 using Domain.Entity.Id;
 using Domain.Exception;
 using Domain.Pipeline.SendMessage;
@@ -17,7 +19,7 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
     private readonly ILogger<ChatHubHandler> logger;
     private readonly IScopedServiceFactory scopedServiceFactory;
 
-    public ChatHubHandler(
+    protected ChatHubHandler(
         ILogger<ChatHubHandler> logger,
         IScopedServiceFactory scopedServiceFactory)
     {
@@ -31,9 +33,10 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
     public async Task SendMessage(SendMessageRequest sendMessageRequest)
     {
         var source = new CancellationTokenSource();
-        await this.RunSendMessagePipeline(sendMessageRequest, source.Token);
+        var result = await this.RunSendMessagePipeline(sendMessageRequest, source.Token);
+        await this.HandleResult(result);
     }
-
+    
     private static bool IsDefined(Guid? guid)
     {
         if (guid is null)
@@ -48,8 +51,17 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
 
         return true;
     }
+    
+    private async Task HandleResult(Domain.Abstractions.Result<SendMessagePipelineContext> result)
+    {
+        if (result.IsError)
+        {
+            var err = new ErrorDto(result.Error!);
+            await this.Clients.Caller.Error(err);
+        }
+    }
 
-    private async Task RunSendMessagePipeline(
+    private async Task<Domain.Abstractions.Result<SendMessagePipelineContext>> RunSendMessagePipeline(
         SendMessageRequest sendMessageRequest,
         CancellationToken cancellationToken)
     {
@@ -70,6 +82,8 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
 
         var initialContext = new SendMessagePipelineContext
         {
+            LlmProvider = this.MapProvider(sendMessageRequest!.PromptSetting.Provider),
+            LlmModel = sendMessageRequest.PromptSetting.Model,
             ConnectionId = this.Context.ConnectionId,
             UserProfileId = this.InitialSessionData.UserProfileId,
             MessageContent = sendMessageRequest!.MessageContent,
@@ -77,6 +91,16 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
         };
 
         var sendMessagePipeline = sendMessagePipelineResult.Unwrap();
-        await sendMessagePipeline.Execute(initialContext, cancellationToken);
+        return await sendMessagePipeline.Execute(initialContext, cancellationToken);
+    }
+
+    private LlmProvider MapProvider(string providerStr)
+    {
+        return providerStr.ToLower() switch
+        {
+            "openai" => LlmProvider.OpenAi,
+            "anthropic" => LlmProvider.Anthropic,
+            _ => throw new LargeLanguageModelException("ProviderMap failed"),
+        };
     }
 }

@@ -47,6 +47,7 @@ app.MapHub<ChatHub>("/chathub");
 
 app.MapGroup("/api/v1")
     .MapConversationEndpoints()
+    .MapAvailableModelEndpoints()
     .MapSessionEndpoints()
     .WithOpenApi();
 

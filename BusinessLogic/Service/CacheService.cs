@@ -27,7 +27,7 @@ public class CacheService : ICacheService
             return default;
         }
 
-        return JsonParser.Deserialize<T>(value);
+        return CamelCaseJsonParser.Deserialize<T>(value);
     }
 
     public Task RemoveAsync(string key)
@@ -47,7 +47,7 @@ public class CacheService : ICacheService
 
     public async Task SetJson<T>(string key, T value, DistributedCacheEntryOptions? distributedCacheEntryOptions = null)
     {
-        var strValue = JsonParser.Serialize(value);
+        var strValue = CamelCaseJsonParser.Serialize(value);
         if (strValue is null)
         {
             return;

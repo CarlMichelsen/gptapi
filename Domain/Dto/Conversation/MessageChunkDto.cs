@@ -2,7 +2,6 @@
 
 public record MessageChunkDto(
     int ChunkOrderIndex,
-    int Index,
     Guid ConversationId,
     Guid MessageId,
     Guid PreviousMessageId,

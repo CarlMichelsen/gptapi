@@ -45,6 +45,13 @@ public class CompleteGptResponseMessageStep : IPipelineStep<SendMessagePipelineC
         }
 
         context.AssistantMessage!.Content = content;
+        context.AssistantMessage.Usage = new Domain.Entity.Usage
+        {
+            Tokens = context.TokenUsage,
+            Model = context.LlmModel,
+            Provider = context.LlmProvider,
+        };
+
         context.AssistantMessage!.CompletedUtc = DateTime.UtcNow;
         context.Conversation!.Messages.Add(context.AssistantMessage!);
 

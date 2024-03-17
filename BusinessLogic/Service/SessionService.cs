@@ -38,7 +38,7 @@ public class SessionService : ISessionService
                 return default;
             }
 
-            var cookieData = JsonParser.Deserialize<CookieData>(cookieDataString);
+            var cookieData = CamelCaseJsonParser.Deserialize<CookieData>(cookieDataString);
             if (cookieData is null)
             {
                 return default;
@@ -47,7 +47,7 @@ public class SessionService : ISessionService
             var sessionDataString = await this.cacheService
                 .Get(cookieData.SessionCacheKey);
 
-            return JsonParser.Deserialize<SessionData>(sessionDataString);
+            return CamelCaseJsonParser.Deserialize<SessionData>(sessionDataString);
         }
         catch (System.Exception e)
         {

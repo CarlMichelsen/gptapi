@@ -7,4 +7,6 @@ public class SendMessageRequest
     public required Guid? ConversationId { get; init; }
 
     public required Guid? PreviousMessageId { get; init; }
+
+    public required PromptSettingDto PromptSetting { get; init; }
 }

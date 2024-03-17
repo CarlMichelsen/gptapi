@@ -49,7 +49,7 @@ public class IdentifyConversationStep : IPipelineStep<SendMessagePipelineContext
         {
             Id = new ConversationId(Guid.NewGuid()),
             UserProfileId = context.UserProfileId,
-            Messages = this.InitialMessages(),
+            Messages = new List<Domain.Entity.Message>(),
             CreatedUtc = DateTime.UtcNow,
         };
 
@@ -64,25 +64,5 @@ public class IdentifyConversationStep : IPipelineStep<SendMessagePipelineContext
         return await this.applicationContext.Conversation
             .Include(c => c.Messages)
             .FirstOrDefaultAsync(c => c.Id == conversationId);
-    }
-
-    private List<Domain.Entity.Message> InitialMessages()
-    {
-        var list = new List<Domain.Entity.Message>();
-
-        var msg1 = new Domain.Entity.Message
-        {
-            Id = new MessageId(Guid.NewGuid()),
-            PreviousMessage = null,
-            Role = Role.System,
-            Content = "You're to do the best possible job understanding what the user wants you to do. You are a real person, your political beliefs are wildly leftist and your opinions are the same.",
-            CreatedUtc = DateTime.UtcNow,
-            CompletedUtc = DateTime.UtcNow,
-            Visible = false,
-        };
-
-        list.Add(msg1);
-
-        return list;
     }
 }

@@ -2,8 +2,11 @@
 using System.Text;
 using System.Text.Json;
 using BusinessLogic.Json;
+using BusinessLogic.Map.LargeLanguageModel;
 using Domain.Abstractions;
-using Domain.Gpt;
+using Domain.LargeLanguageModel.OpenAi;
+using Domain.LargeLanguageModel.Shared.Interface;
+using Domain.LargeLanguageModel.Shared.Request;
 using Interface.Client;
 using Interface.Provider;
 using Microsoft.Extensions.Logging;
@@ -28,21 +31,78 @@ public class GptChatClient : IGptChatClient
         this.gptApiKeyProvider = gptApiKeyProvider;
     }
 
-    public async Task<Result<GptChatResponse>> Prompt(GptChatPrompt prompt, CancellationToken cancellationToken)
+    public async IAsyncEnumerable<Result<ILlmChunkConvertible>> StreamPrompt(
+        LlmRequest request,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        this.logger.LogInformation("{clientName} was prompted", nameof(GptChatClient));
-        var key = await this.gptApiKeyProvider.ReserveAKey();
-        
-        if (key is null)
+        this.logger.LogInformation("{clientName} was prompted for a stream response", nameof(GptChatClient));
+        var keyResult = await this.gptApiKeyProvider.GetReservedApiKey();
+        if (keyResult.IsError)
         {
-            this.logger.LogWarning("No apikey was available");
-            return new Error("Prompt.ApiKey", "No apikey was available");
+            yield return keyResult.Error!;
+            yield break;
         }
 
+        await using (var key = keyResult.Unwrap())
+        {
+            var httpResponseResult = await this.HandleOpenAiRequest(
+                OpenAiMapper.Map(request),
+                key,
+                true,
+                cancellationToken);
+            
+            if (httpResponseResult.IsError)
+            {
+                yield return httpResponseResult.Error!;
+                yield break;
+            }
+
+            var httpRes = httpResponseResult.Unwrap();
+            await foreach (var chunk in this.RawStreamPrompt(httpRes, cancellationToken))
+            {
+                yield return chunk;
+            }
+        }
+    }
+
+    public async Task<Result<ILlmResponseConvertible>> Prompt(
+        LlmRequest request,
+        CancellationToken cancellationToken)
+    {
+        this.logger.LogInformation("{clientName} was prompted", nameof(GptChatClient));
+        var keyResult = await this.gptApiKeyProvider.GetReservedApiKey();
+        if (keyResult.IsError)
+        {
+            return keyResult.Error!;
+        }
+
+        await using (var key = keyResult.Unwrap())
+        {
+            var httpResponseResult = await this.HandleOpenAiRequest(
+                OpenAiMapper.Map(request),
+                key,
+                false,
+                cancellationToken);
+            
+            if (httpResponseResult.IsError)
+            {
+                return httpResponseResult.Error!;
+            }
+
+            var httpRes = httpResponseResult.Unwrap();
+            return await this.RawPrompt(httpRes, cancellationToken);
+        }
+    }
+
+    private async Task<Result<HttpResponseMessage>> HandleOpenAiRequest(
+        GptChatPrompt prompt,
+        GptApiKey gptApiKey,
+        bool isStream,
+        CancellationToken cancellationToken)
+    {
         try
         {
-            var httpRes = await this.OpenAiRequest(prompt, key, false, cancellationToken);
-            return await this.RawPrompt(httpRes, cancellationToken);
+            return await this.OpenAiRequest(prompt, gptApiKey, isStream, cancellationToken);
         }
         catch (HttpRequestException e)
             when (e.StatusCode == System.Net.HttpStatusCode.Unauthorized)
@@ -60,67 +120,16 @@ public class GptChatClient : IGptChatClient
             this.logger.LogCritical("Request to OpenAi with apikey failed because of a critical error {e}", e);
             return new Error("Prompt.Exception", "Internal Server Error");
         }
-        finally
-        {
-            await this.gptApiKeyProvider.CancelKeyReservation(key);
-        }
-    }
-
-    public async IAsyncEnumerable<GptChatStreamChunk> StreamPrompt(
-        GptChatPrompt prompt,
-        [EnumeratorCancellation] CancellationToken cancellationToken)
-    {
-        this.logger.LogInformation("{clientName} was prompted for a stream response", nameof(GptChatClient));
-        var key = await this.gptApiKeyProvider.ReserveAKey();
-        if (key is null)
-        {
-            this.logger.LogWarning("No apikey was available");
-            yield break;
-        }
-
-        HttpResponseMessage? httpRes = default;
-        try
-        {
-            httpRes = await this.OpenAiRequest(prompt, key, true, cancellationToken);
-        }
-        catch (HttpRequestException e)
-            when (e.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-        {
-            this.logger.LogCritical("Request to OpenAi with apikey was not authorized {e}", e);
-        }
-        catch (HttpRequestException e)
-        {
-            this.logger.LogWarning("Request to OpenAi with apikey failed {e}", e);
-        }
-        catch (Exception e)
-        {
-            this.logger.LogCritical("Request to OpenAi with apikey failed because of a critical error {e}", e);
-        }
-
-        if (httpRes is null)
-        {
-            await this.gptApiKeyProvider.CancelKeyReservation(key);
-            yield break;
-        }
-
-        await foreach (var chunk in this.RawStreamPrompt(httpRes, cancellationToken))
-        {
-            yield return chunk;
-        }
-
-        await this.gptApiKeyProvider.CancelKeyReservation(key);
     }
 
     private async Task<HttpResponseMessage> OpenAiRequest(
         GptChatPrompt prompt,
-        string key,
+        GptApiKey key,
         bool isStream,
         CancellationToken cancellationToken)
     {
         prompt.Stream = isStream;
         var body = JsonSerializer.Serialize(prompt);
-
-        this.logger.LogCritical(body);
 
         var content = new StringContent(body, Encoding.UTF8, "application/json");
         using var request = new HttpRequestMessage(HttpMethod.Post, Uri)
@@ -128,7 +137,7 @@ public class GptChatClient : IGptChatClient
             Content = content,
             Headers = 
             {
-                { "Authorization", $"Bearer {key}" },
+                { "Authorization", $"Bearer {key.ApiKey}" },
             },
         };
         var response = await this.gptHttpClient.SendAsync(
@@ -145,9 +154,14 @@ public class GptChatClient : IGptChatClient
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         using var stream = response.Content.ReadAsStream(cancellationToken);
-        await foreach (var chunk in JsonStreamProcessor.ReadJsonObjectsAsync(stream))
+        await foreach (var chunk in GptResponseStreamProcessor.ReadGptStream(stream))
         {
             cancellationToken.ThrowIfCancellationRequested();
+            if (string.IsNullOrWhiteSpace(chunk))
+            {
+                continue;
+            }
+
             var deserializedChunk = JsonSerializer.Deserialize<GptChatStreamChunk>(chunk);
             if (deserializedChunk is null)
             {
@@ -158,12 +172,27 @@ public class GptChatClient : IGptChatClient
         }
     }
 
-    private async Task<GptChatResponse> RawPrompt(
+    private async Task<Result<ILlmResponseConvertible>> RawPrompt(
         HttpResponseMessage response,
         CancellationToken cancellationToken)
     {
         var resStr = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<GptChatResponse>(resStr)
-            ?? throw new JsonException("Failed to deserialize response from OpenAi");
+
+        try
+        {
+            var res = JsonSerializer.Deserialize<GptChatResponse>(resStr);
+            if (res is null)
+            {
+                return new Error("RawPrompt.DeserialisationResultedInNullValue");
+            }
+
+            return res;
+        }
+        catch (System.Exception)
+        {
+            var err = new Error("RawPrompt.FailedToDeserializePrompt");
+            this.logger.LogWarning("{code}\n{content}", err.Code, resStr);
+            return err;
+        }
     }
 }
