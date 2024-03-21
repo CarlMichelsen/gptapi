@@ -5,6 +5,8 @@ namespace Domain.Pipeline.SendMessage;
 
 public class SendMessagePipelineContext
 {
+    public Guid PipelineIdentifier { get; init; } = Guid.NewGuid();
+    
     public int MaxTokens => 4096;
 
     public required string LlmModel { get; init; }

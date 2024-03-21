@@ -20,10 +20,11 @@ public static class ClaudeResponseMapper
         };
     }
 
-    public static LlmChunk Map(EventContentBlockDelta eventContentBlockDelta)
+    public static LlmChunk Map(EventContentBlockDelta eventContentBlockDelta, Guid streamIdentifier)
     {
         return new LlmChunk
         {
+            StreamIdentifier = streamIdentifier,
             Choices = new List<LlmContent> { Map(eventContentBlockDelta.Delta) },
         };
     }

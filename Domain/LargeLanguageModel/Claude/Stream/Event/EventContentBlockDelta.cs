@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using Domain.Exception;
 using Domain.LargeLanguageModel.Claude.Map;
 using Domain.LargeLanguageModel.Shared.Interface;
 using Domain.LargeLanguageModel.Shared.Stream;
@@ -15,8 +16,15 @@ public class EventContentBlockDelta : ClaudeUnknownEventBase, IClaudeEvent, ILlm
     [JsonPropertyName("delta")]
     public required ClaudeContentBlock Delta { get; init; }
 
-    public LlmChunk Convert()
+    public LlmChunk Convert(Guid streamIdentifier)
     {
-        return ClaudeResponseMapper.Map(this);
+        try
+        {
+            return ClaudeResponseMapper.Map(this, streamIdentifier);
+        }
+        catch (System.Exception e)
+        {
+            throw new LargeLanguageModelException("Failed converting EventContentBlockDelta to LlmChunk", e);
+        }
     }
 }

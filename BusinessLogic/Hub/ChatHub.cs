@@ -1,7 +1,6 @@
 ﻿using BusinessLogic.Handler;
-using Domain.Dto.Session;
 using Domain.Exception;
-using Interface.Factory;
+using Interface.Handler;
 using Interface.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
@@ -17,9 +16,8 @@ public class ChatHub : ChatHubHandler
     public ChatHub(
         ILogger<ChatHub> logger,
         ISessionService sessionService,
-        ILogger<ChatHubHandler> handlerLogger,
-        IScopedServiceFactory scopedServiceFactory)
-        : base(handlerLogger, scopedServiceFactory)
+        ISendMessagePipelineExecutionHandler sendMessagePipelineExecutionHandler)
+        : base(sendMessagePipelineExecutionHandler)
     {
         this.logger = logger;
         this.sessionService = sessionService;

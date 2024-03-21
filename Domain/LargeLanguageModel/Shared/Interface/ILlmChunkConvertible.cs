@@ -4,5 +4,5 @@ namespace Domain.LargeLanguageModel.Shared.Interface;
 
 public interface ILlmChunkConvertible
 {
-    LlmChunk Convert();
+    LlmChunk Convert(Guid streamIdentifier);
 }

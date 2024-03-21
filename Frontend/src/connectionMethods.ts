@@ -13,6 +13,10 @@ export class ConnectionMethods {
         this.connection.invoke("SendMessage", request);
     }
 
+    public static cancelMessage(streamIdentifier: string) {
+        this.connection.invoke("CancelMessage", streamIdentifier);
+    }
+
     public static set disconnect(method: (() => void) | null) {
         this.registerMethod("disconnect", method);
     }

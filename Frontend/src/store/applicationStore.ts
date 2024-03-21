@@ -2,10 +2,12 @@ import { writable } from 'svelte/store';
 import type { ApplicationStore } from '../types/store/applicationStore';
 import { deleteCookie, getUserData } from '../clients/userDataClient';
 import type { ConversationDto } from '../types/dto/conversation';
-import { getQueryParams, setQueryParam } from '../util/queryParameters';
+import { getQueryParams, setQueryParam } from '../lib/util/queryParameters';
 import type { Message } from '../types/dto/message';
 import type { ReceiveMessage } from '../types/dto/ReceiveMessage';
+import type { ConversationOptionDto } from '../types/dto/conversationOption';
 import { ConversationClient } from '../clients/conversationClient';
+import { conversationOptionMapper } from '../lib/util/conversationOptionMapper';
 
 // Function to create a custom store
 const createApplicationStore = (initialValue: ApplicationStore) => {
@@ -23,7 +25,7 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
                 return;
             }
 
-            store.update((value) => ({ ...value, user: oauthUser, conversationChunks: conversationListResponse.data, state: "logged-in", ready: true } as ApplicationStore));
+            store.update((value) => ({ ...value, user: oauthUser, conversationChunks: conversationOptionMapper(conversationListResponse.data), state: "logged-in", ready: true } as ApplicationStore));
             const queryConversationId = getQueryParams()[conversationQueryParameterName] ?? null;
             selectConversation(queryConversationId);
         } else {
@@ -126,6 +128,17 @@ const createApplicationStore = (initialValue: ApplicationStore) => {
                         selectedMessage: receiveMessageObj.message.id,
                     }
                     value.selectedConversation.messages.push(currentMsgCon);
+                    
+                    if (value.conversationChunks != null) {
+                        const option: ConversationOptionDto = {
+                            id: value.selectedConversation.id!,
+                            summary: value.selectedConversation.summary ?? "New Conversation",
+                            lastAppendedUtc: new Date().toDateString(),
+                            createdUtc: new Date().toDateString(),
+                        };
+    
+                        value.conversationChunks[0]?.options.unshift(option);
+                    }
                 }
             }
 

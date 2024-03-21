@@ -18,10 +18,11 @@ public static class GptMapper
         };
     }
 
-    public static LlmChunk Map(GptChatStreamChunk gptChatStreamChunk)
+    public static LlmChunk Map(GptChatStreamChunk gptChatStreamChunk, Guid streamIdentifier)
     {
         return new LlmChunk
         {
+            StreamIdentifier = streamIdentifier,
             Choices = gptChatStreamChunk.Choices.Select(Map).ToList(),
         };
     }

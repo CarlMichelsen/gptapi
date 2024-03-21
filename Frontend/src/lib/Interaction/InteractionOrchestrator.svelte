@@ -45,7 +45,7 @@
     });
 </script>
 
-<ChatContentHolder isMessage={false}>
+<ChatContentHolder isMessage={false} id="interaction-box">
     <div class="relative h-36 w-full">
         {#if availableModels != null}
         <div class="w-full">

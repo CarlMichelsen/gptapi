@@ -12,7 +12,7 @@
 
 {#if msg.visible}
 <li>
-    <ChatContentHolder isMessage={true}>
+    <ChatContentHolder isMessage={true} id={msg.id}>
         <MessageHeader index={messageContainer.index} messageId={msg.id} role={msg.role}/>
 
         <div>

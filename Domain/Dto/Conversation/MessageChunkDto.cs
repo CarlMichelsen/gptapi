@@ -2,6 +2,7 @@
 
 public record MessageChunkDto(
     int ChunkOrderIndex,
+    Guid streamIdentifier,
     Guid ConversationId,
     Guid MessageId,
     Guid PreviousMessageId,

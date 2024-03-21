@@ -10,6 +10,7 @@
     import MessageHeader from "./MessageHeader.svelte";
     import NoConversationSelected from "./NoConversationSelected.svelte";
 
+    let streamIdentifier: string | null = null;
     let streamedMessageContent: string | null = null;
 
     const scrollToBottom = () => {
@@ -36,12 +37,14 @@
     };
 
     ConnectionMethods.receiveMessage = (receieveMessage) => {
+        streamIdentifier = null;
         streamedMessageContent = null;
         applicationStore.receieveMessage(receieveMessage);
         setTimeout(scrollToBottom, 0);
     }
 
     ConnectionMethods.receiveMessageChunk = (messageChunk) => {
+        streamIdentifier = messageChunk.streamIdentifier;
         if (streamedMessageContent === null) {
             applicationStore.selectConversation(messageChunk.conversationId);
             streamedMessageContent = messageChunk.content;
@@ -69,7 +72,7 @@
         {#if $applicationStore.selectedConversation !== null}
         <div>
             {#if $applicationStore.selectedConversation.summary !== null}
-                <ChatContentHolder isMessage={false}>
+                <ChatContentHolder isMessage={false} id="title-text">
                     <h1 class="text-center mb-6 text-xl font-thin text-zinc-400">{$applicationStore.selectedConversation.summary}</h1>
                 </ChatContentHolder>
             {/if}
@@ -81,10 +84,10 @@
                 <MessageContainer messageContainer={messageContainer} />
             {/each}
 
-            {#if streamedMessageContent}
+            {#if streamedMessageContent && streamIdentifier}
                 <li>
-                    <ChatContentHolder isMessage={true}>
-                        <MessageHeader index={-1} messageId="ongoing..." role={"assistant"}/>
+                    <ChatContentHolder isMessage={true} id="streaming-message">
+                        <MessageHeader index={-1} messageId={streamIdentifier} role={"assistant"}/>
                         <AssistantResponseParser content={streamedMessageContent} />
                     </ChatContentHolder>
                 </li>
