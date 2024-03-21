@@ -36,43 +36,7 @@ public class ConversationMapper : IConversationMapper
             message.CreatedUtc,
             message.Visible);
     }
-
-    public static List<ConversationDateChunkDto> Map(List<ConversationOptionDto> options)
-    {
-        return options.GroupBy(o =>
-            {
-                var totalDays = (DateTime.UtcNow - o.LastAppendedUtc).TotalDays;
-                if (totalDays < 1)
-                {
-                    return "Today";
-                }
-                else if (totalDays < 2)
-                {
-                    return "Yesterday";
-                }
-                else if (totalDays < 7)
-                {
-                    return "This week";
-                }
-                else if(totalDays < 30)
-                {
-                    return "This month";
-                }
-                else if(totalDays < 365)
-                {
-                    return "This year";
-                }
-
-                return "Older than a year";
-            })
-            .Select(g =>
-            {
-                return new ConversationDateChunkDto(g.Key, g.OrderByDescending(ord => ord.LastAppendedUtc).ToList());
-            })
-            .OrderByDescending(dc => dc.Options.First().LastAppendedUtc)
-            .ToList();
-    }
-
+    
     public Task<Result<ConversationDto>> MapConversation(
         Conversation conversation)
     {

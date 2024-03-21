@@ -96,7 +96,7 @@ public class ConversationService : IConversationService
         }
     }
 
-    public async Task<Result<List<ConversationDateChunkDto>>> GetConversationList(
+    public async Task<Result<List<ConversationOptionDto>>> GetConversationList(
         Guid userProfileId)
     {
         try
@@ -107,9 +107,10 @@ public class ConversationService : IConversationService
             
             var conversationOptions = convs
                 .Select(ConversationMapper.MapToMetaDataDto)
+                .OrderByDescending(co => co.LastAppendedUtc)
                 .ToList();
 
-            return ConversationMapper.Map(conversationOptions);
+            return conversationOptions;
         }
         catch (Exception e)
         {

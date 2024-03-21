@@ -11,18 +11,18 @@
 
 <div
     role="button"
-    class={`grid grid-cols-[20px_1fr] gap-2 ${isSelected ? "bg-zinc-700" : ""} hover:bg-zinc-700 select-none p-1 mx-1 rounded-sm h-14`}
+    class={`grid grid-cols-[20px_1fr] gap-1 ${isSelected ? "bg-zinc-700" : ""} hover:bg-zinc-700 select-none p-0.5 mx-1 rounded-sm`}
     tabindex={tabindex}
     on:click={selected(conversationOption.id)}
     on:keypress={(keypress) => {if (keypress.key === " ") selected(conversationOption.id)}}>
 
     <div>
         <button
-            class="font-mono text-red-700 hover:text-white hover:bg-red-700 active:bg-green-700 w-[20px] h-full rounded-lg"
+            class="font-mono text-zinc-400 bg-zinc-700 hover:text-white hover:bg-red-700 active:bg-green-700 w-full h-full rounded-sm"
             on:click={() => deleteConversation(conversationOption.id)}>X</button>
     </div>
 
     <div>
-        <h3 class="my-auto">{conversationOption.summary}</h3>
+        <h3 class="my-auto h-full text-xs text-ellipsis overflow-hidden">{conversationOption.summary}</h3>
     </div>
 </div>

@@ -72,7 +72,7 @@
         {#if $applicationStore.selectedConversation !== null}
         <div>
             {#if $applicationStore.selectedConversation.summary !== null}
-                <ChatContentHolder isMessage={false}>
+                <ChatContentHolder isMessage={false} id="title-text">
                     <h1 class="text-center mb-6 text-xl font-thin text-zinc-400">{$applicationStore.selectedConversation.summary}</h1>
                 </ChatContentHolder>
             {/if}
@@ -86,7 +86,7 @@
 
             {#if streamedMessageContent && streamIdentifier}
                 <li>
-                    <ChatContentHolder isMessage={true}>
+                    <ChatContentHolder isMessage={true} id="streaming-message">
                         <MessageHeader index={-1} messageId={streamIdentifier} role={"assistant"}/>
                         <AssistantResponseParser content={streamedMessageContent} />
                     </ChatContentHolder>

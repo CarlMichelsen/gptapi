@@ -6,6 +6,6 @@ export type ConversationOptionDateChunk = {
 export type ConversationOptionDto = {
     id: string;
     summary: string | null;
-    lastAppendedUtc: Date;
-    createdUtc: Date;
+    lastAppendedUtc: string;
+    createdUtc: string;
 };

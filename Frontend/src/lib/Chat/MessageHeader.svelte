@@ -7,7 +7,7 @@
     export let role: Role;
 </script>
 
-<div class="grid grid-cols-[20px_1fr_250px]">
+<div class="grid grid-cols-[20px_1fr_270px]">
     <div>
         {#if index === -1}
             <button on:click={() => ConnectionMethods.cancelMessage(messageId)}>X</button>
@@ -21,6 +21,6 @@
     </div>
     
     <div>
-        <p class="text-xs text-gray-400 float-right my-auto">{messageId}</p>
+        <code class="text-xs text-gray-400 float-right my-auto">{messageId}</code>
     </div>
 </div>

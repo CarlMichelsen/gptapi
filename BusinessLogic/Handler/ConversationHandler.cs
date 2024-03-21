@@ -65,7 +65,7 @@ public class ConversationHandler : BaseHandler, IConversationHandler
             .GetConversationList(sessionData.UserProfileId);
         
         return conversationListResult.Match(
-            success => Results.Ok(new ServiceResponse<List<ConversationDateChunkDto>>(success)),
-            failure => Results.Ok(new ServiceResponse<List<ConversationDateChunkDto>>(failure.Code)));
+            success => Results.Ok(new ServiceResponse<List<ConversationOptionDto>>(success)),
+            failure => Results.Ok(new ServiceResponse<List<ConversationOptionDto>>(failure.Code)));
     }
 }
