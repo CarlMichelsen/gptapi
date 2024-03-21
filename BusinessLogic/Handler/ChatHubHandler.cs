@@ -1,4 +1,4 @@
-﻿using BusinessLogic.Pipeline.SendMessage;
+﻿using Domain.Abstractions;
 using Domain.Dto;
 using Domain.Dto.Conversation;
 using Domain.Dto.Session;
@@ -6,35 +6,35 @@ using Domain.Entity;
 using Domain.Entity.Id;
 using Domain.Exception;
 using Domain.Pipeline.SendMessage;
-using Interface.Factory;
+using Interface.Handler;
 using Interface.Hub;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Logging;
 
 namespace BusinessLogic.Handler;
 
 public class ChatHubHandler : Hub<IChatClient>, IChatServer
 {
     protected const string SessionDataItemKey = "SessionDataItemKey";
-    private readonly ILogger<ChatHubHandler> logger;
-    private readonly IScopedServiceFactory scopedServiceFactory;
-
+    private readonly ISendMessagePipelineExecutionHandler sendMessagePipelineExecutionHandler;
+    
     protected ChatHubHandler(
-        ILogger<ChatHubHandler> logger,
-        IScopedServiceFactory scopedServiceFactory)
+        ISendMessagePipelineExecutionHandler sendMessagePipelineExecutionHandler)
     {
-        this.logger = logger;
-        this.scopedServiceFactory = scopedServiceFactory;
+        this.sendMessagePipelineExecutionHandler = sendMessagePipelineExecutionHandler;
     }
 
     public SessionData InitialSessionData => this.Context.Items[SessionDataItemKey] as SessionData
         ?? throw new ServiceException("ChatHubHandler InitialSessionData unavailable");
 
-    public async Task SendMessage(SendMessageRequest sendMessageRequest)
+    public void SendMessage(SendMessageRequest sendMessageRequest)
     {
-        var source = new CancellationTokenSource();
-        var result = await this.RunSendMessagePipeline(sendMessageRequest, source.Token);
-        await this.HandleResult(result);
+        var initialContext = this.CreateInitialContext(sendMessageRequest);
+        this.sendMessagePipelineExecutionHandler.SendMessage(initialContext, this.HandleError);
+    }
+
+    public void CancelMessage(Guid pipelineIdentifier)
+    {
+        this.sendMessagePipelineExecutionHandler.CancelMessage(pipelineIdentifier);
     }
     
     private static bool IsDefined(Guid? guid)
@@ -52,26 +52,15 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
         return true;
     }
     
-    private async Task HandleResult(Domain.Abstractions.Result<SendMessagePipelineContext> result)
+    private void HandleError(Error err)
     {
-        if (result.IsError)
-        {
-            var err = new ErrorDto(result.Error!);
-            await this.Clients.Caller.Error(err);
-        }
+        var errDto = new ErrorDto(err);
+        this.Clients.Caller.Error(errDto);
     }
 
-    private async Task<Domain.Abstractions.Result<SendMessagePipelineContext>> RunSendMessagePipeline(
-        SendMessageRequest sendMessageRequest,
-        CancellationToken cancellationToken)
+    private SendMessagePipelineContext CreateInitialContext(
+        SendMessageRequest sendMessageRequest)
     {
-        var sendMessagePipelineResult = this.scopedServiceFactory
-            .CreateScopedService<SendMessagePipeline>();
-        if (sendMessagePipelineResult.IsError)
-        {
-            this.logger.LogError("Unable to create SendMessagePipeline");
-        }
-
         ConversationAppendData? conversationAppendData = default;
         if (IsDefined(sendMessageRequest?.PreviousMessageId) && IsDefined(sendMessageRequest?.ConversationId))
         {
@@ -80,7 +69,7 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
                 new ConversationId((Guid)sendMessageRequest.ConversationId!));
         }
 
-        var initialContext = new SendMessagePipelineContext
+        return new SendMessagePipelineContext
         {
             LlmProvider = this.MapProvider(sendMessageRequest!.PromptSetting.Provider),
             LlmModel = sendMessageRequest.PromptSetting.Model,
@@ -89,9 +78,6 @@ public class ChatHubHandler : Hub<IChatClient>, IChatServer
             MessageContent = sendMessageRequest!.MessageContent,
             ConversationAppendData = conversationAppendData,
         };
-
-        var sendMessagePipeline = sendMessagePipelineResult.Unwrap();
-        return await sendMessagePipeline.Execute(initialContext, cancellationToken);
     }
 
     private LlmProvider MapProvider(string providerStr)

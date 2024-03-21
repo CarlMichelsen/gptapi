@@ -82,6 +82,7 @@ public static class Dependencies
         // Handlers
         builder.Services
             .AddTransient<ISessionHandler, SessionHandler>()
+            .AddTransient<ISendMessagePipelineExecutionHandler, SendMessagePipelineExecutionHandler>()
             .AddTransient<IAvailableModelHandler, AvailableModelHandler>()
             .AddTransient<IConversationHandler, ConversationHandler>();
 

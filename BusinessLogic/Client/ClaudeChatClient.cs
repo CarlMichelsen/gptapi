@@ -94,6 +94,11 @@ public class ClaudeChatClient : IClaudeChatClient
             var handler = new ClaudeStreamProcessor(this.logger);
             await foreach (var chunkResult in ClaudeResponseStreamProcessor.ReadClaudeStream(httpResponseStream))
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    yield break;
+                }
+
                 if (chunkResult.IsError)
                 {
                     yield return chunkResult.Error!;

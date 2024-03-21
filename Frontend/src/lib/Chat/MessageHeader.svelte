@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { ConnectionMethods } from "../../connectionMethods";
     import type { Role } from "../../types/dto/role";
 
     export let index: number;
@@ -8,7 +9,11 @@
 
 <div class="grid grid-cols-[20px_1fr_250px]">
     <div>
-        <p class="text-xs text-gray-400 my-auto">{index}</p>
+        {#if index === -1}
+            <button on:click={() => ConnectionMethods.cancelMessage(messageId)}>X</button>
+        {:else}
+            <p class="text-xs text-gray-400 my-auto">{index}</p>
+        {/if}
     </div>
 
     <div>

@@ -28,15 +28,15 @@ public class GptChatStreamChunk : ILlmChunkConvertible
     [JsonPropertyName("choices")]
     public required List<GptStreamChoice> Choices { get; init; }
 
-    public LlmChunk Convert()
+    public LlmChunk Convert(Guid streamIdentifier)
     {
         try
         {
-            return GptMapper.Map(this);
+            return GptMapper.Map(this, streamIdentifier);
         }
         catch (System.Exception e)
         {
-            throw new LargeLanguageModelException("Failed converting GptChatStreamChunk to LargeLanguageModelChunk", e);
+            throw new LargeLanguageModelException("Failed converting GptChatStreamChunk to LlmChunk", e);
         }
     }
 }

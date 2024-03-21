@@ -4,5 +4,7 @@ namespace Interface.Hub;
 
 public interface IChatServer
 {
-    Task SendMessage(SendMessageRequest sendMessageRequest);
+    void SendMessage(SendMessageRequest sendMessageRequest);
+
+    void CancelMessage(Guid pipelineIdentifier);
 }

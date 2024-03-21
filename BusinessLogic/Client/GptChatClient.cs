@@ -156,7 +156,11 @@ public class GptChatClient : IGptChatClient
         using var stream = response.Content.ReadAsStream(cancellationToken);
         await foreach (var chunk in GptResponseStreamProcessor.ReadGptStream(stream))
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            if (cancellationToken.IsCancellationRequested)
+            {
+                yield break;
+            }
+
             if (string.IsNullOrWhiteSpace(chunk))
             {
                 continue;

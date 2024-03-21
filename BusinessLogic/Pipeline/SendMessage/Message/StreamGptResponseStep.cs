@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using BusinessLogic.Hub;
+﻿using BusinessLogic.Hub;
 using BusinessLogic.Map;
 using Domain.Abstractions;
 using Domain.Dto.Conversation;
@@ -43,7 +42,9 @@ public class StreamGptResponseStep : IPipelineStep<SendMessagePipelineContext>
 
         try
         {
-            var systemMsg = "Your persona is a legendary software developer that is very careful when writing code. You always make sure to use the latest version of packages and always double check your code.";
+            var systemMsg = @"Your persona is a legendary software developer that is very careful when writing code.
+                            You always make sure to use the latest version of packages and always double check your code is of enterprise quality.
+                            Be concise and use code snippets often in your responses.".Replace("\t", string.Empty);
             var prompt = LargeLanguageModelMapper.Map(context.Conversation!, context.LlmModel, systemMsg, context.MaxTokens);
             var gptChunkAsyncEnumerable = this.largeLanguageModelClient.StreamPrompt(prompt, context.LlmProvider, cancellationToken);
 
@@ -70,9 +71,8 @@ public class StreamGptResponseStep : IPipelineStep<SendMessagePipelineContext>
         }
         catch (OperationCanceledException)
         {
-            return new Error(
-                "StreamGptResponseStep.Cancelled",
-                "Message generation was cancelled");
+            this.logger.LogInformation("Llm message streaming cancelled");
+            return context;
         }
         catch (Exception e)
         {
@@ -90,10 +90,11 @@ public class StreamGptResponseStep : IPipelineStep<SendMessagePipelineContext>
         ILlmChunkConvertible chunk,
         SendMessagePipelineContext context)
     {
-        var llmChunk = chunk.Convert();
+        var llmChunk = chunk.Convert(context.PipelineIdentifier);
         var choice = llmChunk.Choices.First();
         return new MessageChunkDto(
             chunkOrderIndex,
+            llmChunk.StreamIdentifier,
             context.Conversation!.Id.Value,
             context.AssistantMessage!.Id.Value,
             context.AssistantMessage.PreviousMessage!.Id.Value,

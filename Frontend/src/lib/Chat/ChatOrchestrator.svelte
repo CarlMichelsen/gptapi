@@ -10,6 +10,7 @@
     import MessageHeader from "./MessageHeader.svelte";
     import NoConversationSelected from "./NoConversationSelected.svelte";
 
+    let streamIdentifier: string | null = null;
     let streamedMessageContent: string | null = null;
 
     const scrollToBottom = () => {
@@ -36,12 +37,14 @@
     };
 
     ConnectionMethods.receiveMessage = (receieveMessage) => {
+        streamIdentifier = null;
         streamedMessageContent = null;
         applicationStore.receieveMessage(receieveMessage);
         setTimeout(scrollToBottom, 0);
     }
 
     ConnectionMethods.receiveMessageChunk = (messageChunk) => {
+        streamIdentifier = messageChunk.streamIdentifier;
         if (streamedMessageContent === null) {
             applicationStore.selectConversation(messageChunk.conversationId);
             streamedMessageContent = messageChunk.content;
@@ -81,10 +84,10 @@
                 <MessageContainer messageContainer={messageContainer} />
             {/each}
 
-            {#if streamedMessageContent}
+            {#if streamedMessageContent && streamIdentifier}
                 <li>
                     <ChatContentHolder isMessage={true}>
-                        <MessageHeader index={-1} messageId="ongoing..." role={"assistant"}/>
+                        <MessageHeader index={-1} messageId={streamIdentifier} role={"assistant"}/>
                         <AssistantResponseParser content={streamedMessageContent} />
                     </ChatContentHolder>
                 </li>
