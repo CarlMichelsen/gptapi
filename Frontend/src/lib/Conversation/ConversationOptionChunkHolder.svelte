@@ -3,17 +3,29 @@
     import type { MouseEventHandler } from "svelte/elements";
     import type { ConversationOptionDateChunk } from "../../types/dto/conversationOption";
     import { applicationStore } from "../../store/applicationStore";
+    import { ConversationClient } from "../../clients/conversationClient";
 
     export let conversationOptionDateChunk: ConversationOptionDateChunk;
 
+    const attemptSelectConversation = async (id: string) => {
+        const conversationClient = new ConversationClient();
+        const response = await conversationClient.getConversation(id);
+        if (response.ok) {
+            applicationStore.selectConversation(response.data);
+        }
+    }
+
     const selected = (id: string): MouseEventHandler<HTMLDivElement> | null | undefined => {
-        applicationStore.selectConversation(id);
+        attemptSelectConversation(id);
         return null;
     }
 
-
-    const deleteConversation = (id: string): void => {
-        applicationStore.deleteConversation(id);
+    const deleteConversation = async (id: string): Promise<void> => {
+        const conversationClient = new ConversationClient();
+        const deleteResponse = await conversationClient.deleteConversation(id);
+        if (deleteResponse.ok && deleteResponse.data) {
+            applicationStore.deleteConversation(id);
+        }
     }
 </script>
 {#if $applicationStore.state === "logged-in"}

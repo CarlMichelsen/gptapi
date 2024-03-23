@@ -5,12 +5,10 @@
     export let conversationOptionList: ConversationOptionDateChunk[]
 </script>
 
-<li>
-    <ol class="space-y-4 h-full">
+<ol class="space-y-4 h-full">
     {#each conversationOptionList as conversationOptionDateChunk}
         <li>
             <ConversationOptionChunkHolder conversationOptionDateChunk={conversationOptionDateChunk} />
         </li>
     {/each}
-    </ol>
-</li>
+</ol>

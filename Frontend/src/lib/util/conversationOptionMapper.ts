@@ -19,7 +19,7 @@ export const conversationOptionMapper = (options: ConversationOptionDto[]): Conv
 
     const conversationDateChunks = groupedOptions.map(([label, groupOptions]): ConversationOptionDateChunk => ({
         dateText: label,
-        options: groupOptions.sort((a, b) => new Date(b.lastAppendedUtc).getTime() - new Date(a.lastAppendedUtc).getTime()),
+        options: groupOptions.toSorted((a, b) => new Date(b.lastAppendedUtc).getTime() - new Date(a.lastAppendedUtc).getTime()),
     }));
 
     return conversationDateChunks.sort(

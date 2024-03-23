@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { ConversationClient } from "../../clients/conversationClient";
     import { ConnectionMethods } from "../../connectionMethods";
     import { applicationStore } from "../../store/applicationStore";
     import type { AvailableModel } from "../../types/dto/availableModel/availableModel";
@@ -39,14 +40,25 @@
     ConnectionMethods.receiveMessage = (receieveMessage) => {
         streamIdentifier = null;
         streamedMessageContent = null;
-        applicationStore.receieveMessage(receieveMessage);
+        applicationStore.receiveMessage(receieveMessage);
         setTimeout(scrollToBottom, 0);
     }
 
-    ConnectionMethods.receiveMessageChunk = (messageChunk) => {
+    ConnectionMethods.receiveMessageChunk = async (messageChunk) => {
         streamIdentifier = messageChunk.streamIdentifier;
         if (streamedMessageContent === null) {
-            applicationStore.selectConversation(messageChunk.conversationId);
+            if ($applicationStore.state !== "logged-in") return;
+
+            // switch to relevant conversation on first chunk received.
+            if ($applicationStore.selectedConversation?.id !== messageChunk.conversationId) {
+                const conversationClient = new ConversationClient();
+                const res = await conversationClient.getConversation(messageChunk.conversationId);
+                if (res.ok) {
+                    applicationStore.selectConversation(res.data);
+                }
+            }
+
+            
             streamedMessageContent = messageChunk.content;
         } else {
             streamedMessageContent += messageChunk.content;
