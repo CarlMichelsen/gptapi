@@ -1,6 +1,6 @@
 <script lang="ts">
-    import type { MessageContainer } from "../../types/dto/conversation";
-    import type { Message } from "../../types/dto/message";
+    import type { MessageContainer } from "../../types/dto/conversation/conversation";
+    import type { Message } from "../../types/dto/conversation/message";
     import ChatContentHolder from "./ChatContentHolder.svelte";
     import AssistantResponseParser from "./AssistantResponseParser.svelte";
     import MessageHeader from "./MessageHeader.svelte";

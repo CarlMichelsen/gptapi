@@ -1,5 +1,14 @@
+export enum DateRange {
+    today,
+    yesterday,
+    week,
+    month,
+    year,
+    unknown,
+}
+
 export type ConversationOptionDateChunk = {
-    dateText: string;
+    dateRange: DateRange;
     options: ConversationOptionDto[];
 }
 

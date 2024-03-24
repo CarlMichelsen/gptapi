@@ -1,25 +1,26 @@
-import type { ConversationOptionDateChunk, ConversationOptionDto } from "../../types/dto/conversationOption";
+import { DateRange, type ConversationOptionDateChunk, type ConversationOptionDto } from "../../types/dto/conversation/conversationOption";
 
 export const conversationOptionMapper = (options: ConversationOptionDto[]): ConversationOptionDateChunk[] => {
     const groupedOptions = groupBy(options, (o) => {
         const totalDays = (new Date().getTime() - new Date(o.lastAppendedUtc).getTime()) / (1000 * 3600 * 24);
         if (totalDays < 1) {
-            return "Today";
+            return DateRange.today;
         } else if (totalDays < 2) {
-            return "Yesterday";
+            return DateRange.yesterday;
         } else if (totalDays < 7) {
-            return "This week";
+            return DateRange.week;
         } else if (totalDays < 30) {
-            return "This month";
+            return DateRange.month;
         } else if (totalDays < 365) {
-            return "This year";
+            return DateRange.year;
         }
-        return "Older than a year";
+
+        return DateRange.unknown;
     });
 
     const conversationDateChunks = groupedOptions.map(([label, groupOptions]): ConversationOptionDateChunk => ({
-        dateText: label,
-        options: groupOptions.sort((a, b) => new Date(b.lastAppendedUtc).getTime() - new Date(a.lastAppendedUtc).getTime()),
+        dateRange: label,
+        options: groupOptions.toSorted((a, b) => new Date(b.lastAppendedUtc).getTime() - new Date(a.lastAppendedUtc).getTime()),
     }));
 
     return conversationDateChunks.sort(

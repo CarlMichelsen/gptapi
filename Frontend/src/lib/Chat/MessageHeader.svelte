@@ -1,6 +1,6 @@
 <script lang="ts">
     import { ConnectionMethods } from "../../connectionMethods";
-    import type { Role } from "../../types/dto/role";
+    import type { Role } from "../../types/dto/conversation/role";
 
     export let index: number;
     export let messageId: string;

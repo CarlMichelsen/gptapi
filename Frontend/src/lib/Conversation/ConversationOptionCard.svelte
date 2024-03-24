@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { MouseEventHandler } from "svelte/elements";
-    import type { ConversationOptionDto } from "../../types/dto/conversationOption";
+    import type { ConversationOptionDto } from "../../types/dto/conversation/conversationOption";
 
     export let tabindex: number;
     export let conversationOption: ConversationOptionDto;

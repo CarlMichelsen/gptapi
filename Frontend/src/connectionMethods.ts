@@ -1,7 +1,7 @@
 import type { HubConnection } from "@microsoft/signalr";
-import type { MessageChunk } from "./types/dto/messageChunk";
-import type { ReceiveMessage } from "./types/dto/ReceiveMessage";
-import type { SendMessageRequest } from "./types/dto/sendMessageRequest";
+import type { MessageChunk } from "./types/dto/conversation/messageChunk";
+import type { ReceiveMessage } from "./types/dto/conversation/ReceiveMessage";
+import type { SendMessageRequest } from "./types/dto/conversation/sendMessageRequest";
 import type { CarlGptError } from "./types/dto/error";
 
 type ConnectionMethod = (...args: any[]) => any;

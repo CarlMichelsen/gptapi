@@ -1,8 +1,9 @@
 <script lang="ts">
+    import { ConversationClient } from "../../clients/conversationClient";
     import { ConnectionMethods } from "../../connectionMethods";
     import { applicationStore } from "../../store/applicationStore";
     import type { AvailableModel } from "../../types/dto/availableModel/availableModel";
-    import type { SendMessageRequest } from "../../types/dto/sendMessageRequest";
+    import type { SendMessageRequest } from "../../types/dto/conversation/sendMessageRequest";
     import InteractionOrchestrator from "../Interaction/InteractionOrchestrator.svelte";
     import AssistantResponseParser from "./AssistantResponseParser.svelte";
     import ChatContentHolder from "./ChatContentHolder.svelte";
@@ -39,14 +40,25 @@
     ConnectionMethods.receiveMessage = (receieveMessage) => {
         streamIdentifier = null;
         streamedMessageContent = null;
-        applicationStore.receieveMessage(receieveMessage);
+        applicationStore.receiveMessage(receieveMessage);
         setTimeout(scrollToBottom, 0);
     }
 
-    ConnectionMethods.receiveMessageChunk = (messageChunk) => {
+    ConnectionMethods.receiveMessageChunk = async (messageChunk) => {
         streamIdentifier = messageChunk.streamIdentifier;
         if (streamedMessageContent === null) {
-            applicationStore.selectConversation(messageChunk.conversationId);
+            if ($applicationStore.state !== "logged-in") return;
+
+            // switch to relevant conversation on first chunk received.
+            if ($applicationStore.selectedConversation?.id !== messageChunk.conversationId) {
+                const conversationClient = new ConversationClient();
+                const res = await conversationClient.getConversation(messageChunk.conversationId);
+                if (res.ok) {
+                    applicationStore.selectConversation(res.data);
+                }
+            }
+
+            
             streamedMessageContent = messageChunk.content;
         } else {
             streamedMessageContent += messageChunk.content;
@@ -73,8 +85,12 @@
         <div>
             {#if $applicationStore.selectedConversation.summary !== null}
                 <ChatContentHolder isMessage={false} id="title-text">
-                    <h1 class="text-center mb-6 text-xl font-thin text-zinc-400">{$applicationStore.selectedConversation.summary}</h1>
+                    <h1 class="text-center mb-6 text-xl font-thin text-zinc-400 ">{$applicationStore.selectedConversation.summary}</h1>
                 </ChatContentHolder>
+            {:else}
+            <ChatContentHolder isMessage={false} id="title-text-placeholder">
+                <div class="h-12" aria-hidden="true"></div>
+            </ChatContentHolder>
             {/if}
         </div>
 
@@ -95,7 +111,7 @@
             </ol>
         </div>
         {:else}
-        <NoConversationSelected />
+            <NoConversationSelected />
         {/if}
     </div>
 

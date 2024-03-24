@@ -10,7 +10,7 @@ namespace BusinessLogic.Handler;
 
 public class SendMessagePipelineExecutionHandler : ISendMessagePipelineExecutionHandler
 {
-    public static Dictionary<Guid, PipelineTracker> PipelineTrackerDictionary = new();
+    private static Dictionary<Guid, PipelineTracker> pipelineTrackerDictionary = new();
     private readonly ILogger<SendMessagePipelineExecutionHandler> logger;
     private readonly IScopedServiceFactory scopedServiceFactory;
 
@@ -32,17 +32,17 @@ public class SendMessagePipelineExecutionHandler : ISendMessagePipelineExecution
             PipelineTask = this.RunSendMessagePipeline(context, errorHandler, source.Token),
         };
 
-        PipelineTrackerDictionary.Add(pipelineTracker.PipelineIdentifier, pipelineTracker);
+        pipelineTrackerDictionary.Add(pipelineTracker.PipelineIdentifier, pipelineTracker);
 
         return pipelineTracker.PipelineIdentifier;
     }
 
     public void CancelMessage(Guid pipelineIdentifier)
     {
-        if (PipelineTrackerDictionary.TryGetValue(pipelineIdentifier, out var pipelineTracker))
+        if (pipelineTrackerDictionary.TryGetValue(pipelineIdentifier, out var pipelineTracker))
         {
             pipelineTracker.CancellationTokenSource.Cancel();
-            PipelineTrackerDictionary.Remove(pipelineIdentifier);
+            pipelineTrackerDictionary.Remove(pipelineIdentifier);
         }
     }
 
