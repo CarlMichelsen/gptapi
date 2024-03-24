@@ -1,5 +1,5 @@
 import { baseUrl, loginUrl } from "../baseurl";
-import type { ServiceResponse } from "../types/dto/serviceResponse";
+import type { ServiceResponse } from "../types/dto/conversation/serviceResponse";
 
 export abstract class BaseServerClient
 {

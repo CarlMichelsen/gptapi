@@ -2,7 +2,7 @@
     import { applicationStore } from "../../store/applicationStore";
 
     const createNewConversation = () => {
-        console.log("applicationStore.selectConversation(null);");
+        applicationStore.selectConversation(null);
     }
 </script>
 

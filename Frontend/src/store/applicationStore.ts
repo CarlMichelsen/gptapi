@@ -1,17 +1,8 @@
 import { writable } from 'svelte/store';
 import type { ApplicationStore, LoggedOutApplicationStore } from '../types/store/applicationStore';
-import { deleteCookie, getUserData } from '../clients/userDataClient';
-import type { ConversationDto } from '../types/dto/conversation';
-import { getQueryParams, setQueryParam } from '../lib/util/queryParameters';
-import type { Message } from '../types/dto/message';
-import type { ReceiveMessage } from '../types/dto/ReceiveMessage';
-import type { ConversationOptionDto } from '../types/dto/conversationOption';
-import { ConversationClient } from '../clients/conversationClient';
-import { conversationOptionMapper } from '../lib/util/conversationOptionMapper';
 import { login } from './actions/login';
 import type { OmitApplicationStoreInitialParameter, StoreFunction } from './storeFunction';
 import { setConversationList } from './actions/setConversationList';
-import { addNewConversationToList } from './actions/addNewConversationToList';
 import { deleteConversation } from './actions/deleteConversation';
 import { logout } from './actions/logout';
 import { selectConversation } from './actions/selectConversation';
@@ -36,7 +27,6 @@ const createStore = () => {
         receiveMessage,
         selectConversation,
         setConversationList,
-        addNewConversationToList,
         updateConversationSummary,
         deleteConversation,
     } as const;

@@ -1,6 +1,6 @@
-import type { ConversationDto } from "../types/dto/conversation";
-import type { ConversationOptionDto } from "../types/dto/conversationOption";
-import type { ServiceResponse } from "../types/dto/serviceResponse";
+import type { ConversationDto } from "../types/dto/conversation/conversation";
+import type { ConversationOptionDto } from "../types/dto/conversation/conversationOption";
+import type { ServiceResponse } from "../types/dto/conversation/serviceResponse";
 import { BaseServerClient } from "./baseClient";
 
 export class ConversationClient extends BaseServerClient

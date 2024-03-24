@@ -1,5 +1,5 @@
-import type { ConversationDto } from "../dto/conversation"
-import type { ConversationOptionDateChunk } from "../dto/conversationOption"
+import type { ConversationDto } from "../dto/conversation/conversation"
+import type { ConversationOptionDateChunk } from "../dto/conversation/conversationOption"
 import type { OAuthUser } from "../dto/oAuthUser"
 
 export type LoggedOutApplicationStore = {

@@ -3,7 +3,7 @@
     import { ConnectionMethods } from "../../connectionMethods";
     import { applicationStore } from "../../store/applicationStore";
     import type { AvailableModel } from "../../types/dto/availableModel/availableModel";
-    import type { SendMessageRequest } from "../../types/dto/sendMessageRequest";
+    import type { SendMessageRequest } from "../../types/dto/conversation/sendMessageRequest";
     import InteractionOrchestrator from "../Interaction/InteractionOrchestrator.svelte";
     import AssistantResponseParser from "./AssistantResponseParser.svelte";
     import ChatContentHolder from "./ChatContentHolder.svelte";
@@ -85,8 +85,12 @@
         <div>
             {#if $applicationStore.selectedConversation.summary !== null}
                 <ChatContentHolder isMessage={false} id="title-text">
-                    <h1 class="text-center mb-6 text-xl font-thin text-zinc-400">{$applicationStore.selectedConversation.summary}</h1>
+                    <h1 class="text-center mb-6 text-xl font-thin text-zinc-400 ">{$applicationStore.selectedConversation.summary}</h1>
                 </ChatContentHolder>
+            {:else}
+            <ChatContentHolder isMessage={false} id="title-text-placeholder">
+                <div class="h-12" aria-hidden="true"></div>
+            </ChatContentHolder>
             {/if}
         </div>
 
@@ -107,7 +111,7 @@
             </ol>
         </div>
         {:else}
-        <NoConversationSelected />
+            <NoConversationSelected />
         {/if}
     </div>
 

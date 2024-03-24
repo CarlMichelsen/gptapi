@@ -1,6 +1,6 @@
 <script lang="ts">
     import ConversationOptionChunkHolder from "./ConversationOptionChunkHolder.svelte";
-    import type { ConversationOptionDateChunk } from "../../types/dto/conversationOption";
+    import type { ConversationOptionDateChunk } from "../../types/dto/conversation/conversationOption";
 
     export let conversationOptionList: ConversationOptionDateChunk[]
 </script>
