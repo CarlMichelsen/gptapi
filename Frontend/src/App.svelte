@@ -7,7 +7,12 @@
 	const attemptLogin = async () => {
 		const oauthUser = await getUserData();
 
-		if (oauthUser) applicationStore.login(oauthUser);
+		if (oauthUser) {
+			applicationStore.login(oauthUser);
+		} else {
+			// This simple sets the applicationState to "logged-out" and marks the applications as "ready"
+			applicationStore.logout();
+		}
 	}
 
 	attemptLogin();
