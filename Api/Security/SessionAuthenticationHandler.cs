@@ -4,6 +4,7 @@ using Domain;
 using Domain.Dto.Session;
 using Interface.Service;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 
 namespace Api.Security;
@@ -24,10 +25,19 @@ public class SessionAuthenticationHandler : AuthenticationHandler<Authentication
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        var sessionData = await this.sessionService.GetSessionData();
-        if (sessionData is not null)
+        var endpoint = this.Context.GetEndpoint();
+        var authorizeData = endpoint?.Metadata?.GetMetadata<IAuthorizeData>();
+
+        if (authorizeData is null || authorizeData.AuthenticationSchemes?.Any() == false)
         {
-            var claimsPrincipal = this.CreateClaimsPrincipal(sessionData);
+            // If the endpoint doesn't require authorization, skip authentication
+            return AuthenticateResult.NoResult();
+        }
+
+        var sessionDataResult = await this.sessionService.GetSessionData();
+        if (sessionDataResult.IsSuccess)
+        {
+            var claimsPrincipal = this.CreateClaimsPrincipal(sessionDataResult.Unwrap());
             var ticket = new AuthenticationTicket(claimsPrincipal, GptApiConstants.SessionAuthenticationScheme);
             return AuthenticateResult.Success(ticket);
         }

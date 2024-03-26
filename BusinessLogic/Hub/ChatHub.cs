@@ -26,8 +26,20 @@ public class ChatHub : ChatHubHandler
     public override async Task OnConnectedAsync()
     {
         await base.OnConnectedAsync();
-        this.Context.Items[SessionDataItemKey] = await this.sessionService.GetSessionData()
-            ?? throw new ServiceException("ChatHub.OnConnectedAsync session not found");
+        var sessionResult = await this.sessionService.GetSessionData();
+
+        if (sessionResult.IsError)
+        {
+            this.Context.Abort();
+            this.logger.LogCritical(
+                "Connection aborted because of missing sessiondata after authorization {errorCode}: {errorDescription}",
+                sessionResult.Error!.Code,
+                sessionResult.Error!.Description);
+            
+            return;
+        }
+
+        this.Context.Items[SessionDataItemKey] = sessionResult.Unwrap();
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)

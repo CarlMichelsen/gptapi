@@ -92,12 +92,9 @@ public static class Dependencies
             .AddTransient<IConversationTemplateFactory, ConversationTemplateFactory>();
         
         // Access Control
-        builder.Services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = GptApiConstants.SessionAuthenticationScheme;
-            options.DefaultChallengeScheme = GptApiConstants.SessionAuthenticationScheme;
-        })
-        .AddScheme<AuthenticationSchemeOptions, SessionAuthenticationHandler>(GptApiConstants.SessionAuthenticationScheme, options => { });
+        builder.Services
+            .AddAuthentication()
+            .AddScheme<AuthenticationSchemeOptions, SessionAuthenticationHandler>(GptApiConstants.SessionAuthenticationScheme, options => { });
         
         builder.Services.AddAuthorization(options =>
         {

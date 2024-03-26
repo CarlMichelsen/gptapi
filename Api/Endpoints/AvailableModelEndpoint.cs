@@ -16,8 +16,7 @@ public static class AvailableModelEndpoint
             [Authorize(Policy = GptApiConstants.SessionAuthenticationScheme)]
             async ([FromServices] IAvailableModelHandler availableModelHandler) =>
             await availableModelHandler.GetAvailableModels())
-            .WithName("AvailableModel")
-            .RequireAuthorization();
+            .WithName("AvailableModel");
 
         return group;
     }

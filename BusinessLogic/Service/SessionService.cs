@@ -1,4 +1,5 @@
 ﻿using BusinessLogic.Json;
+using Domain.Abstractions;
 using Domain.Dto.Session;
 using Interface.Service;
 using Microsoft.AspNetCore.Http;
@@ -22,39 +23,51 @@ public class SessionService : ISessionService
         this.cacheService = cacheService;
     }
 
-    public async Task<SessionData?> GetSessionData()
+    public async Task<Result<SessionData>> GetSessionData()
     {
         try
         {
             var httpContext = this.httpContextAccessor.HttpContext;
             if (httpContext is null)
             {
-                return default;
+                return new Error("GetSessionData.NoHttpContext");
             }
 
             var cookieDataString = httpContext.Request.Cookies["Access"];
             if (cookieDataString is null)
             {
-                return default;
+                return new Error("GetSessionData.NoAccessCookie");
             }
 
             var cookieData = CamelCaseJsonParser.Deserialize<CookieData>(cookieDataString);
             if (cookieData is null)
             {
-                return default;
+                return new Error("GetSessionData.UnserializableAccessCookie");
             }
 
             var sessionDataString = await this.cacheService
                 .Get(cookieData.SessionCacheKey);
+            
+            if (string.IsNullOrWhiteSpace(sessionDataString))
+            {
+                return new Error("GetSessionData.NoSessionData");
+            }
+            
+            var sessionData = CamelCaseJsonParser.Deserialize<SessionData>(sessionDataString);
+            if (sessionData is null)
+            {
+                return new Error("GetSessionData.UnserializableSessionData");
+            }
 
-            return CamelCaseJsonParser.Deserialize<SessionData>(sessionDataString);
+            return sessionData;
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
             this.logger.LogCritical(
                 "An exception occured when attempting to fetch sessionData {exception}",
                 e);
-            return default;
+            
+            return new Error("GetSessionData.Exception");
         }
     }
 }

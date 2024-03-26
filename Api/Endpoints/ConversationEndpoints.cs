@@ -16,24 +16,21 @@ public static class ConversationEndpoints
             [Authorize(Policy = GptApiConstants.SessionAuthenticationScheme)]
             async ([FromServices] IConversationHandler conversationHandler) =>
                 await conversationHandler.GetConversationList())
-        .WithName("Conversations")
-        .RequireAuthorization();
+        .WithName("Conversations");
 
         conversationGroup.MapGet(
             "/{conversationId}",
             [Authorize(Policy = GptApiConstants.SessionAuthenticationScheme)]
             async ([FromRoute] Guid conversationId, [FromServices] IConversationHandler conversationHandler) =>
                 await conversationHandler.GetConversation(conversationId))
-        .WithName("Conversation")
-        .RequireAuthorization();
+        .WithName("Conversation");
 
         conversationGroup.MapDelete(
             "/{conversationId}",
             [Authorize(Policy = GptApiConstants.SessionAuthenticationScheme)]
             async ([FromRoute] Guid conversationId, [FromServices] IConversationHandler conversationHandler) =>
                 await conversationHandler.DeleteConversation(conversationId))
-        .WithName("DeleteConversation")
-        .RequireAuthorization();
+        .WithName("DeleteConversation");
 
         return group;
     }

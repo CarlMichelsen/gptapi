@@ -1,7 +1,8 @@
 import { baseUrl, loginUrl } from "../baseurl";
+import type { ServiceResponse } from "../types/dto/conversation/serviceResponse";
 import type { OAuthUser } from "../types/dto/oAuthUser";
 
-export const getUserData = async (): Promise<OAuthUser | null> => {
+export const getUserData = async (): Promise<ServiceResponse<OAuthUser>> => {
     const endpoint = `${baseUrl()}/api/v1/session/UserData`;
     try {
         const response = await fetch(endpoint, {
@@ -16,9 +17,13 @@ export const getUserData = async (): Promise<OAuthUser | null> => {
             throw new Error(`Error: ${response.status}`);
         }
 
-        return await response.json() as OAuthUser;
+        return await response.json() as ServiceResponse<OAuthUser>;
     } catch (error) {
-        return null;
+        return {
+            ok: false,
+            data: null,
+            errors: ["Error"]
+        };
     }
 }
 

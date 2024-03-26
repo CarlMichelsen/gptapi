@@ -16,7 +16,12 @@ public abstract class BaseHandler
 
     protected async Task<SessionData> GetSession()
     {
-        return await this.sessionService.GetSessionData()
-            ?? throw new SessionException("Failed to get session when the user should be logged in");
+        var sessionResult = await this.sessionService.GetSessionData();
+        if (sessionResult.IsError)
+        {
+            throw new SessionException($"Failed to get session when the user should be logged in: {sessionResult.Error!.Code}");
+        }
+
+        return sessionResult.Unwrap();
     }
 }
