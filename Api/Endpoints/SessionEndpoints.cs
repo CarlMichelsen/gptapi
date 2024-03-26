@@ -16,7 +16,7 @@ public static class SessionEndpoints
             [Authorize(Policy = GptApiConstants.SessionAuthenticationScheme)]
             async ([FromServices] ISessionHandler sessionHandler) => await sessionHandler.GetUserData())
         .WithName("Userdata")
-        .RequireAuthorization();
+        .AllowAnonymous();
 
         return group;
     }
