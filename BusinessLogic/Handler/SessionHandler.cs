@@ -1,8 +1,9 @@
-﻿using System.Net;
-using Domain;
+﻿using Domain.Abstractions;
+using Domain.Dto;
 using Domain.Dto.Session;
 using Interface.Handler;
 using Interface.Service;
+using Microsoft.AspNetCore.Http;
 
 namespace BusinessLogic.Handler;
 
@@ -15,19 +16,24 @@ public class SessionHandler : ISessionHandler
         this.sessionService = sessionService;
     }
 
-    public async Task<DeprecatedResult<UserDto, HttpStatusCode>> GetUserData()
+    public async Task<IResult> GetUserData()
     {
-        var sessiondata = await this.sessionService.GetSessionData();
-        if (sessiondata is null)
+        var sessionDataResult = await this.sessionService.GetSessionData();
+        if (sessionDataResult.IsError)
         {
-            return HttpStatusCode.Unauthorized;
+            var badRes = new ServiceResponse<UserDto>("Unauthorized");
+            return Results.Ok(badRes);
         }
 
-        return new UserDto
+        var sessionData = sessionDataResult.Unwrap();
+        var dto = new UserDto
         {
-            Id = sessiondata.User.Id,
-            Name = sessiondata.User.Name,
-            AvatarUrl = sessiondata.User.AvatarUrl,
+            Id = sessionData.User.Id,
+            Name = sessionData.User.Name,
+            AvatarUrl = sessionData.User.AvatarUrl,
         };
+
+        var okRes = new ServiceResponse<UserDto>(dto);
+        return Results.Ok(okRes);
     }
 }

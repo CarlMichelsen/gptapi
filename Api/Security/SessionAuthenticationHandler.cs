@@ -24,10 +24,10 @@ public class SessionAuthenticationHandler : AuthenticationHandler<Authentication
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        var sessionData = await this.sessionService.GetSessionData();
-        if (sessionData is not null)
+        var sessionDataResult = await this.sessionService.GetSessionData();
+        if (sessionDataResult.IsSuccess)
         {
-            var claimsPrincipal = this.CreateClaimsPrincipal(sessionData);
+            var claimsPrincipal = this.CreateClaimsPrincipal(sessionDataResult.Unwrap());
             var ticket = new AuthenticationTicket(claimsPrincipal, GptApiConstants.SessionAuthenticationScheme);
             return AuthenticateResult.Success(ticket);
         }

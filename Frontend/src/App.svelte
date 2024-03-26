@@ -5,10 +5,10 @@
     import { getUserData } from "./clients/userDataClient";
 
 	const attemptLogin = async () => {
-		const oauthUser = await getUserData();
+		const oauthUserResponse = await getUserData();
 
-		if (oauthUser) {
-			applicationStore.login(oauthUser);
+		if (oauthUserResponse.ok) {
+			applicationStore.login(oauthUserResponse.data);
 		} else {
 			// This simple sets the applicationState to "logged-out" and marks the applications as "ready"
 			applicationStore.logout();

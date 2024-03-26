@@ -1,8 +1,9 @@
-﻿using Domain.Dto.Session;
+﻿using Domain.Abstractions;
+using Domain.Dto.Session;
 
 namespace Interface.Service;
 
 public interface ISessionService
 {
-    Task<SessionData?> GetSessionData();
+    Task<Result<SessionData>> GetSessionData();
 }

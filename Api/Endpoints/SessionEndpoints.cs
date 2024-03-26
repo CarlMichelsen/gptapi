@@ -14,13 +14,7 @@ public static class SessionEndpoints
         sessionGroup.MapPost(
             "/UserData",
             [Authorize(Policy = GptApiConstants.SessionAuthenticationScheme)]
-            async ([FromServices] ISessionHandler sessionHandler) =>
-        {
-            var userDataResult = await sessionHandler.GetUserData();
-            return userDataResult.Match(
-                (playerData) => Results.Ok(playerData),
-                (error) => Results.StatusCode((int)error));
-        })
+            async ([FromServices] ISessionHandler sessionHandler) => await sessionHandler.GetUserData())
         .WithName("Userdata")
         .RequireAuthorization();
 

@@ -1,10 +1,8 @@
-﻿using System.Net;
-using Domain;
-using Domain.Dto.Session;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace Interface.Handler;
 
 public interface ISessionHandler
 {
-    Task<DeprecatedResult<UserDto, HttpStatusCode>> GetUserData();
+    Task<IResult> GetUserData();
 }
