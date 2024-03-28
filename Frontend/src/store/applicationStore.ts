@@ -1,13 +1,16 @@
 import { writable } from 'svelte/store';
 import type { ApplicationStore, LoggedOutApplicationStore } from '../types/store/applicationStore';
-import { login } from './actions/login';
 import type { OmitApplicationStoreInitialParameter, StoreFunction } from './storeFunction';
-import { setConversationList } from './actions/setConversationList';
-import { deleteConversation } from './actions/deleteConversation';
+import { login } from './actions/login';
 import { logout } from './actions/logout';
-import { selectConversation } from './actions/selectConversation';
-import { updateConversationSummary } from './actions/updateConversationSummary';
 import { receiveMessage } from './actions/receiveMessage';
+import { selectConversation } from './actions/selectConversation';
+import { setConversationList } from './actions/setConversationList';
+import { updateConversationSummary } from './actions/updateConversationSummary';
+import { deleteConversation } from './actions/deleteConversation';
+import { setAvailableModels } from './actions/setAvailableModels';
+import { selectAvailableModel } from './actions/selectAvailableModel';
+
 
 // Initial state
 const initialState: LoggedOutApplicationStore = {
@@ -20,7 +23,7 @@ const createStore = () => {
     const { subscribe, update } = writable<ApplicationStore>(initialState);
 
     // Declare actions here
-    // actionMethods should ONLY contain functions of type StoreFunction<any[]>, more specific type declaration encuraged
+    // actionMethods should ONLY contain functions of type StoreFunction<any[]>, please don't actually use "any".
     const actionMethods = {
         login,
         logout,
@@ -29,6 +32,8 @@ const createStore = () => {
         setConversationList,
         updateConversationSummary,
         deleteConversation,
+        setAvailableModels,
+        selectAvailableModel,
     } as const;
 
     //--------------------------------------------------------------------

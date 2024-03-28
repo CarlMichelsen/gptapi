@@ -5,8 +5,10 @@
     import type { AvailableModel } from "../../types/dto/availableModel/availableModel";
     import type { SendMessageRequest } from "../../types/dto/conversation/sendMessageRequest";
     import InteractionOrchestrator from "../Interaction/InteractionOrchestrator.svelte";
+    import MainStructure from "../MainStructure.svelte";
     import AssistantResponseParser from "./AssistantResponseParser.svelte";
     import ChatContentHolder from "./ChatContentHolder.svelte";
+    import ChatHeaderBar from "./Header/ChatHeaderBar.svelte";
     import MessageContainer from "./MessageContainer.svelte";
     import MessageHeader from "./MessageHeader.svelte";
     import NoConversationSelected from "./NoConversationSelected.svelte";
@@ -58,7 +60,6 @@
                 }
             }
 
-            
             streamedMessageContent = messageChunk.content;
         } else {
             streamedMessageContent += messageChunk.content;
@@ -79,42 +80,49 @@
 </script>
 
 {#if $applicationStore.state === "logged-in"}
-<div class="grid grid-rows-[1fr_150px] sm:h-screen h-full">
-    <div class="overflow-y-scroll no-scrollbar pb-10" id="scrollable-chat-area-id">
-        {#if $applicationStore.selectedConversation !== null}
-        <div>
-            {#if $applicationStore.selectedConversation.summary !== null}
-                <ChatContentHolder isMessage={false} id="title-text">
-                    <h1 class="text-center mb-6 text-xl font-thin text-zinc-400 ">{$applicationStore.selectedConversation.summary}</h1>
+<div class="fixed w-full invisible sm:visible">
+    <MainStructure>
+        <div slot="sidebar" class="-z-50 pointer-events-none opacity-0 bg-none border-none"></div>
+
+        <div slot="chat" class="h-10 bg-zinc-800">
+            <ChatHeaderBar />
+        </div>
+    </MainStructure>
+</div>
+
+
+<div class="sm:h-screen h-full overflow-y-scroll no-scrollbar pb-44" id="scrollable-chat-area-id">
+    {#if $applicationStore.selectedConversation !== null}
+    <div>
+        <ol class="space-y-4 mt-10">
+        {#each $applicationStore.selectedConversation.messages as messageContainer}
+            <MessageContainer messageContainer={messageContainer} />
+        {/each}
+
+        {#if streamedMessageContent && streamIdentifier}
+            <li>
+                <ChatContentHolder isMessage={true} id="streaming-message">
+                    <MessageHeader index={-1} messageId={streamIdentifier} role={"assistant"}/>
+                    <AssistantResponseParser content={streamedMessageContent} />
                 </ChatContentHolder>
-            {:else}
-            <ChatContentHolder isMessage={false} id="title-text-placeholder">
-                <div class="h-12" aria-hidden="true"></div>
-            </ChatContentHolder>
-            {/if}
-        </div>
-
-        <div>
-            <ol class="space-y-4">
-            {#each $applicationStore.selectedConversation.messages as messageContainer}
-                <MessageContainer messageContainer={messageContainer} />
-            {/each}
-
-            {#if streamedMessageContent && streamIdentifier}
-                <li>
-                    <ChatContentHolder isMessage={true} id="streaming-message">
-                        <MessageHeader index={-1} messageId={streamIdentifier} role={"assistant"}/>
-                        <AssistantResponseParser content={streamedMessageContent} />
-                    </ChatContentHolder>
-                </li>
-            {/if}
-            </ol>
-        </div>
-        {:else}
-            <NoConversationSelected />
+            </li>
         {/if}
+        </ol>
     </div>
+    {:else}
+        <NoConversationSelected />
+    {/if}
+</div>
 
-    <InteractionOrchestrator reply={reply} />
+<div class="fixed bottom-0 left-0 w-full">
+    <MainStructure>
+        <div slot="sidebar" class="-z-50 pointer-events-none opacity-0 bg-none border-none"></div>
+
+        <div slot="chat" class="relative">
+            <div class="absolute w-full bottom-32 h-0">
+                <InteractionOrchestrator reply={reply} />
+            <div>
+        </div>
+    </MainStructure>
 </div>
 {/if}

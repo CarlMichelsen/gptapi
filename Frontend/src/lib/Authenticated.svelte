@@ -6,6 +6,8 @@
     import MainStructure from "./MainStructure.svelte";
     import { ConversationClient } from "../clients/conversationClient";
     import { deleteCookie } from "../clients/userDataClient";
+    import ConversationBar from "./Conversation/ConversationBar.svelte";
+    import ChatOrchestrator from "./Chat/ChatOrchestrator.svelte";
 
     let ready = false;
 
@@ -32,7 +34,10 @@
     {#if !ready}
         <div></div>
     {:else if $chatHubStore.connection}
-        <MainStructure />
+        <MainStructure>
+            <ConversationBar slot="sidebar" />
+            <ChatOrchestrator slot="chat" />
+        </MainStructure>
     {:else}
         <p>not connected</p>
     {/if}
