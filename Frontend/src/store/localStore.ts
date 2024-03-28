@@ -3,24 +3,28 @@ import type { LocalStore } from '../types/store/localStore';
 
 // Initial state
 const initialState: LocalStore = {
-    credentials: undefined,
+    preferences: null,
 };
 
 // Function to create a custom store
-const createLocalStorageStore = <T>(key: string, initialValue: T) => {
-    // Get the value from localStorage and parse it
-    const storedValue = JSON.parse(localStorage.getItem(key) ?? 'null');
+const createStore = (initialValue: LocalStore) => {
+    const { subscribe, update } = writable<LocalStore>(initialState);
+    const key = "LocalStoreKey";
 
-    // Use stored value if it exists, otherwise use the initial value
-    const store = writable<T>(storedValue ?? initialValue);
+    // Get the value from localStorage and parse it
+    const storedValue = JSON.parse(localStorage.getItem(key) ?? 'null') ?? initialValue;
+    update(() => storedValue);
 
     // Subscribe to changes in the store and update localStorage
-    store.subscribe((value) => {
+    subscribe((value) => {
         localStorage.setItem(key, JSON.stringify(value));
     });
 
-    return store;
+    return {
+        subscribe,
+        update,
+    };
 }
 
 // Create the store with initial value
-export const localStore = createLocalStorageStore<LocalStore>('LocalStoreKey', initialState);
+export const localStore = createStore(initialState);

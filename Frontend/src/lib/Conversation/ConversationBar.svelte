@@ -5,10 +5,12 @@
 </script>
 
 {#if $applicationStore.state === "logged-in" && $applicationStore.conversationChunks !== null}
-<div class="grid sm:grid-cols-1 sm:grid-rows-[100px_1fr] grid-rows-1 grid-cols-[200px_1fr] h-full gap-2">
-    <CovnersationBarHeader />
-    <div class="overflow-y-scroll no-scrollbar">
+<div class="h-screen gap-2 grid grid-rows-[1fr_100px] bg-zinc-950">
+    <div class="shadow-inner overflow-y-scroll no-scrollbar">
         <ConversationOptionList conversationOptionList={$applicationStore.conversationChunks} />
+    </div>
+    <div class="shadow-inner">
+        <CovnersationBarHeader />
     </div>
 </div>
 {/if}

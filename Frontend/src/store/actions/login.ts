@@ -13,6 +13,7 @@ export const login: StoreFunction<[OAuthUser]> = (
         state: "logged-in",
         user: oAuthUser,
         selectedConversation: null,
-        conversationChunks: null
+        conversationChunks: null,
+        languageModel: null,
     };
 }

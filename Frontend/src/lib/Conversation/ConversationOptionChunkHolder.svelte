@@ -55,8 +55,8 @@
 </script>
 {#if $applicationStore.state === "logged-in"}
 <div>
-    <h5 class="mx-2 underline">{mapDateRange(conversationOptionDateChunk.dateRange)}</h5>
-    <ol class="space-y-1">
+    <h5 class="mx-2 text-xs text-zinc-500">{mapDateRange(conversationOptionDateChunk.dateRange)}</h5>
+    <ol class="space-y-0.5">
         {#each conversationOptionDateChunk.options as conversationOption, index}
         <li>
             <ConversationOptionCard

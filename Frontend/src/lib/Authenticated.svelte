@@ -3,9 +3,9 @@
     import { chatHubStore } from "../store/chatHubStore";
     import { baseUrl } from "../baseurl";
     import { applicationStore } from "../store/applicationStore";
-    import MainStructure from "./MainStructure.svelte";
     import { ConversationClient } from "../clients/conversationClient";
     import { deleteCookie } from "../clients/userDataClient";
+    import Application from "./Application.svelte";
 
     let ready = false;
 
@@ -30,10 +30,14 @@
 
 <div>
     {#if !ready}
-        <div></div>
+        <div>
+            <h3 class="text-center">...</h3>
+        </div>
     {:else if $chatHubStore.connection}
-        <MainStructure />
+        <Application />
     {:else}
-        <p>not connected</p>
+        <div>
+            <h3>Connection was severed refresh to attempt reconnect</h3>
+        </div>
     {/if}
 </div>

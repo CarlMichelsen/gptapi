@@ -7,6 +7,7 @@
     import InteractionOrchestrator from "../Interaction/InteractionOrchestrator.svelte";
     import AssistantResponseParser from "./AssistantResponseParser.svelte";
     import ChatContentHolder from "./ChatContentHolder.svelte";
+    import ChatHeaderBar from "./Header/ChatHeaderBar.svelte";
     import MessageContainer from "./MessageContainer.svelte";
     import MessageHeader from "./MessageHeader.svelte";
     import NoConversationSelected from "./NoConversationSelected.svelte";
@@ -58,7 +59,6 @@
                 }
             }
 
-            
             streamedMessageContent = messageChunk.content;
         } else {
             streamedMessageContent += messageChunk.content;
@@ -79,23 +79,15 @@
 </script>
 
 {#if $applicationStore.state === "logged-in"}
-<div class="grid grid-rows-[1fr_150px] sm:h-screen h-full">
-    <div class="overflow-y-scroll no-scrollbar pb-10" id="scrollable-chat-area-id">
+<div class="relative">
+    <div class="absolute w-full bg-zinc-900">
+        <ChatHeaderBar />
+    </div>
+
+    <div class="h-screen overflow-y-scroll no-scrollbar pb-44" id="scrollable-chat-area-id">
         {#if $applicationStore.selectedConversation !== null}
         <div>
-            {#if $applicationStore.selectedConversation.summary !== null}
-                <ChatContentHolder isMessage={false} id="title-text">
-                    <h1 class="text-center mb-6 text-xl font-thin text-zinc-400 ">{$applicationStore.selectedConversation.summary}</h1>
-                </ChatContentHolder>
-            {:else}
-            <ChatContentHolder isMessage={false} id="title-text-placeholder">
-                <div class="h-12" aria-hidden="true"></div>
-            </ChatContentHolder>
-            {/if}
-        </div>
-
-        <div>
-            <ol class="space-y-4">
+            <ol class="space-y-4 mt-10">
             {#each $applicationStore.selectedConversation.messages as messageContainer}
                 <MessageContainer messageContainer={messageContainer} />
             {/each}
@@ -115,6 +107,12 @@
         {/if}
     </div>
 
-    <InteractionOrchestrator reply={reply} />
+    <div class="absolute bottom-0 left-0 w-full">
+        <div class="relative">
+            <div class="absolute w-full bottom-32 h-0">
+                <InteractionOrchestrator reply={reply} />
+            </div>
+        </div>
+    </div>
 </div>
 {/if}
