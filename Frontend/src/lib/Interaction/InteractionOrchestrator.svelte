@@ -4,6 +4,7 @@
     import ChatContentHolder from "../Chat/ChatContentHolder.svelte";
     import { AvailableModelClient } from "../../clients/availableModelClient";
     import type { AvailableModel } from "../../types/dto/availableModel/availableModel";
+    import { localStore } from "../../store/localStore";
 
     export let reply: (content: string, model: AvailableModel, prevMsgId: string | null) => void;
     let content: string = "";
@@ -34,6 +35,13 @@
         if (!res.ok) return false;
 
         const models = res.data.availableModels;
+        console.log("localStore", $localStore);
+        if ($localStore.preferences !== null) {
+            applicationStore.setAvailableModels(models, $localStore.preferences.lastSelectedModel);
+            return true;
+        }
+        
+
         const provider = Object.keys(models)[0] ?? null;
         if (provider === null) return false;
 
@@ -44,6 +52,15 @@
         if (model === null) return false;
 
         applicationStore.setAvailableModels(models, model);
+        localStore.update((state) => {
+            return {
+                ...state,
+                preferences: {
+                    lastSelectedModel: model,
+                }
+            }
+        });
+
         return true;
     }
 

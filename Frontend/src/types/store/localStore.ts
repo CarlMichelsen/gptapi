@@ -1,8 +1,9 @@
-export type Credentials = {
-    username: string;
-    password: string;
+import type { AvailableModel } from "../dto/availableModel/availableModel";
+
+export type Preferences = {
+    lastSelectedModel: AvailableModel;
 };
 
 export type LocalStore = {
-    credentials: Credentials | undefined;
+    preferences: Preferences | null;
 };
