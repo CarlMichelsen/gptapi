@@ -9,11 +9,11 @@
 
 
 <div class="relative">
-    <div class="fixed w-[250px] top-2">
+    <div class="absolute w-[250px] top-3">
         <NewConversationButton text="New chat" clicked={() => applicationStore.selectConversation(null)} />
     </div>
 
-    <ol class="space-y-4 h-full mt-12">
+    <ol class="space-y-5 h-full pt-12">
         {#each conversationOptionList as conversationOptionDateChunk}
             <li>
                 <ConversationOptionChunkHolder conversationOptionDateChunk={conversationOptionDateChunk} />

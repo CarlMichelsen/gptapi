@@ -6,6 +6,7 @@ import type { OAuthUser } from "../dto/oAuthUser"
 export type LoggedOutApplicationStore = {
     ready: boolean;
     state: "logged-out";
+    mobileSidebarVisible: false;
 }
 
 export type LanguageModel = {
@@ -20,6 +21,7 @@ export type LoggedInApplicationStore = {
     selectedConversation: ConversationDto | null;
     conversationChunks: ConversationOptionDateChunk[] | null;
     languageModel: LanguageModel | null
+    mobileSidebarVisible: boolean;
 }
 
 export type ApplicationStore = LoggedOutApplicationStore | LoggedInApplicationStore;

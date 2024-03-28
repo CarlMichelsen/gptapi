@@ -5,7 +5,6 @@
     import type { AvailableModel } from "../../types/dto/availableModel/availableModel";
     import type { SendMessageRequest } from "../../types/dto/conversation/sendMessageRequest";
     import InteractionOrchestrator from "../Interaction/InteractionOrchestrator.svelte";
-    import MainStructure from "../MainStructure.svelte";
     import AssistantResponseParser from "./AssistantResponseParser.svelte";
     import ChatContentHolder from "./ChatContentHolder.svelte";
     import ChatHeaderBar from "./Header/ChatHeaderBar.svelte";
@@ -80,49 +79,40 @@
 </script>
 
 {#if $applicationStore.state === "logged-in"}
-<div class="fixed w-full invisible sm:visible">
-    <MainStructure>
-        <div slot="sidebar" class="-z-50 pointer-events-none opacity-0 bg-none border-none"></div>
-
-        <div slot="chat" class="h-10 bg-zinc-800">
-            <ChatHeaderBar />
-        </div>
-    </MainStructure>
-</div>
-
-
-<div class="sm:h-screen h-full overflow-y-scroll no-scrollbar pb-44" id="scrollable-chat-area-id">
-    {#if $applicationStore.selectedConversation !== null}
-    <div>
-        <ol class="space-y-4 mt-10">
-        {#each $applicationStore.selectedConversation.messages as messageContainer}
-            <MessageContainer messageContainer={messageContainer} />
-        {/each}
-
-        {#if streamedMessageContent && streamIdentifier}
-            <li>
-                <ChatContentHolder isMessage={true} id="streaming-message">
-                    <MessageHeader index={-1} messageId={streamIdentifier} role={"assistant"}/>
-                    <AssistantResponseParser content={streamedMessageContent} />
-                </ChatContentHolder>
-            </li>
-        {/if}
-        </ol>
+<div class="relative">
+    <div class="absolute w-full bg-zinc-900">
+        <ChatHeaderBar />
     </div>
-    {:else}
-        <NoConversationSelected />
-    {/if}
-</div>
 
-<div class="fixed bottom-0 left-0 w-full">
-    <MainStructure>
-        <div slot="sidebar" class="-z-50 pointer-events-none opacity-0 bg-none border-none"></div>
+    <div class="h-screen overflow-y-scroll no-scrollbar pb-44" id="scrollable-chat-area-id">
+        {#if $applicationStore.selectedConversation !== null}
+        <div>
+            <ol class="space-y-4 mt-10">
+            {#each $applicationStore.selectedConversation.messages as messageContainer}
+                <MessageContainer messageContainer={messageContainer} />
+            {/each}
 
-        <div slot="chat" class="relative">
+            {#if streamedMessageContent && streamIdentifier}
+                <li>
+                    <ChatContentHolder isMessage={true} id="streaming-message">
+                        <MessageHeader index={-1} messageId={streamIdentifier} role={"assistant"}/>
+                        <AssistantResponseParser content={streamedMessageContent} />
+                    </ChatContentHolder>
+                </li>
+            {/if}
+            </ol>
+        </div>
+        {:else}
+            <NoConversationSelected />
+        {/if}
+    </div>
+
+    <div class="absolute bottom-0 left-0 w-full">
+        <div class="relative">
             <div class="absolute w-full bottom-32 h-0">
                 <InteractionOrchestrator reply={reply} />
-            <div>
+            </div>
         </div>
-    </MainStructure>
+    </div>
 </div>
 {/if}

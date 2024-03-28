@@ -16,6 +16,7 @@ import { selectAvailableModel } from './actions/selectAvailableModel';
 const initialState: LoggedOutApplicationStore = {
     ready: false,
     state: "logged-out",
+    mobileSidebarVisible: false,
 };
 
 // Function to create a custom store

@@ -28,7 +28,7 @@ public class AvailableModelHandler : IAvailableModelHandler
                     },
                     new AvailableModel
                     {
-                        DisplayName = "GPT 4 Turbo Better Json Preview",
+                        DisplayName = "GPT 4 Turbo Json Preview",
                         Description = "GPT 4 Turbo model featuring improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Returns a maximum of 4,096 output tokens. This is a preview model",
                         ProviderIdentifier = OpenAiProvider,
                         ModelIdentifier = "gpt-4-1106-preview",
@@ -36,7 +36,7 @@ public class AvailableModelHandler : IAvailableModelHandler
                     },
                     new AvailableModel
                     {
-                        DisplayName = "GPT 4 Vision Preview (Vision not supported here yet)",
+                        DisplayName = "GPT 4 Vision Preview (-)",
                         Description = "GPT 4 with the ability to understand images, in addition to all other GPT-4 Turbo capabilities. Currently points to gpt-4-1106-vision-preview",
                         ProviderIdentifier = OpenAiProvider,
                         ModelIdentifier = "gpt-4-vision-preview",
@@ -52,7 +52,7 @@ public class AvailableModelHandler : IAvailableModelHandler
                     },
                     new AvailableModel
                     {
-                        DisplayName = "GPT 4 32K",
+                        DisplayName = "GPT 4 32K (-)",
                         Description = "Snapshot of gpt-4-32k from June 13th 2023 with improved function calling support. This model was never rolled out widely in favor of GPT-4 Turbo",
                         ProviderIdentifier = OpenAiProvider,
                         ModelIdentifier = "gpt-4-32k",

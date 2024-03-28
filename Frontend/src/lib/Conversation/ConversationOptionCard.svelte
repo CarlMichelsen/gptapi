@@ -11,18 +11,22 @@
 
 <div
     role="button"
-    class={`grid grid-cols-[20px_1fr] gap-1 ${isSelected ? "bg-zinc-700" : ""} hover:bg-zinc-700 select-none p-0.5 mx-1 rounded-sm`}
+    class={`hover:bg-zinc-700 ${isSelected ? "bg-zinc-700" : ""} select-none p-0.5 mx-1 rounded-sm group`}
     tabindex={tabindex}
     on:click={selected(conversationOption.id)}
     on:keypress={(keypress) => {if (keypress.key === " ") selected(conversationOption.id)}}>
 
-    <div>
+    <div class="relative">
+        <h3 class="my-auto h-full text-xs text-ellipsis overflow-hidden py-1 pr-3">{conversationOption.summary}</h3>
         <button
-            class="font-mono text-zinc-400 bg-zinc-700 hover:text-white hover:bg-red-700 active:bg-green-700 w-full h-full rounded-sm"
-            on:click={() => deleteConversation(conversationOption.id)}>X</button>
-    </div>
-
-    <div>
-        <h3 class="my-auto h-full text-xs text-ellipsis overflow-hidden">{conversationOption.summary}</h3>
+            on:click={() => deleteConversation(conversationOption.id)}
+            class="absolute right-0 top-0 h-full invisible group-hover:visible"
+            id={"option-"+conversationOption.id}>
+            <div class="grid grid-rows-3 h-6 w-3 py-1 my-auto rounded-sm hover:bg-zinc-400">
+                <div class="bg-zinc-200 rounded-full w-1 h-1 m-auto"></div>
+                <div class="bg-zinc-200 rounded-full w-1 h-1 m-auto"></div>
+                <div class="bg-zinc-200 rounded-full w-1 h-1 m-auto"></div>
+            </div>
+        </button>
     </div>
 </div>
