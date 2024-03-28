@@ -1,6 +1,6 @@
 <script lang="ts">
-    import type { MessageContainer } from "../../types/dto/conversation/conversation";
-    import type { Message } from "../../types/dto/conversation/message";
+    import type { MessageContainer } from "../../../types/dto/conversation/conversation";
+    import type { Message } from "../../../types/dto/conversation/message";
 
     export let messageContainer: MessageContainer;
 

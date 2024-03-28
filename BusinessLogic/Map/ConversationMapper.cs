@@ -34,7 +34,18 @@ public class ConversationMapper : IConversationMapper
             message.Content ?? throw new MapException("Message content null when mapping message"),
             message.CompletedUtc,
             message.CreatedUtc,
+            message.Usage is null ? null : Map(message.Usage),
             message.Visible);
+    }
+
+    public static UsageDto Map(Usage usage)
+    {
+        return new UsageDto
+        {
+            Provider = Enum.GetName(usage.Provider)?.ToLower() ?? throw new MapException("Unable to map LlmProvider to string"),
+            Model = usage.Model,
+            Tokens = usage.Tokens,
+        };
     }
     
     public Task<Result<ConversationDto>> MapConversation(

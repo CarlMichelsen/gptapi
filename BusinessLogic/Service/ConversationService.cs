@@ -72,6 +72,7 @@ public class ConversationService : IConversationService
                 .Where(c => c.Id == conversationId)
                 .Where(c => !c.UserArchived)
                 .Include(c => c.Messages)
+                    .ThenInclude(m => m.Usage)
                 .FirstOrDefaultAsync();
             
             if (conv is null)
