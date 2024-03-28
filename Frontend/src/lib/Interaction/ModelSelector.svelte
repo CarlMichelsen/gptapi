@@ -25,7 +25,7 @@
     <div>
         <p class="rotate-90 font-mono font-bold text-xl overflow-hidden">⪼</p>
         {#if menuOpen && languageModel !== null}
-            <div class="absolute left-2 md:left-24 top-14 cursor-default">
+            <div class="absolute z-10 left-2 md:left-24 top-14 cursor-default">
                 <ModelMenu languageModel={languageModel} selectModel={selectModel} />
             </div>
         {/if}

@@ -1,9 +1,9 @@
 <script lang="ts">
-    import type { MessageContainer } from "../../types/dto/conversation/conversation";
-    import type { Message } from "../../types/dto/conversation/message";
-    import ChatContentHolder from "./ChatContentHolder.svelte";
-    import AssistantResponseParser from "./AssistantResponseParser.svelte";
+    import type { MessageContainer } from "../../../types/dto/conversation/conversation";
+    import type { Message } from "../../../types/dto/conversation/message";
+    import ChatContentHolder from "../ChatContentHolder.svelte";
     import MessageHeader from "./MessageHeader.svelte";
+    import MessageTextContent from "./MessageTextContent.svelte";
 
     export let messageContainer: MessageContainer;
     let msg: Message = messageContainer.messageOptions[messageContainer.selectedMessage] as Message;
@@ -14,12 +14,11 @@
 <li>
     <ChatContentHolder isMessage={true} id={msg.id}>
         <MessageHeader index={messageContainer.index} messageId={msg.id} role={msg.role}/>
+        <div class="ml-8">
+            <MessageTextContent message={msg}/>
 
-        <div>
-            {#if msg.role === "assistant"}
-                <AssistantResponseParser content={msg.content} />
-            {:else}
-                <pre class="font-sans w-full overflow-auto whitespace-break-spaces">{msg.content}</pre>
+            {#if msg.usage != null}
+                <p class="text-xs text-zinc-600">({msg.usage.tokens}t - {msg.usage.provider}: {msg.usage.model})</p>
             {/if}
         </div>
     </ChatContentHolder>

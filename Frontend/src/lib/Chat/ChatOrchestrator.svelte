@@ -8,8 +8,8 @@
     import AssistantResponseParser from "./AssistantResponseParser.svelte";
     import ChatContentHolder from "./ChatContentHolder.svelte";
     import ChatHeaderBar from "./Header/ChatHeaderBar.svelte";
-    import MessageContainer from "./MessageContainer.svelte";
-    import MessageHeader from "./MessageHeader.svelte";
+    import MessageContainer from "./Message/MessageContainer.svelte";
+    import MessageHeader from "./Message/MessageHeader.svelte";
     import NoConversationSelected from "./NoConversationSelected.svelte";
 
     let streamIdentifier: string | null = null;
@@ -87,7 +87,7 @@
     <div class="h-screen overflow-y-scroll no-scrollbar pb-44" id="scrollable-chat-area-id">
         {#if $applicationStore.selectedConversation !== null}
         <div>
-            <ol class="space-y-4 mt-10">
+            <ol class="space-y-8 mt-14">
             {#each $applicationStore.selectedConversation.messages as messageContainer}
                 <MessageContainer messageContainer={messageContainer} />
             {/each}

@@ -51,7 +51,10 @@ const createStore = () => {
         const actions = {} as CreateActions<T>;
         for (const key in methods) {
             actions[key] = ((...args: OmitApplicationStoreInitialParameter<typeof methods[typeof key]>) => {
-                console.log(`ACTION -> ${key}`, "\n\t", ...args);
+                if (process.env.NODE_ENV === 'development') {
+                    console.log(`ACTION -> ${key}`, "\n\t", ...args);
+                }
+                
                 const method = methods[key] as StoreFunction<any[]>;
                 update(state => method(state, ...args));
             }) as CreateActions<T>[Extract<keyof T, string>];

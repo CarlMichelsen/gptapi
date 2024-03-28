@@ -38,8 +38,8 @@ public class EnsureConversationSummaryStep : IPipelineStep<SendMessagePipelineCo
             return context;
         }
 
-        var prompt = this.GeneratePrompt(context.Conversation!, context.LlmModel, context.MaxTokens);
-        var res = await this.largeLanguageModelClient.Prompt(prompt, context.LlmProvider, cancellationToken);
+        var prompt = this.GeneratePrompt(context.Conversation!, "gpt-4", 8192);
+        var res = await this.largeLanguageModelClient.Prompt(prompt, LlmProvider.OpenAi, cancellationToken);
         if (cancellationToken.IsCancellationRequested)
         {
             return new Error("EnsureConversationSummaryStep.Cancelled");
@@ -74,13 +74,13 @@ public class EnsureConversationSummaryStep : IPipelineStep<SendMessagePipelineCo
 
     private LlmRequest GeneratePrompt(Conversation conversation, string model, int maxTokens)
     {
-        var systemMsg = "You need to keep track of what is being said in this conversation. At the end you will be asked to do a summary. Do your absolute best.";
+        var systemMsg = "You need to keep track of what is being said in this conversation. At the end you will be asked to do a summary. Do your absolute best to stay within the parameters given to you.";
         var initialPrompt = LargeLanguageModelMapper.Map(conversation, model, systemMsg, maxTokens);
 
         initialPrompt.Messages.Add(new LlmMessage
         {
             Role = LargeLanguageModelMapper.Map(Role.User),
-            Content = "Respond with a 4 to 6 word summary of the full conversation preceding this message. Write the summary in first person as if you're the assistant. Ignore system messages.",
+            Content = "Respond with a 6 to 8 word summary of the full conversation preceding this message. Write the summary in first person as if you're the assistant. Ignore system messages.",
         });
 
         return initialPrompt;
