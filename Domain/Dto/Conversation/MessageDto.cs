@@ -7,5 +7,5 @@ public record MessageDto(
     string Content,
     DateTime? CompletedUtc,
     DateTime CreatedUtc,
-    UsageDto? UsageDto,
+    UsageDto? Usage,
     bool Visible);

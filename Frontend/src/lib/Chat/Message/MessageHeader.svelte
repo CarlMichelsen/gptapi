@@ -15,7 +15,7 @@
         <div class="absolute top-0 w-[30px] h-[30px]">
             {#if index === -1}
                 <button
-                    class="absolute top-0 w-full h-full bg-red-700 text-white hover:text-black hover:bg-red-900 rounded-lg"
+                    class="absolute top-0 w-full h-full bg-red-700 text-white hover:text-black hover:bg-red-900 font-bold rounded-lg"
                     on:click={() => ConnectionMethods.cancelMessage(messageId)}>X</button>
             {:else}
                 {#if role === "user"}
@@ -36,11 +36,3 @@
     </div>
 </div>
 {/if}
-
-<!--
-    {#if index === -1}
-            <button on:click={() => ConnectionMethods.cancelMessage(messageId)}>X</button>
-        {:else}
-            <p class="text-xs text-gray-400 my-auto">{index}</p>
-        {/if}
--->

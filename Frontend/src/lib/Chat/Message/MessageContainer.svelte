@@ -16,6 +16,10 @@
         <MessageHeader index={messageContainer.index} messageId={msg.id} role={msg.role}/>
         <div class="ml-8">
             <MessageTextContent message={msg}/>
+
+            {#if msg.usage != null}
+                <p class="text-xs text-zinc-600">({msg.usage.tokens}t - {msg.usage.provider}: {msg.usage.model})</p>
+            {/if}
         </div>
     </ChatContentHolder>
 </li>
